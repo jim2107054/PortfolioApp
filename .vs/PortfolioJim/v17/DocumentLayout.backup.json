@@ -1,0 +1,307 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\main.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\main.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\admin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\js\\admin.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\js\\api.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\admin.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\admin.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\forms.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\forms.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\sections.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\sections.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\components.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\components.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\responsive.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\responsive.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\navigation.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\css\\navigation.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\jim.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\wwwroot\\js\\jim.js||{14D17961-FE51-464D-9111-C4AF11D7D99A}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\PortfolioJim.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\PortfolioJim.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Properties\\launchSettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:PortfolioJim\\Properties\\launchSettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": ".gitignore",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\.gitignore",
+              "RelativeDocumentMoniker": ".gitignore",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\.gitignore",
+              "RelativeToolTip": ".gitignore",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-09-01T07:50:23.613Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "main.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\main.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\main.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\main.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\main.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:44:01.079Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "admin.js",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\admin.js",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\js\\admin.js",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\admin.js",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\js\\admin.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-09-01T07:42:20.974Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "api.js",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\api.js",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\js\\api.js",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\api.js",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\js\\api.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-09-01T07:42:06.916Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "admin.html",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\admin.html",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\admin.html",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\admin.html",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\admin.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-09-01T07:40:48.251Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "forms.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\forms.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\forms.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\forms.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\forms.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:39:25.148Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "sections.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\sections.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\sections.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\sections.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\sections.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:39:01.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "components.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\components.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\components.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\components.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\components.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:37:58.712Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "responsive.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\responsive.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\responsive.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\responsive.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\responsive.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:37:42.371Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "navigation.css",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\navigation.css",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\css\\navigation.css",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\css\\navigation.css",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\css\\navigation.css",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2025-09-01T07:37:27.153Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "jim.js",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\jim.js",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\js\\jim.js",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\js\\jim.js",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\js\\jim.js",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAFEBAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001646|",
+              "WhenOpened": "2025-09-01T07:34:43.237Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "PortfolioJim.csproj",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj",
+              "RelativeDocumentMoniker": "PortfolioJim\\PortfolioJim.csproj",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj",
+              "RelativeToolTip": "PortfolioJim\\PortfolioJim.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-09-01T07:12:58.167Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "PortfolioJim\\wwwroot\\index.html",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\wwwroot\\index.html",
+              "RelativeToolTip": "PortfolioJim\\wwwroot\\index.html",
+              "ViewState": "AgIAAIECAAAAAAAAAAAcwKoCAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-09-01T06:59:38.818Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "appsettings.json",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\appsettings.json",
+              "RelativeDocumentMoniker": "PortfolioJim\\appsettings.json",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\appsettings.json",
+              "RelativeToolTip": "PortfolioJim\\appsettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-01T06:57:18.865Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Program.cs",
+              "RelativeDocumentMoniker": "PortfolioJim\\Program.cs",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Program.cs",
+              "RelativeToolTip": "PortfolioJim\\Program.cs",
+              "ViewState": "AgIAAIEAAAAAAAAAAAAAAGUAAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-01T06:56:04.948Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "PortfolioJim.csproj",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj",
+              "RelativeDocumentMoniker": "PortfolioJim\\PortfolioJim.csproj",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\PortfolioJim.csproj",
+              "RelativeToolTip": "PortfolioJim\\PortfolioJim.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-09-01T06:54:55.495Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "launchSettings.json",
+              "DocumentMoniker": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Properties\\launchSettings.json",
+              "RelativeDocumentMoniker": "PortfolioJim\\Properties\\launchSettings.json",
+              "ToolTip": "C:\\Users\\HP\\source\\repos\\PortfolioJim\\PortfolioJim\\Properties\\launchSettings.json",
+              "RelativeToolTip": "PortfolioJim\\Properties\\launchSettings.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-09-01T06:54:27.87Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

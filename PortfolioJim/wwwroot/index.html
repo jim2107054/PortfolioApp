@@ -1,0 +1,683 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>John Doe - Portfolio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+            .nav-links a {
+                text-decoration: none;
+                color: #333;
+                font-weight: 500;
+                transition: color 0.3s;
+                cursor: pointer;
+            }
+
+                .nav-links a:hover, .nav-links a.active {
+                    color: #667eea;
+                }
+
+        /* Main Content */
+        main {
+            margin-top: 80px;
+            padding: 2rem 0;
+        }
+
+        .section {
+            display: none;
+            min-height: calc(100vh - 160px);
+            padding: 2rem 0;
+        }
+
+            .section.active {
+                display: block;
+            }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Home Section */
+        #home {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+            .cta-button:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: translateY(-2px);
+            }
+
+        /* About Section */
+        .about-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+        }
+
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .skill-tag {
+            background: #667eea;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* Projects Section */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+            .project-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .project-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .project-description {
+            color: #666;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .project-tech {
+            margin-bottom: 1rem;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-tag {
+            background: #f0f4f8;
+            color: #667eea;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: opacity 0.3s;
+        }
+
+            .project-link:hover {
+                opacity: 0.7;
+            }
+
+        /* Education Section */
+        .education-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .education-item {
+            border-left: 4px solid #667eea;
+            padding-left: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .education-degree {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .education-school {
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .education-year {
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Achievements Section */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .achievement-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+            .achievement-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .achievement-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-org {
+            color: #667eea;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .achievement-date {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .achievement-description {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* Contact Section */
+        .contact-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+            .form-group label {
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: #333;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                padding: 1rem;
+                border: 2px solid #e1e8ed;
+                border-radius: 10px;
+                font-family: inherit;
+                font-size: 1rem;
+                transition: border-color 0.3s;
+            }
+
+                .form-group input:focus,
+                .form-group textarea:focus {
+                    outline: none;
+                    border-color: #667eea;
+                }
+
+        .submit-btn {
+            background: #667eea;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+            .submit-btn:hover {
+                background: #5a6fd8;
+            }
+
+            .submit-btn:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+
+        /* Loading and Success States */
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin: 1rem 0;
+        }
+
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-toggle {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+
+        .admin-form {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+            .admin-form.active {
+                display: grid;
+            }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+            .form-section h3 {
+                margin-bottom: 1rem;
+                color: #333;
+            }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .achievements-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav class="container">
+            <div class="logo">John Doe</div>
+            <ul class="nav-links">
+                <li><a href="#" data-section="home" class="nav-link active">Home</a></li>
+                <li><a href="#" data-section="about" class="nav-link">About</a></li>
+                <li><a href="#" data-section="projects" class="nav-link">Projects</a></li>
+                <li><a href="#" data-section="education" class="nav-link">Education</a></li>
+                <li><a href="#" data-section="achievements" class="nav-link">Achievements</a></li>
+                <li><a href="#" data-section="contact" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero-content">
+                <h1>John Doe</h1>
+                <p>Full Stack Developer & Software Engineer</p>
+                <a href="#" class="cta-button" data-section="projects">View My Work</a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="section">
+            <h2 class="section-title">About Me</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>Hello! I'm John Doe, a passionate full-stack developer with over 3 years of experience creating digital solutions that make a difference. I specialize in modern web technologies and love turning complex problems into simple, beautiful designs.</p>
+
+                    <p>My journey in software development started during my computer science studies, where I discovered my passion for creating user-centric applications. Since then, I've worked on various projects ranging from e-commerce platforms to enterprise solutions.</p>
+
+                    <p>When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing knowledge with the developer community.</p>
+                </div>
+
+                <div class="skills">
+                    <div class="skill-tag">JavaScript</div>
+                    <div class="skill-tag">React</div>
+                    <div class="skill-tag">Node.js</div>
+                    <div class="skill-tag">ASP.NET Core</div>
+                    <div class="skill-tag">C#</div>
+                    <div class="skill-tag">SQL Server</div>
+                    <div class="skill-tag">MongoDB</div>
+                    <div class="skill-tag">Azure</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="section">
+            <h2 class="section-title">My Projects</h2>
+            <div class="projects-grid" id="projects-container">
+                <!-- Projects will be loaded dynamically -->
+            </div>
+
+            <!-- Admin Panel for Projects -->
+            <div class="admin-panel">
+                <button class="admin-toggle" onclick="toggleAdminForm('project')">Add New Project</button>
+                <div class="admin-form" id="project-admin-form">
+                    <div class="form-section">
+                        <h3>Add Project</h3>
+                        <form id="project-form">
+                            <div class="form-group">
+                                <label for="project-title">Title</label>
+                                <input type="text" id="project-title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="project-description">Description</label>
+                                <textarea id="project-description" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="project-technologies">Technologies (comma-separated)</label>
+                                <input type="text" id="project-technologies" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="project-image">Image URL</label>
+                                <input type="url" id="project-image">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-demo">Demo URL</label>
+                                <input type="url" id="project-demo">
+                            </div>
+                            <div class="form-group">
+                                <label for="project-github">GitHub URL</label>
+                                <input type="url" id="project-github">
+                            </div>
+                            <button type="submit" class="submit-btn">Add Project</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="education" class="section">
+            <h2 class="section-title">Education</h2>
+            <div class="education-content">
+                <div class="education-item">
+                    <div class="education-degree">Bachelor of Science in Computer Science</div>
+                    <div class="education-school">University of Technology</div>
+                    <div class="education-year">2019 - 2023</div>
+                </div>
+                <div class="education-item">
+                    <div class="education-degree">Full Stack Web Development Bootcamp</div>
+                    <div class="education-school">CodeAcademy Pro</div>
+                    <div class="education-year">2022</div>
+                </div>
+                <div class="education-item">
+                    <div class="education-degree">High School Diploma</div>
+                    <div class="education-school">Central High School</div>
+                    <div class="education-year">2015 - 2019</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements Section -->
+        <section id="achievements" class="section">
+            <h2 class="section-title">Achievements</h2>
+            <div class="achievements-grid" id="achievements-container">
+                <!-- Achievements will be loaded dynamically -->
+            </div>
+
+            <!-- Admin Panel for Achievements -->
+            <div class="admin-panel">
+                <button class="admin-toggle" onclick="toggleAdminForm('achievement')">Add New Achievement</button>
+                <div class="admin-form" id="achievement-admin-form">
+                    <div class="form-section">
+                        <h3>Add Achievement</h3>
+                        <form id="achievement-form">
+                            <div class="form-group">
+                                <label for="achievement-title">Title</label>
+                                <input type="text" id="achievement-title" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="achievement-description">Description</label>
+                                <textarea id="achievement-description" rows="3" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="achievement-organization">Organization</label>
+                                <input type="text" id="achievement-organization" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="achievement-date">Date</label>
+                                <input type="date" id="achievement-date" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="achievement-certificate">Certificate URL</label>
+                                <input type="url" id="achievement-certificate">
+                            </div>
+                            <button type="submit" class="submit-btn">Add Achievement</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="section">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-content">
+                <form class="contact-form" id="contact-form">
+                    <div class="form-group">
+                        <label for="contact-name">Name</label>
+                        <input type="text" id="contact-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email</label>
+                        <input type="email" id="contact-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-subject">Subject</label>
+                        <input type="text" id="contact-subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-message">Message</label>
+                        <textarea id="contact-message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">Send Message</button>
+                </form>
+
+                <div class="loading" id="contact-loading">
+                    <i class="fas fa-spinner fa-spin"></i> Sending message...
+                </div>
+                <div class="success-message" id="contact-success">
+                    Message sent successfully! I'll get back to you soon.
+                </div>
+                <div class="error-message" id="contact-error">
+                    There was an error sending your message. Please try again.
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="jim.js"></script>
+</body>
+</html>
