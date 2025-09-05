@@ -1,0 +1,28 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# Build results
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# Visual Studio Code
+.vscode/
+
+# Other
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.cache
+*.pdb
+
+# Copilot generated stuff
+.vs/PortfolioJim/copilot-chat/
+.vs/CopilotSnapshots/
+
+# Publish files
+*.PublishSettings
