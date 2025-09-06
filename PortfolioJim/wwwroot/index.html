@@ -2,23 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="MD. Jahid Hasan Jim - Full Stack Developer & Software Engineer Portfolio">
+    <meta name="keywords" content="full stack developer, software engineer, web development, portfolio">
+    <meta name="theme-color" content="#2563eb">
     <title>MD. Jahid Hasan Jim - Portfolio</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://via.placeholder.com">
 </head>
 <body>
     <!-- Header -->
     <header>
         <nav class="container">
             <div class="logo">JIM54</div>
-            <div class="mobile-menu-toggle" id="mobileMenuToggle">
+            <div class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-            <ul class="nav-links" id="navLinks">
-                <li><a href="#home" class="nav-link active">Home</a></li>
+            <ul class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
+                <li><a href="#home" class="nav-link active" aria-current="page">Home</a></li>
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#projects" class="nav-link">Projects</a></li>
                 <li><a href="#education" class="nav-link">Education</a></li>
@@ -29,13 +36,13 @@
     </header>
 
     <!-- Main Content -->
-    <main>
+    <main id="main">
         <!-- Home Section -->
-        <section id="home" class="section">
+        <section id="home" class="section" aria-label="Introduction">
             <div class="container">
                 <div class="hero-content">
                     <div class="profile-image">
-                        <img src="images/portfolio.jpg" alt="MD. Jahid Hasan Jim" class="profile-photo">
+                        <img src="images/portfolio.jpg" alt="MD. Jahid Hasan Jim - Professional photo" class="profile-photo">
                     </div>
                     <div class="hero-text">
                         <h1>MD. Jahid Hasan Jim</h1>
@@ -44,27 +51,26 @@
                     <div class="work-description">
                         <p>Passionate about creating innovative web solutions and scalable applications. I transform ideas into digital reality with clean code and modern technologies.</p>
                     </div>
-                    <div class="social-links">
-                        <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" target="_blank" class="social-link" title="LinkedIn">
-                            <i class="fab fa-linkedin"></i>
+                    <div class="social-links" role="list" aria-label="Social media links">
+                        <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn" aria-label="Visit my LinkedIn profile">
+                            <i class="fab fa-linkedin" aria-hidden="true"></i>
                         </a>
-                        <a href="https://github.com/jim2107054" target="_blank" class="social-link" title="GitHub">
-                            <i class="fab fa-github"></i>
+                        <a href="https://github.com/jim2107054" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub" aria-label="Visit my GitHub profile">
+                            <i class="fab fa-github" aria-hidden="true"></i>
                         </a>
-                        <a href="https://facebook.com/jahid.hasan.jim" target="_blank" class="social-link" title="Facebook">
-                            <i class="fab fa-facebook"></i>
+                        <a href="https://facebook.com/jahid.hasan.jim" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook" aria-label="Visit my Facebook profile">
+                            <i class="fab fa-facebook" aria-hidden="true"></i>
                         </a>
-                        <a href="https://wa.me/+8801581705456" target="_blank" class="social-link" title="WhatsApp">
-                            <i class="fab fa-whatsapp"></i>
+                        <a href="https://wa.me/+8801581705456" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp" aria-label="Contact me on WhatsApp">
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
                         </a>
                     </div>
-                    <a href="#projects" class="cta-button">View My Work</a>
                 </div>
             </div>
         </section>
 
         <!-- About Section -->
-        <section id="about" class="section">
+        <section id="about" class="section" aria-label="About me">
             <div class="container">
                 <h2 class="section-title">About Me</h2>
                 <div class="about-content">
@@ -76,69 +82,32 @@
                         <p>When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing knowledge with the developer community.</p>
                     </div>
 
-                    <div class="skills">
-                        <div class="skill-tag">JavaScript</div>
-                        <div class="skill-tag">React</div>
-                        <div class="skill-tag">Node.js</div>
-                        <div class="skill-tag">ASP.NET Core</div>
-                        <div class="skill-tag">C#</div>
-                        <div class="skill-tag">SQL Server</div>
-                        <div class="skill-tag">MongoDB</div>
-                        <div class="skill-tag">Azure</div>
+                    <div class="skills" role="list" aria-label="Technical skills">
+                        <div class="skill-tag" role="listitem">JavaScript</div>
+                        <div class="skill-tag" role="listitem">React</div>
+                        <div class="skill-tag" role="listitem">Node.js</div>
+                        <div class="skill-tag" role="listitem">ASP.NET Core</div>
+                        <div class="skill-tag" role="listitem">C#</div>
+                        <div class="skill-tag" role="listitem">SQL Server</div>
+                        <div class="skill-tag" role="listitem">MongoDB</div>
+                        <div class="skill-tag" role="listitem">Azure</div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- Projects Section -->
-        <section id="projects" class="section">
+        <section id="projects" class="section" aria-label="My projects">
             <div class="container">
                 <h2 class="section-title">My Projects</h2>
-                <div class="projects-grid" id="projects-container">
+                <div class="projects-grid" id="projects-container" role="list" aria-label="Project portfolio">
                     <!-- Projects will be loaded dynamically -->
-                </div>
-
-                <!-- Admin Panel for Projects -->
-                <div class="admin-panel">
-                    <button class="admin-toggle" onclick="toggleAdminForm('project')">Add New Project</button>
-                    <div class="admin-form" id="project-admin-form">
-                        <div class="form-section">
-                            <h3>Add Project</h3>
-                            <form id="project-form">
-                                <div class="form-group">
-                                    <label for="project-title">Title</label>
-                                    <input type="text" id="project-title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="project-description">Description</label>
-                                    <textarea id="project-description" rows="3" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="project-technologies">Technologies (comma-separated)</label>
-                                    <input type="text" id="project-technologies" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="project-image">Image URL</label>
-                                    <input type="url" id="project-image">
-                                </div>
-                                <div class="form-group">
-                                    <label for="project-demo">Demo URL</label>
-                                    <input type="url" id="project-demo">
-                                </div>
-                                <div class="form-group">
-                                    <label for="project-github">GitHub URL</label>
-                                    <input type="url" id="project-github">
-                                </div>
-                                <button type="submit" class="submit-btn">Add Project</button>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Education Section -->
-        <section id="education" class="section">
+        <section id="education" class="section" aria-label="Education background">
             <div class="container">
                 <h2 class="section-title">Education</h2>
                 <div class="education-content">
@@ -162,61 +131,28 @@
         </section>
 
         <!-- Achievements Section -->
-        <section id="achievements" class="section">
+        <section id="achievements" class="section" aria-label="Achievements and certifications">
             <div class="container">
                 <h2 class="section-title">Achievements</h2>
-                <div class="achievements-grid" id="achievements-container">
+                <div class="achievements-grid" id="achievements-container" role="list" aria-label="Achievement portfolio">
                     <!-- Achievements will be loaded dynamically -->
-                </div>
-
-                <!-- Admin Panel for Achievements -->
-                <div class="admin-panel">
-                    <button class="admin-toggle" onclick="toggleAdminForm('achievement')">Add New Achievement</button>
-                    <div class="admin-form" id="achievement-admin-form">
-                        <div class="form-section">
-                            <h3>Add Achievement</h3>
-                            <form id="achievement-form">
-                                <div class="form-group">
-                                    <label for="achievement-title">Title</label>
-                                    <input type="text" id="achievement-title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="achievement-description">Description</label>
-                                    <textarea id="achievement-description" rows="3" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="achievement-organization">Organization</label>
-                                    <input type="text" id="achievement-organization" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="achievement-date">Date</label>
-                                    <input type="date" id="achievement-date" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="achievement-certificate">Certificate URL</label>
-                                    <input type="url" id="achievement-certificate">
-                                </div>
-                                <button type="submit" class="submit-btn">Add Achievement</button>
-                            </form>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="section">
+        <section id="contact" class="section" aria-label="Contact information">
             <div class="container">
                 <h2 class="section-title">Get In Touch</h2>
                 <div class="contact-content">
-                    <form class="contact-form" id="contact-form">
+                    <form class="contact-form" id="contact-form" novalidate>
                         <div class="form-group">
                             <label for="contact-name">Name</label>
-                            <input type="text" id="contact-name" required>
+                            <input type="text" id="contact-name" required autocomplete="name">
                         </div>
                         <div class="form-group">
                             <label for="contact-email">Email</label>
-                            <input type="email" id="contact-email" required>
+                            <input type="email" id="contact-email" required autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="contact-subject">Subject</label>
@@ -229,13 +165,13 @@
                         <button type="submit" class="submit-btn">Send Message</button>
                     </form>
 
-                    <div class="loading" id="contact-loading">
-                        <i class="fas fa-spinner fa-spin"></i> Sending message...
+                    <div class="loading" id="contact-loading" aria-live="polite">
+                        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Sending message...
                     </div>
-                    <div class="success-message" id="contact-success">
+                    <div class="success-message" id="contact-success" role="alert" aria-live="polite">
                         Message sent successfully! I'll get back to you soon.
                     </div>
-                    <div class="error-message" id="contact-error">
+                    <div class="error-message" id="contact-error" role="alert" aria-live="polite">
                         There was an error sending your message. Please try again.
                     </div>
                 </div>
@@ -244,8 +180,8 @@
     </main>
 
     <!-- Scroll to Top Button -->
-    <button class="scroll-to-top" id="scrollToTop">
-        <i class="fas fa-chevron-up"></i>
+    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top of page">
+        <i class="fas fa-chevron-up" aria-hidden="true"></i>
     </button>
 
     <script src="js/jim.js"></script>

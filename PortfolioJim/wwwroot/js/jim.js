@@ -7,78 +7,214 @@ document.addEventListener('DOMContentLoaded', function () {
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const navLinksContainer = document.getElementById('navLinks');
 
-    // Mobile menu functionality
+    // Mobile and touch optimization
+    function initializeTouchOptimizations() {
+        // Prevent double-tap zoom on buttons
+        const buttons = document.querySelectorAll('.cta-button, .submit-btn, .admin-toggle, .social-link');
+        buttons.forEach(button => {
+            button.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                this.click();
+            });
+        });
+
+        // Improve touch scrolling on mobile
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            document.body.style.webkitOverflowScrolling = 'touch';
+        }
+
+        // Handle viewport changes (mobile keyboard, orientation)
+        let initialViewportHeight = window.innerHeight;
+        
+        function handleViewportChange() {
+            const currentHeight = window.innerHeight;
+            const heightDifference = initialViewportHeight - currentHeight;
+            
+            // If height decreased significantly, likely a keyboard is open
+            if (heightDifference > 150) {
+                document.body.classList.add('keyboard-open');
+            } else {
+                document.body.classList.remove('keyboard-open');
+            }
+        }
+
+        window.addEventListener('resize', handleViewportChange);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                initialViewportHeight = window.innerHeight;
+                handleViewportChange();
+            }, 500);
+        });
+    }
+
+    // Enhanced mobile menu functionality
     function initializeMobileMenu() {
-        mobileMenuToggle.addEventListener('click', () => {
-            mobileMenuToggle.classList.toggle('active');
-            navLinksContainer.classList.toggle('active');
+        let isMenuOpen = false;
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            mobileMenuToggle.classList.toggle('active', isMenuOpen);
+            navLinksContainer.classList.toggle('active', isMenuOpen);
             
             // Prevent body scroll when menu is open
-            if (navLinksContainer.classList.contains('active')) {
+            if (isMenuOpen) {
                 document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.width = '100%';
+                // Store scroll position
+                document.body.dataset.scrollY = window.scrollY;
+                document.body.style.top = `-${window.scrollY}px`;
             } else {
-                document.body.style.overflow = 'auto';
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                // Restore scroll position
+                const scrollY = document.body.dataset.scrollY;
+                document.body.style.top = '';
+                window.scrollTo(0, parseInt(scrollY || '0', 10));
             }
+        }
+
+        function closeMenu() {
+            if (isMenuOpen) {
+                toggleMenu();
+            }
+        }
+
+        // Click handlers
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu();
         });
 
         // Close mobile menu when clicking on a link
         navLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenuToggle.classList.remove('active');
-                navLinksContainer.classList.remove('active');
-                document.body.style.overflow = 'auto';
-            });
+            link.addEventListener('click', closeMenu);
         });
 
         // Close mobile menu when clicking outside
         document.addEventListener('click', (e) => {
-            if (!mobileMenuToggle.contains(e.target) && !navLinksContainer.contains(e.target)) {
-                mobileMenuToggle.classList.remove('active');
-                navLinksContainer.classList.remove('active');
-                document.body.style.overflow = 'auto';
+            if (isMenuOpen && !navLinksContainer.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        // Touch handlers for mobile
+        let touchStartY = 0;
+        let touchStartX = 0;
+
+        navLinksContainer.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+        });
+
+        navLinksContainer.addEventListener('touchmove', (e) => {
+            if (!isMenuOpen) return;
+            
+            const touchY = e.touches[0].clientY;
+            const touchX = e.touches[0].clientX;
+            const deltaY = touchY - touchStartY;
+            const deltaX = touchX - touchStartX;
+
+            // Prevent scrolling when menu is open
+            e.preventDefault();
+
+            // Close menu on swipe right
+            if (deltaX > 100 && Math.abs(deltaY) < 50) {
+                closeMenu();
             }
         });
 
         // Close mobile menu on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                mobileMenuToggle.classList.remove('active');
-                navLinksContainer.classList.remove('active');
-                document.body.style.overflow = 'auto';
+                closeMenu();
             }
         });
 
         // Handle window resize
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
-                mobileMenuToggle.classList.remove('active');
-                navLinksContainer.classList.remove('active');
-                document.body.style.overflow = 'auto';
+                closeMenu();
             }
+        });
+
+        // Handle orientation change
+        window.addEventListener('orientationchange', () => {
+            setTimeout(closeMenu, 100);
         });
     }
 
-    // Smooth scrolling for navigation links
-    navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = link.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            
-            if (targetSection) {
-                // Calculate offset for fixed header
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const targetPosition = targetSection.offsetTop - headerHeight + 10;
+    // Enhanced smooth scrolling for navigation links
+    function initializeSmoothScrolling() {
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
                 
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
+                if (targetSection) {
+                    scrollToSection(targetSection);
+                }
+            });
         });
-    });
 
-    // Update active navigation link on scroll
+        // Handle CTA button click
+        const ctaButton = document.querySelector('.cta-button');
+        if (ctaButton) {
+            ctaButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = ctaButton.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                
+                if (targetSection) {
+                    scrollToSection(targetSection);
+                }
+            });
+        }
+    }
+
+    function scrollToSection(targetSection) {
+        const headerHeight = document.querySelector('header').offsetHeight;
+        const targetPosition = targetSection.offsetTop - headerHeight + 10;
+        
+        // Use different scroll methods based on browser support
+        if ('scrollBehavior' in document.documentElement.style) {
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+        } else {
+            // Fallback for older browsers
+            smoothScrollTo(targetPosition, 800);
+        }
+    }
+
+    // Smooth scroll fallback for older browsers
+    function smoothScrollTo(target, duration) {
+        const start = window.pageYOffset;
+        const distance = target - start;
+        let startTime = null;
+
+        function animation(currentTime) {
+            if (startTime === null) startTime = currentTime;
+            const timeElapsed = currentTime - startTime;
+            const run = ease(timeElapsed, start, distance, duration);
+            window.scrollTo(0, run);
+            if (timeElapsed < duration) requestAnimationFrame(animation);
+        }
+
+        function ease(t, b, c, d) {
+            t /= d / 2;
+            if (t < 1) return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        }
+
+        requestAnimationFrame(animation);
+    }
+
+    // Update active navigation link on scroll with throttling
     function updateActiveNavLink() {
         const sections = document.querySelectorAll('.section');
         const scrollPos = window.scrollY + 120; // Account for header height
@@ -108,48 +244,39 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Scroll to top functionality
+    // Enhanced scroll to top functionality
     scrollToTopBtn.addEventListener('click', () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
+        if ('scrollBehavior' in document.documentElement.style) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        } else {
+            smoothScrollTo(0, 800);
+        }
     });
 
-    // Throttle scroll events for better performance
+    // Throttled scroll handling for better performance
     let scrollTimeout;
-    window.addEventListener('scroll', () => {
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
+    let rafId;
+
+    function handleScroll() {
+        if (rafId) {
+            cancelAnimationFrame(rafId);
         }
-        scrollTimeout = setTimeout(() => {
+        
+        rafId = requestAnimationFrame(() => {
             updateActiveNavLink();
             toggleScrollToTopButton();
-        }, 10);
-    });
-
-    // Handle CTA button click
-    const ctaButton = document.querySelector('.cta-button');
-    if (ctaButton) {
-        ctaButton.addEventListener('click', (e) => {
-            e.preventDefault();
-            const targetId = ctaButton.getAttribute('href').substring(1);
-            const targetSection = document.getElementById(targetId);
-            
-            if (targetSection) {
-                const headerHeight = document.querySelector('header').offsetHeight;
-                const targetPosition = targetSection.offsetTop - headerHeight + 10;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
         });
     }
 
-    // Initialize mobile menu
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    // Initialize all functionality
+    initializeTouchOptimizations();
     initializeMobileMenu();
+    initializeSmoothScrolling();
 
     // Load dynamic content
     loadProjects();
@@ -157,13 +284,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Add intersection observer for scroll animations
     initializeScrollAnimations();
+
+    // Initialize form enhancements
+    initializeFormEnhancements();
 });
 
-// Scroll animations
+// Enhanced form handling for mobile
+function initializeFormEnhancements() {
+    const inputs = document.querySelectorAll('input, textarea');
+    
+    inputs.forEach(input => {
+        // Prevent zoom on iOS when focusing inputs
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            input.addEventListener('focus', () => {
+                input.style.fontSize = '16px';
+            });
+        }
+
+        // Auto-resize textareas
+        if (input.tagName === 'TEXTAREA') {
+            input.addEventListener('input', () => {
+                input.style.height = 'auto';
+                input.style.height = input.scrollHeight + 'px';
+            });
+        }
+
+        // Enhanced validation feedback
+        input.addEventListener('blur', () => {
+            if (input.validity.valid) {
+                input.style.borderColor = '#10b981';
+            } else if (input.value) {
+                input.style.borderColor = '#ef4444';
+            }
+        });
+
+        input.addEventListener('input', () => {
+            if (input.style.borderColor === '#ef4444' && input.validity.valid) {
+                input.style.borderColor = '#10b981';
+            }
+        });
+    });
+}
+
+// Enhanced scroll animations with better performance
 function initializeScrollAnimations() {
+    // Check if user prefers reduced motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+    }
+
     const observerOptions = {
         threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
+        rootMargin: '0px 0px -50px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -171,33 +343,42 @@ function initializeScrollAnimations() {
             if (entry.isIntersecting) {
                 entry.target.style.opacity = '1';
                 entry.target.style.transform = 'translateY(0)';
+                // Remove observer after animation to improve performance
+                observer.unobserve(entry.target);
             }
         });
     }, observerOptions);
 
     // Observe all cards and content sections
     const animatedElements = document.querySelectorAll('.project-card, .achievement-card, .about-content, .education-content, .contact-content');
-    animatedElements.forEach(el => {
+    animatedElements.forEach((el, index) => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
-        el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        el.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
         observer.observe(el);
     });
 }
 
-// Projects Management
+// Projects Management with enhanced error handling
 async function loadProjects() {
     try {
-        const response = await fetch(`${API_BASE}/projects`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+        const response = await fetch(`${API_BASE}/projects`, {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-            console.log('Backend not available, using dummy data');
-            displayDummyProjects();
-            return;
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const projects = await response.json();
         displayProjects(projects);
     } catch (error) {
-        console.log('Backend not available, using dummy data');
+        console.log('Backend not available, using dummy data:', error.message);
         displayDummyProjects();
     }
 }
@@ -239,7 +420,7 @@ function displayProjects(projects) {
     const container = document.getElementById('projects-container');
     container.innerHTML = '';
 
-    projects.forEach(project => {
+    projects.forEach((project, index) => {
         const projectCard = document.createElement('div');
         projectCard.className = 'project-card';
 
@@ -249,7 +430,7 @@ function displayProjects(projects) {
 
         projectCard.innerHTML = `
             <img src="${project.imageUrl || 'https://via.placeholder.com/400x250?text=Project'}"
-                 alt="${project.title}" class="project-image">
+                 alt="${project.title}" class="project-image" loading="lazy">
             <div class="project-content">
                 <h3 class="project-title">${project.title}</h3>
                 <p class="project-description">${project.description}</p>
@@ -257,15 +438,18 @@ function displayProjects(projects) {
                     <div class="tech-tags">${techTags}</div>
                 </div>
                 <div class="project-links">
-                    ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" class="project-link">
+                    ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" rel="noopener noreferrer" class="project-link">
                                         <i class="fas fa-external-link-alt"></i> Live Demo
                                     </a>` : ''}
-                    ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="project-link">
+                    ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" rel="noopener noreferrer" class="project-link">
                                         <i class="fab fa-github"></i> GitHub
                                     </a>` : ''}
                 </div>
             </div>
         `;
+        
+        // Add staggered animation delay
+        projectCard.style.animationDelay = `${index * 0.1}s`;
         container.appendChild(projectCard);
     });
 
@@ -275,19 +459,26 @@ function displayProjects(projects) {
     }, 100);
 }
 
-// Achievements Management
+// Achievements Management with enhanced error handling
 async function loadAchievements() {
     try {
-        const response = await fetch(`${API_BASE}/achievements`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const response = await fetch(`${API_BASE}/achievements`, {
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
         if (!response.ok) {
-            console.log('Backend not available, using dummy data');
-            displayDummyAchievements();
-            return;
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const achievements = await response.json();
         displayAchievements(achievements);
     } catch (error) {
-        console.log('Backend not available, using dummy data');
+        console.log('Backend not available, using dummy data:', error.message);
         displayDummyAchievements();
     }
 }
@@ -333,7 +524,7 @@ function displayAchievements(achievements) {
     const container = document.getElementById('achievements-container');
     container.innerHTML = '';
 
-    achievements.forEach(achievement => {
+    achievements.forEach((achievement, index) => {
         const achievementCard = document.createElement('div');
         achievementCard.className = 'achievement-card';
 
@@ -348,10 +539,13 @@ function displayAchievements(achievements) {
             <div class="achievement-org">${achievement.organization}</div>
             <div class="achievement-date">${date}</div>
             <p class="achievement-description">${achievement.description}</p>
-            ${achievement.certificateUrl ? `<a href="${achievement.certificateUrl}" target="_blank" class="project-link">
+            ${achievement.certificateUrl ? `<a href="${achievement.certificateUrl}" target="_blank" rel="noopener noreferrer" class="project-link">
                                 <i class="fas fa-certificate"></i> View Certificate
                             </a>` : ''}
         `;
+        
+        // Add staggered animation delay
+        achievementCard.style.animationDelay = `${index * 0.1}s`;
         container.appendChild(achievementCard);
     });
 
@@ -364,7 +558,122 @@ function displayAchievements(achievements) {
 // Admin Panel Functions
 function toggleAdminForm(type) {
     const form = document.getElementById(`${type}-admin-form`);
-    form.classList.toggle('active');
+    const isActive = form.classList.contains('active');
+    
+    // Close all other admin forms
+    document.querySelectorAll('.admin-form').forEach(f => f.classList.remove('active'));
+    
+    // Toggle current form
+    if (!isActive) {
+        form.classList.add('active');
+        // Scroll to form
+        setTimeout(() => {
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    }
+}
+
+// Enhanced form submissions with better UX
+async function submitForm(url, data, formId, successMessage) {
+    const form = document.getElementById(formId);
+    const submitBtn = form.querySelector('.submit-btn');
+    const originalText = submitBtn.textContent;
+    
+    try {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+        submitBtn.style.opacity = '0.7';
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            form.reset();
+            
+            // Show success feedback
+            submitBtn.textContent = '? Success!';
+            submitBtn.style.backgroundColor = '#10b981';
+            
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.style.backgroundColor = '';
+                submitBtn.style.opacity = '';
+                submitBtn.disabled = false;
+            }, 2000);
+            
+            // Show success message
+            showNotification(successMessage, 'success');
+            
+            return true;
+        } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+    } catch (error) {
+        // Show error feedback
+        submitBtn.textContent = '? Error';
+        submitBtn.style.backgroundColor = '#ef4444';
+        
+        setTimeout(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.style.backgroundColor = '';
+            submitBtn.style.opacity = '';
+            submitBtn.disabled = false;
+        }, 2000);
+        
+        showNotification('Error submitting form. Please try again.', 'error');
+        return false;
+    }
+}
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        max-width: 300px;
+        word-wrap: break-word;
+    `;
+    
+    if (type === 'success') {
+        notification.style.backgroundColor = '#10b981';
+    } else if (type === 'error') {
+        notification.style.backgroundColor = '#ef4444';
+    } else {
+        notification.style.backgroundColor = '#3b82f6';
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 4000);
 }
 
 // Project Form Submission
@@ -380,25 +689,10 @@ document.getElementById('project-form').addEventListener('submit', async functio
         githubUrl: document.getElementById('project-github').value || null
     };
 
-    try {
-        const response = await fetch(`${API_BASE}/projects`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(projectData)
-        });
-
-        if (response.ok) {
-            document.getElementById('project-form').reset();
-            toggleAdminForm('project');
-            loadProjects();
-            alert('Project added successfully!');
-        } else {
-            alert('Error adding project. Please check if the backend is running.');
-        }
-    } catch (error) {
-        alert('Error connecting to backend. Please ensure the ASP.NET server is running.');
+    const success = await submitForm(`${API_BASE}/projects`, projectData, 'project-form', 'Project added successfully!');
+    if (success) {
+        toggleAdminForm('project');
+        loadProjects();
     }
 });
 
@@ -414,33 +708,18 @@ document.getElementById('achievement-form').addEventListener('submit', async fun
         certificateUrl: document.getElementById('achievement-certificate').value || null
     };
 
-    try {
-        const response = await fetch(`${API_BASE}/achievements`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(achievementData)
-        });
-
-        if (response.ok) {
-            document.getElementById('achievement-form').reset();
-            toggleAdminForm('achievement');
-            loadAchievements();
-            alert('Achievement added successfully!');
-        } else {
-            alert('Error adding achievement. Please check if the backend is running.');
-        }
-    } catch (error) {
-        alert('Error connecting to backend. Please ensure the ASP.NET server is running.');
+    const success = await submitForm(`${API_BASE}/achievements`, achievementData, 'achievement-form', 'Achievement added successfully!');
+    if (success) {
+        toggleAdminForm('achievement');
+        loadAchievements();
     }
 });
 
-// Contact Form Submission
+// Enhanced Contact Form Submission
 document.getElementById('contact-form').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const submitBtn = document.querySelector('.submit-btn');
+    const submitBtn = this.querySelector('.submit-btn');
     const loading = document.getElementById('contact-loading');
     const success = document.getElementById('contact-success');
     const error = document.getElementById('contact-error');
@@ -473,14 +752,31 @@ document.getElementById('contact-form').addEventListener('submit', async functio
         submitBtn.disabled = false;
 
         if (response.ok) {
-            document.getElementById('contact-form').reset();
+            this.reset();
             success.style.display = 'block';
+            showNotification('Message sent successfully!', 'success');
+            
+            // Scroll to success message
+            success.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } else {
             error.style.display = 'block';
+            showNotification('Error sending message. Please try again.', 'error');
         }
-    } catch (error) {
+    } catch (err) {
         loading.style.display = 'none';
         submitBtn.disabled = false;
         error.style.display = 'block';
+        showNotification('Network error. Please check your connection.', 'error');
     }
 });
+
+// Performance monitoring
+if ('performance' in window) {
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            const perfData = performance.timing;
+            const loadTime = perfData.loadEventEnd - perfData.navigationStart;
+            console.log(`Page load time: ${loadTime}ms`);
+        }, 0);
+    });
+}
