@@ -1,11 +1,355 @@
 ﻿<!DOCTYPE html>
-
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Portfolio Admin Dashboard - Manage your portfolio content">
+    <title>Portfolio Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/admin.css" rel="stylesheet">
 </head>
 <body>
+    <!-- Admin Header -->
+    <header class="admin-header">
+        <div class="admin-nav">
+            <div class="admin-logo">
+                <i class="fas fa-cog"></i>
+                <span>Admin Dashboard</span>
+            </div>
+            <div class="admin-user">
+                <span>Welcome, Admin</span>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
 
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar">
+        <nav class="sidebar-nav">
+            <ul>
+                <li class="nav-item active">
+                    <a href="#dashboard" class="nav-link" onclick="showSection('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#profile" class="nav-link" onclick="showSection('profile')">
+                        <i class="fas fa-user"></i>
+                        <span>Profile Info</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#projects" class="nav-link" onclick="showSection('projects')">
+                        <i class="fas fa-project-diagram"></i>
+                        <span>Projects</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#achievements" class="nav-link" onclick="showSection('achievements')">
+                        <i class="fas fa-trophy"></i>
+                        <span>Achievements</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contacts" class="nav-link" onclick="showSection('contacts')">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contact Messages</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="admin-section active">
+            <div class="section-header">
+                <h1>Dashboard Overview</h1>
+                <p>Welcome to your portfolio admin panel</p>
+            </div>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="projects-count">0</h3>
+                        <p>Total Projects</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="achievements-count">0</h3>
+                        <p>Achievements</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="skills-count">0</h3>
+                        <p>Skills</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="messages-count">0</h3>
+                        <p>Messages</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h2>Recent Activity</h2>
+                <div class="activity-list" id="activity-list">
+                    <!-- Activity items will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="admin-section">
+            <div class="section-header">
+                <h1>Profile Information</h1>
+                <p>Update your personal information and hero section</p>
+            </div>
+            
+            <div class="admin-form">
+                <form id="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="full-name">Full Name</label>
+                            <input type="text" id="full-name" name="fullName" value="MD. Jahid Hasan Jim" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="title">Professional Title</label>
+                            <input type="text" id="title" name="title" value="Full Stack Developer & Software Engineer" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3" required>Passionate about creating innovative web solutions and scalable applications. I transform ideas into digital reality with clean code and modern technologies.</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="profile-image">Profile Image</label>
+                        <div class="image-upload">
+                            <input type="file" id="profile-image" name="profileImage" accept="image/*">
+                            <div class="image-preview">
+                                <img id="profile-preview" src="images/portfolio.jpg" alt="Profile Preview">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn URL</label>
+                            <input type="url" id="linkedin" name="linkedin" value="https://www.linkedin.com/in/md-jahid-hasan-jim/">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github">GitHub URL</label>
+                            <input type="url" id="github" name="github" value="https://github.com/jim2107054">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="facebook">Facebook URL</label>
+                            <input type="url" id="facebook" name="facebook" value="https://facebook.com/jahid.hasan.jim">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="whatsapp">WhatsApp Number</label>
+                            <input type="text" id="whatsapp" name="whatsapp" value="+8801581705456">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save Changes
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-undo"></i>
+                            Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="admin-section">
+            <div class="section-header">
+                <h1>Projects Management</h1>
+                <p>Manage your portfolio projects</p>
+            </div>
+            
+            <div class="admin-form">
+                <form id="project-form" class="add-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="project-title">Project Title</label>
+                            <input type="text" id="project-title" name="title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="project-status">Status</label>
+                            <select id="project-status" name="status">
+                                <option value="Completed">Completed</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Planning">Planning</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project-description">Description</label>
+                        <textarea id="project-description" name="description" rows="4" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project-technologies">Technologies (comma-separated)</label>
+                        <input type="text" id="project-technologies" name="technologies" placeholder="React, Node.js, MongoDB" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="project-demo">Demo URL</label>
+                            <input type="url" id="project-demo" name="demoUrl">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="project-github">GitHub URL</label>
+                            <input type="url" id="project-github" name="githubUrl">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="project-image">Project Image URL</label>
+                        <input type="url" id="project-image" name="imageUrl" placeholder="https://example.com/image.jpg">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Project
+                        </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Clear Form
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="projects-list">
+                    <h3>Current Projects</h3>
+                    <div class="projects-grid" id="projects-grid">
+                        <!-- Projects will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Achievements Section -->
+        <section id="achievements" class="admin-section">
+            <div class="section-header">
+                <h1>Achievements Management</h1>
+                <p>Manage your achievements and certifications</p>
+            </div>
+            
+            <div class="admin-form">
+                <form id="achievement-form" class="add-form">
+                    <div class="form-group">
+                        <label for="achievement-title">Achievement Title</label>
+                        <input type="text" id="achievement-title" name="title" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="achievement-organization">Organization</label>
+                            <input type="text" id="achievement-organization" name="organization" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="achievement-date">Date</label>
+                            <input type="date" id="achievement-date" name="date" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="achievement-description">Description</label>
+                        <textarea id="achievement-description" name="description" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="achievement-certificate">Certificate URL (Optional)</label>
+                        <input type="url" id="achievement-certificate" name="certificateUrl">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Add Achievement
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="achievements-list">
+                    <h3>Current Achievements</h3>
+                    <div class="achievements-grid" id="achievements-grid">
+                        <!-- Achievements will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Messages Section -->
+        <section id="contacts" class="admin-section">
+            <div class="section-header">
+                <h1>Contact Messages</h1>
+                <p>View and manage contact form submissions</p>
+            </div>
+            
+            <div class="messages-container">
+                <div class="messages-list" id="messages-list">
+                    <!-- Messages will be populated by JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/admin-dashboard.js"></script>
 </body>
 </html>
