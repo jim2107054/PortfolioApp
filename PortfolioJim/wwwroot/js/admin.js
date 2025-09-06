@@ -1,4 +1,4 @@
-// Admin Authentication and Management
+// Admin Authentication and Management - Enhanced Modal Version
 class AdminAuth {
     constructor() {
         this.currentUser = null;
@@ -29,6 +29,11 @@ class AdminAuth {
             if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'A') {
                 e.preventDefault();
                 this.showAdminLogin();
+            }
+
+            // Escape to close modal
+            if (e.key === 'Escape') {
+                this.hideAdminLogin();
             }
         });
 
@@ -100,7 +105,7 @@ class AdminAuth {
         // Show success message
         this.showLoginSuccess();
 
-        // Hide login modal after delay
+        // Hide login modal after delay and redirect
         setTimeout(() => {
             this.hideAdminLogin();
             this.showAdminFeatures();
@@ -120,15 +125,14 @@ class AdminAuth {
 
     showAdminAccess() {
         // Show admin access button for specific conditions
-        // In a real application, you might check user IP, specific URLs, etc.
         const showAdmin = this.shouldShowAdminAccess();
         
         if (showAdmin) {
-            const adminNavItem = document.getElementById('admin-nav-item');
-            const adminAccessBtn = document.getElementById('admin-access-btn');
-            
-            if (adminNavItem) adminNavItem.style.display = 'block';
-            if (adminAccessBtn) adminAccessBtn.style.display = 'inline-block';
+            if (this.isLoggedIn) {
+                this.showDashboardButton();
+            } else {
+                this.showAdminButton();
+            }
         }
     }
 
@@ -150,8 +154,27 @@ class AdminAuth {
         return false;
     }
 
+    showAdminButton() {
+        const adminNavItem = document.getElementById('admin-nav-item');
+        const dashboardNavItem = document.getElementById('dashboard-nav-item');
+        
+        if (adminNavItem) adminNavItem.style.display = 'block';
+        if (dashboardNavItem) dashboardNavItem.style.display = 'none';
+    }
+
+    showDashboardButton() {
+        const adminNavItem = document.getElementById('admin-nav-item');
+        const dashboardNavItem = document.getElementById('dashboard-nav-item');
+        
+        if (adminNavItem) adminNavItem.style.display = 'none';
+        if (dashboardNavItem) dashboardNavItem.style.display = 'block';
+    }
+
     showAdminFeatures() {
         if (!this.isLoggedIn) return;
+
+        // Update navbar buttons
+        this.showDashboardButton();
 
         // Add admin indicator to the page
         this.addAdminIndicator();
@@ -161,9 +184,6 @@ class AdminAuth {
         adminElements.forEach(element => {
             element.style.display = 'block';
         });
-
-        // Add admin menu to navigation
-        this.addAdminMenu();
     }
 
     addAdminIndicator() {
@@ -190,38 +210,29 @@ class AdminAuth {
         document.body.appendChild(indicator);
     }
 
-    addAdminMenu() {
-        const nav = document.querySelector('.nav-links');
-        if (!nav || document.querySelector('.admin-menu-item')) return;
-
-        const adminMenuItem = document.createElement('li');
-        adminMenuItem.className = 'admin-menu-item';
-        adminMenuItem.innerHTML = `
-            <a href="admin.html" class="nav-link admin-link">
-                <i class="fas fa-cogs"></i> Dashboard
-            </a>
-        `;
-
-        nav.appendChild(adminMenuItem);
-    }
-
     showAdminLogin() {
         const modal = document.getElementById('admin-login-modal');
         if (modal) {
-            modal.style.display = 'flex';
+            modal.classList.add('show');
             
             // Focus on email field
             const emailField = document.getElementById('admin-email');
             if (emailField) {
-                setTimeout(() => emailField.focus(), 100);
+                setTimeout(() => emailField.focus(), 300);
             }
+
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
         }
     }
 
     hideAdminLogin() {
         const modal = document.getElementById('admin-login-modal');
         if (modal) {
-            modal.style.display = 'none';
+            modal.classList.remove('show');
+
+            // Allow body scroll
+            document.body.style.overflow = '';
         }
 
         // Clear form
@@ -274,7 +285,7 @@ class AdminAuth {
         if (loginBtn) {
             loginBtn.innerHTML = '<i class="fas fa-check"></i> Login Successful!';
             loginBtn.disabled = true;
-            loginBtn.style.background = '#10b981';
+            loginBtn.classList.add('success');
         }
     }
 
@@ -283,13 +294,18 @@ class AdminAuth {
         if (loginBtn) {
             loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
             loginBtn.disabled = false;
-            loginBtn.style.background = '';
+            loginBtn.classList.remove('success');
         }
     }
 
     redirectToAdmin() {
-        // Redirect to admin panel
-        window.location.href = 'admin.html';
+        // Show redirect message
+        this.showToast('Redirecting to admin dashboard...', 'info');
+        
+        // Redirect to admin panel after a short delay
+        setTimeout(() => {
+            window.location.href = 'admin.html';
+        }, 1000);
     }
 
     logout() {
@@ -305,10 +321,8 @@ class AdminAuth {
             // Show logout message
             this.showLogoutMessage();
 
-            // Redirect to home page
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1500);
+            // Reset navbar
+            this.showAdminButton();
         }
     }
 
@@ -316,10 +330,6 @@ class AdminAuth {
         // Remove admin indicator
         const indicator = document.querySelector('.admin-indicator');
         if (indicator) indicator.remove();
-
-        // Hide admin menu
-        const adminMenuItem = document.querySelector('.admin-menu-item');
-        if (adminMenuItem) adminMenuItem.remove();
 
         // Hide admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
@@ -329,13 +339,17 @@ class AdminAuth {
     }
 
     showLogoutMessage() {
-        // Create and show logout toast
+        this.showToast('Successfully logged out', 'success');
+    }
+
+    showToast(message, type = 'info') {
+        // Create and show toast
         const toast = document.createElement('div');
-        toast.className = 'admin-toast logout-toast';
+        toast.className = `admin-toast ${type}-toast`;
         toast.innerHTML = `
             <div class="toast-content">
-                <i class="fas fa-check-circle"></i>
-                <span>Successfully logged out</span>
+                <i class="fas ${this.getToastIcon(type)}"></i>
+                <span>${message}</span>
             </div>
         `;
 
@@ -345,6 +359,16 @@ class AdminAuth {
         setTimeout(() => {
             toast.remove();
         }, 3000);
+    }
+
+    getToastIcon(type) {
+        const icons = {
+            success: 'fa-check-circle',
+            error: 'fa-exclamation-circle',
+            warning: 'fa-exclamation-triangle',
+            info: 'fa-info-circle'
+        };
+        return icons[type] || icons.info;
     }
 
     // Public methods for global access
