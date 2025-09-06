@@ -87,7 +87,7 @@
                 <h2 class="section-title">About Me</h2>
                 <div class="about-content">
                     <div class="about-text">
-                        <p>Hello! I'm John Doe, a passionate full-stack developer with over 3 years of experience creating digital solutions that make a difference. I specialize in modern web technologies and love turning complex problems into simple, beautiful designs.</p>
+                        <p>Hello! I'm MD. Jahid Hasan Jim, a passionate full-stack developer with over 3 years of experience creating digital solutions that make a difference. I specialize in modern web technologies and love turning complex problems into simple, beautiful designs.</p>
 
                         <p>My journey in software development started during my computer science studies, where I discovered my passion for creating user-centric applications. Since then, I've worked on various projects ranging from e-commerce platforms to enterprise solutions.</p>
 
@@ -113,7 +113,7 @@
             <div class="container">
                 <h2 class="section-title">My Projects</h2>
                 <div class="projects-grid" id="projects-container" role="list" aria-label="Project portfolio">
-                    <!-- Projects will be loaded dynamically -->
+                    <!-- Projects will be loaded dynamically from database -->
                 </div>
             </div>
         </section>
@@ -123,21 +123,7 @@
             <div class="container">
                 <h2 class="section-title">Education</h2>
                 <div class="education-content">
-                    <div class="education-item">
-                        <div class="education-degree">Bachelor of Science in Computer Science</div>
-                        <div class="education-school">University of Technology</div>
-                        <div class="education-year">2019 - 2023</div>
-                    </div>
-                    <div class="education-item">
-                        <div class="education-degree">Full Stack Web Development Bootcamp</div>
-                        <div class="education-school">CodeAcademy Pro</div>
-                        <div class="education-year">2022</div>
-                    </div>
-                    <div class="education-item">
-                        <div class="education-degree">High School Diploma</div>
-                        <div class="education-school">Central High School</div>
-                        <div class="education-year">2015 - 2019</div>
-                    </div>
+                    <!-- Education will be loaded dynamically from database -->
                 </div>
             </div>
         </section>
@@ -147,7 +133,7 @@
             <div class="container">
                 <h2 class="section-title">Achievements</h2>
                 <div class="achievements-grid" id="achievements-container" role="list" aria-label="Achievement portfolio">
-                    <!-- Achievements will be loaded dynamically -->
+                    <!-- Achievements will be loaded dynamically from database -->
                 </div>
             </div>
         </section>
@@ -160,30 +146,30 @@
                     <form class="contact-form" id="contact-form" novalidate>
                         <div class="form-group">
                             <label for="contact-name">Name</label>
-                            <input type="text" id="contact-name" required autocomplete="name">
+                            <input type="text" id="contact-name" name="name" required autocomplete="name">
                         </div>
                         <div class="form-group">
                             <label for="contact-email">Email</label>
-                            <input type="email" id="contact-email" required autocomplete="email">
+                            <input type="email" id="contact-email" name="email" required autocomplete="email">
                         </div>
                         <div class="form-group">
                             <label for="contact-subject">Subject</label>
-                            <input type="text" id="contact-subject" required>
+                            <input type="text" id="contact-subject" name="subject" required>
                         </div>
                         <div class="form-group">
                             <label for="contact-message">Message</label>
-                            <textarea id="contact-message" rows="5" required></textarea>
+                            <textarea id="contact-message" name="message" rows="5" required></textarea>
                         </div>
                         <button type="submit" class="submit-btn">Send Message</button>
                     </form>
 
-                    <div class="loading" id="contact-loading" aria-live="polite">
+                    <div class="loading" id="contact-loading" aria-live="polite" style="display: none;">
                         <i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Sending message...
                     </div>
-                    <div class="success-message" id="contact-success" role="alert" aria-live="polite">
+                    <div class="success-message" id="contact-success" role="alert" aria-live="polite" style="display: none;">
                         Message sent successfully! I'll get back to you soon.
                     </div>
-                    <div class="error-message" id="contact-error" role="alert" aria-live="polite">
+                    <div class="error-message" id="contact-error" role="alert" aria-live="polite" style="display: none;">
                         There was an error sending your message. Please try again.
                     </div>
                 </div>
@@ -239,7 +225,8 @@
         <i class="fas fa-chevron-up" aria-hidden="true"></i>
     </button>
 
+    <!-- Scripts -->
     <script src="js/jim.js"></script>
-    <script src="js/admin-auth.js"></script>
+    <script src="js/admin.js"></script>
 </body>
 </html>

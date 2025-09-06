@@ -1,4 +1,4 @@
-// Admin Dashboard JavaScript - Comprehensive Functionality
+// Admin Dashboard JavaScript - Comprehensive Database Integration
 class AdminDashboard {
     constructor() {
         this.baseUrl = '/api';
@@ -8,9 +8,9 @@ class AdminDashboard {
             projects: [],
             achievements: [],
             contacts: [],
-            skills: this.getDefaultSkills(),
-            profile: this.getDefaultProfile(),
-            education: this.getDefaultEducation()
+            skills: [],
+            profile: null,
+            education: []
         };
         this.init();
     }
@@ -24,6 +24,7 @@ class AdminDashboard {
         this.updateStats();
         this.loadRecentActivity();
         this.populateDataGrids();
+        this.loadFormData();
     }
 
     // Setup all event listeners
@@ -94,22 +95,38 @@ class AdminDashboard {
         try {
             this.showLoading(true);
             
-            // Load projects
-            const projectsResponse = await fetch(`${this.baseUrl}/projects`);
-            if (projectsResponse.ok) {
-                this.data.projects = await projectsResponse.json();
+            // Load all data in parallel
+            const [projectsRes, achievementsRes, contactsRes, skillsRes, profileRes, educationRes] = await Promise.all([
+                fetch(`${this.baseUrl}/projects`),
+                fetch(`${this.baseUrl}/achievements`),
+                fetch(`${this.baseUrl}/contact`),
+                fetch(`${this.baseUrl}/skills`),
+                fetch(`${this.baseUrl}/profile`),
+                fetch(`${this.baseUrl}/education`)
+            ]);
+
+            if (projectsRes.ok) {
+                this.data.projects = await projectsRes.json();
             }
 
-            // Load achievements
-            const achievementsResponse = await fetch(`${this.baseUrl}/achievements`);
-            if (achievementsResponse.ok) {
-                this.data.achievements = await achievementsResponse.json();
+            if (achievementsRes.ok) {
+                this.data.achievements = await achievementsRes.json();
             }
 
-            // Load contacts
-            const contactsResponse = await fetch(`${this.baseUrl}/contact`);
-            if (contactsResponse.ok) {
-                this.data.contacts = await contactsResponse.json();
+            if (contactsRes.ok) {
+                this.data.contacts = await contactsRes.json();
+            }
+
+            if (skillsRes.ok) {
+                this.data.skills = await skillsRes.json();
+            }
+
+            if (profileRes.ok) {
+                this.data.profile = await profileRes.json();
+            }
+
+            if (educationRes.ok) {
+                this.data.education = await educationRes.json();
             }
 
             this.showLoading(false);
@@ -117,6 +134,29 @@ class AdminDashboard {
             console.error('Error loading data:', error);
             this.showToast('Error loading data. Please refresh the page.', 'error');
             this.showLoading(false);
+        }
+    }
+
+    // Load form data from database
+    loadFormData() {
+        if (this.data.profile) {
+            // Populate profile form
+            const profileForm = document.getElementById('profile-form');
+            if (profileForm) {
+                document.getElementById('full-name').value = this.data.profile.fullName || '';
+                document.getElementById('title').value = this.data.profile.title || '';
+                document.getElementById('description').value = this.data.profile.description || '';
+                document.getElementById('linkedin').value = this.data.profile.linkedInUrl || '';
+                document.getElementById('github').value = this.data.profile.gitHubUrl || '';
+                document.getElementById('facebook').value = this.data.profile.facebookUrl || '';
+                document.getElementById('whatsapp').value = this.data.profile.whatsAppNumber || '';
+            }
+
+            // Populate about form
+            const aboutContent = document.getElementById('about-content');
+            if (aboutContent && this.data.profile.aboutContent) {
+                aboutContent.value = this.data.profile.aboutContent;
+            }
         }
     }
 
@@ -135,15 +175,39 @@ class AdminDashboard {
         const activityList = document.getElementById('activity-list');
         if (!activityList) return;
 
-        const activities = [
-            { icon: 'fas fa-plus', color: '#10b981', text: 'Added new project', time: '2 hours ago' },
-            { icon: 'fas fa-trophy', color: '#f59e0b', text: 'Updated achievement', time: '5 hours ago' },
-            { icon: 'fas fa-envelope', color: '#06b6d4', text: 'New contact message', time: '1 day ago' },
-            { icon: 'fas fa-code', color: '#8b5cf6', text: 'Updated skills', time: '2 days ago' },
-            { icon: 'fas fa-user', color: '#3b82f6', text: 'Updated profile', time: '3 days ago' }
-        ];
+        const activities = [];
+        
+        // Add recent projects
+        this.data.projects.slice(0, 2).forEach(project => {
+            activities.push({
+                icon: 'fas fa-plus',
+                color: '#10b981',
+                text: `Added project: ${project.title}`,
+                time: this.getRelativeTime(project.createdDate)
+            });
+        });
 
-        activityList.innerHTML = activities.map(activity => `
+        // Add recent achievements
+        this.data.achievements.slice(0, 2).forEach(achievement => {
+            activities.push({
+                icon: 'fas fa-trophy',
+                color: '#f59e0b',
+                text: `Added achievement: ${achievement.title}`,
+                time: this.getRelativeTime(achievement.date)
+            });
+        });
+
+        // Add recent messages
+        this.data.contacts.slice(0, 1).forEach(contact => {
+            activities.push({
+                icon: 'fas fa-envelope',
+                color: '#06b6d4',
+                text: `New message from ${contact.name}`,
+                time: this.getRelativeTime(contact.createdDate)
+            });
+        });
+
+        activityList.innerHTML = activities.slice(0, 5).map(activity => `
             <div class="activity-item">
                 <div class="activity-icon" style="background: ${activity.color}">
                     <i class="${activity.icon}"></i>
@@ -154,6 +218,19 @@ class AdminDashboard {
                 </div>
             </div>
         `).join('');
+    }
+
+    // Get relative time
+    getRelativeTime(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - date) / 1000);
+
+        if (diffInSeconds < 60) return 'Just now';
+        if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+        if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+        if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} days ago`;
+        return date.toLocaleDateString();
     }
 
     // Populate data grids
@@ -171,11 +248,19 @@ class AdminDashboard {
         if (!grid) return;
 
         grid.innerHTML = this.data.projects.map(project => `
-            <div class="project-card" data-id="${project.id}">
-                <h4><i class="fas fa-project-diagram"></i> ${project.title}</h4>
-                <p>${project.description}</p>
+            <div class="project-card" data-id="${project.id}" data-status="${project.status}">
+                <div class="project-header">
+                    <h4><i class="fas fa-project-diagram"></i> ${project.title}</h4>
+                    <span class="status-badge status-${project.status.toLowerCase().replace(' ', '-')}">${project.status}</span>
+                </div>
+                <p class="project-description">${project.description}</p>
                 <div class="project-meta">
-                    ${project.technologies.split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                    <div class="tech-tags">
+                        ${project.technologies.split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                    </div>
+                    <div class="project-category">
+                        <i class="fas fa-folder"></i> ${project.category}
+                    </div>
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editProject(${project.id})">
@@ -186,6 +271,9 @@ class AdminDashboard {
                     </button>
                     ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" class="btn btn-sm btn-success">
                         <i class="fas fa-external-link-alt"></i> Demo
+                    </a>` : ''}
+                    ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn btn-sm btn-info">
+                        <i class="fab fa-github"></i> Code
                     </a>` : ''}
                 </div>
             </div>
@@ -198,12 +286,16 @@ class AdminDashboard {
         if (!grid) return;
 
         grid.innerHTML = this.data.achievements.map(achievement => `
-            <div class="achievement-card" data-id="${achievement.id}">
-                <h4><i class="fas fa-trophy"></i> ${achievement.title}</h4>
-                <p><strong>${achievement.organization}</strong></p>
-                <p>${achievement.description}</p>
+            <div class="achievement-card" data-id="${achievement.id}" data-type="${achievement.type}">
+                <div class="achievement-header">
+                    <h4><i class="fas fa-trophy"></i> ${achievement.title}</h4>
+                    <span class="type-badge type-${achievement.type.toLowerCase()}">${achievement.type}</span>
+                </div>
+                <p class="achievement-org"><strong><i class="fas fa-building"></i> ${achievement.organization}</strong></p>
+                <p class="achievement-description">${achievement.description}</p>
                 <div class="achievement-meta">
-                    <span class="type-tag">${new Date(achievement.date).toLocaleDateString()}</span>
+                    <span class="date-tag"><i class="fas fa-calendar"></i> ${new Date(achievement.date).toLocaleDateString()}</span>
+                    <span class="level-tag"><i class="fas fa-medal"></i> ${achievement.level}</span>
                 </div>
                 <div class="card-actions">
                     <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editAchievement(${achievement.id})">
@@ -225,19 +317,30 @@ class AdminDashboard {
         const grid = document.getElementById('skills-grid');
         if (!grid) return;
 
-        grid.innerHTML = this.data.skills.map((skill, index) => `
-            <div class="skill-card" data-category="${skill.category}">
-                <h4>
-                    ${skill.icon ? `<i class="${skill.icon}"></i>` : '<i class="fas fa-code"></i>'} 
-                    ${skill.name}
-                </h4>
-                <p><strong>Category:</strong> ${skill.category}</p>
-                <p><strong>Level:</strong> ${skill.level}</p>
+        grid.innerHTML = this.data.skills.map(skill => `
+            <div class="skill-card" data-category="${skill.category}" data-id="${skill.id}">
+                <div class="skill-header">
+                    <h4>
+                        ${skill.iconClass ? `<i class="${skill.iconClass}"></i>` : '<i class="fas fa-code"></i>'} 
+                        ${skill.name}
+                    </h4>
+                    <span class="level-badge level-${skill.level.toLowerCase()}">${skill.level}</span>
+                </div>
+                <div class="skill-info">
+                    <p><strong>Category:</strong> ${skill.category}</p>
+                    <p><strong>Experience:</strong> ${skill.yearsOfExperience} years</p>
+                    <div class="skill-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${skill.proficiencyPercentage}%"></div>
+                        </div>
+                        <span class="progress-text">${skill.proficiencyPercentage}%</span>
+                    </div>
+                </div>
                 <div class="card-actions">
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editSkill(${index})">
+                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editSkill(${skill.id})">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteSkill(${index})">
+                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteSkill(${skill.id})">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -255,13 +358,16 @@ class AdminDashboard {
                 <div class="message-header">
                     <div class="message-info">
                         <h4>${message.name}</h4>
-                        <p>${message.email}</p>
+                        <p><i class="fas fa-envelope"></i> ${message.email}</p>
                     </div>
-                    <span class="message-date">${new Date(message.createdDate).toLocaleDateString()}</span>
+                    <div class="message-time">
+                        <span class="message-date">${new Date(message.createdDate).toLocaleDateString()}</span>
+                        ${!message.isRead ? '<span class="unread-indicator"><i class="fas fa-circle"></i></span>' : ''}
+                    </div>
                 </div>
                 <div class="message-content">
-                    <strong>Subject:</strong> ${message.subject}<br>
-                    ${message.message}
+                    <div class="message-subject"><strong>Subject:</strong> ${message.subject}</div>
+                    <div class="message-text">${message.message}</div>
                 </div>
                 <div class="message-actions">
                     ${!message.isRead ? `<button class="btn btn-sm btn-primary" onclick="adminDashboard.markAsRead(${message.id})">
@@ -283,19 +389,21 @@ class AdminDashboard {
         const timeline = document.getElementById('education-timeline');
         if (!timeline) return;
 
-        timeline.innerHTML = this.data.education.map((edu, index) => `
-            <div class="education-item" data-index="${index}">
-                <h4>${edu.degree}</h4>
-                <p><strong>${edu.school}</strong></p>
-                <p><strong>Duration:</strong> ${edu.year}</p>
-                ${edu.gpa ? `<p><strong>GPA:</strong> ${edu.gpa}</p>` : ''}
-                ${edu.location ? `<p><strong>Location:</strong> ${edu.location}</p>` : ''}
-                ${edu.description ? `<p>${edu.description}</p>` : ''}
+        timeline.innerHTML = this.data.education.map(edu => `
+            <div class="education-item" data-id="${edu.id}">
+                <div class="education-header">
+                    <h4><i class="fas fa-graduation-cap"></i> ${edu.degree}</h4>
+                    <span class="duration-badge">${edu.duration}</span>
+                </div>
+                <p class="school-name"><strong><i class="fas fa-university"></i> ${edu.school}</strong></p>
+                ${edu.location ? `<p class="location"><i class="fas fa-map-marker-alt"></i> ${edu.location}</p>` : ''}
+                ${edu.gpa ? `<p class="gpa"><strong>GPA:</strong> ${edu.gpa}</p>` : ''}
+                ${edu.description ? `<p class="description">${edu.description}</p>` : ''}
                 <div class="card-actions">
-                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editEducation(${index})">
+                    <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editEducation(${edu.id})">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteEducation(${index})">
+                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteEducation(${edu.id})">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -304,6 +412,114 @@ class AdminDashboard {
     }
 
     // Form submission handlers
+    async handleProfileSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const profileData = {
+            fullName: formData.get('fullName'),
+            title: formData.get('title'),
+            description: formData.get('description'),
+            linkedInUrl: formData.get('linkedin'),
+            gitHubUrl: formData.get('github'),
+            facebookUrl: formData.get('facebook'),
+            whatsAppNumber: formData.get('whatsapp'),
+            email: this.data.profile?.email || 'jahid.hasan.jim@gmail.com'
+        };
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profileData)
+            });
+
+            if (response.ok) {
+                // Update local data
+                this.data.profile = { ...this.data.profile, ...profileData };
+                this.showToast('Profile updated successfully!', 'success');
+            } else {
+                throw new Error('Failed to update profile');
+            }
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            this.showToast('Error updating profile. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async handleAboutSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const aboutData = {
+            ...this.data.profile,
+            aboutContent: formData.get('aboutContent')
+        };
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/profile`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(aboutData)
+            });
+
+            if (response.ok) {
+                this.data.profile.aboutContent = aboutData.aboutContent;
+                this.showToast('About section updated successfully!', 'success');
+            } else {
+                throw new Error('Failed to update about section');
+            }
+        } catch (error) {
+            console.error('Error updating about section:', error);
+            this.showToast('Error updating about section. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async handleSkillSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const skillData = {
+            name: formData.get('skillName'),
+            category: formData.get('skillCategory'),
+            level: formData.get('skillLevel'),
+            iconClass: formData.get('skillIcon'),
+            proficiencyPercentage: this.getLevelPercentage(formData.get('skillLevel')),
+            yearsOfExperience: this.getLevelYears(formData.get('skillLevel'))
+        };
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/skills`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(skillData)
+            });
+
+            if (response.ok) {
+                const newSkill = await response.json();
+                this.data.skills.push(newSkill);
+                this.populateSkillsGrid();
+                this.updateStats();
+                e.target.reset();
+                this.showToast('Skill added successfully!', 'success');
+            } else {
+                throw new Error('Failed to add skill');
+            }
+        } catch (error) {
+            console.error('Error adding skill:', error);
+            this.showToast('Error adding skill. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
     async handleProjectSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -313,7 +529,9 @@ class AdminDashboard {
             technologies: formData.get('technologies'),
             imageUrl: formData.get('imageUrl'),
             demoUrl: formData.get('demoUrl'),
-            githubUrl: formData.get('githubUrl')
+            githubUrl: formData.get('githubUrl'),
+            status: formData.get('status') || 'Completed',
+            category: formData.get('category') || 'Web Development'
         };
 
         try {
@@ -350,7 +568,9 @@ class AdminDashboard {
             description: formData.get('description'),
             organization: formData.get('organization'),
             date: formData.get('date'),
-            certificateUrl: formData.get('certificateUrl')
+            certificateUrl: formData.get('certificateUrl'),
+            type: formData.get('type') || 'Certification',
+            level: formData.get('level') || 'Professional'
         };
 
         try {
@@ -379,107 +599,67 @@ class AdminDashboard {
         }
     }
 
-    handleSkillSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const skillData = {
-            name: formData.get('skillName'),
-            category: formData.get('skillCategory'),
-            level: formData.get('skillLevel'),
-            icon: formData.get('skillIcon')
-        };
-
-        this.data.skills.push(skillData);
-        this.populateSkillsGrid();
-        this.updateStats();
-        e.target.reset();
-        this.showToast('Skill added successfully!', 'success');
-        this.saveToLocalStorage('skills', this.data.skills);
-    }
-
-    handleEducationSubmit(e) {
+    async handleEducationSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         const educationData = {
             degree: formData.get('degree'),
             school: formData.get('school'),
-            year: formData.get('year'),
+            duration: formData.get('year'),
             gpa: formData.get('gpa'),
             location: formData.get('location'),
-            description: formData.get('description')
-        };
-
-        this.data.education.push(educationData);
-        this.populateEducationTimeline();
-        e.target.reset();
-        this.showToast('Education added successfully!', 'success');
-        this.saveToLocalStorage('education', this.data.education);
-    }
-
-    handleProfileSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        
-        this.data.profile = {
-            fullName: formData.get('fullName'),
-            title: formData.get('title'),
             description: formData.get('description'),
-            linkedin: formData.get('linkedin'),
-            github: formData.get('github'),
-            facebook: formData.get('facebook'),
-            whatsapp: formData.get('whatsapp')
+            startDate: new Date(formData.get('year').split(' - ')[0] + '-01-01'),
+            endDate: formData.get('year').includes(' - ') ? new Date(formData.get('year').split(' - ')[1] + '-12-31') : null
         };
 
-        this.saveToLocalStorage('profile', this.data.profile);
-        this.showToast('Profile updated successfully!', 'success');
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/education`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(educationData)
+            });
+
+            if (response.ok) {
+                const newEducation = await response.json();
+                this.data.education.push(newEducation);
+                this.populateEducationTimeline();
+                e.target.reset();
+                this.showToast('Education added successfully!', 'success');
+            } else {
+                throw new Error('Failed to add education');
+            }
+        } catch (error) {
+            console.error('Error adding education:', error);
+            this.showToast('Error adding education. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
     }
 
-    handleAboutSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        this.data.about = formData.get('aboutContent');
-        this.saveToLocalStorage('about', this.data.about);
-        this.showToast('About section updated successfully!', 'success');
-    }
-
-    handleGeneralSettingsSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const settings = {
-            siteTitle: formData.get('siteTitle'),
-            siteDescription: formData.get('siteDescription'),
-            contactEmail: formData.get('contactEmail'),
-            portfolioTheme: formData.get('portfolioTheme')
+    // Helper functions for skill levels
+    getLevelPercentage(level) {
+        const percentages = {
+            'Beginner': 50,
+            'Intermediate': 75,
+            'Advanced': 90,
+            'Expert': 95
         };
-        
-        this.saveToLocalStorage('generalSettings', settings);
-        this.showToast('General settings saved successfully!', 'success');
+        return percentages[level] || 75;
     }
 
-    handleSecuritySettingsSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        
-        // In a real application, you would hash passwords and validate them properly
-        const currentPassword = formData.get('currentPassword');
-        const newPassword = formData.get('newPassword');
-        const confirmPassword = formData.get('confirmPassword');
-
-        if (newPassword && newPassword !== confirmPassword) {
-            this.showToast('New passwords do not match!', 'error');
-            return;
-        }
-
-        if (newPassword && newPassword.length < 8) {
-            this.showToast('Password must be at least 8 characters long!', 'error');
-            return;
-        }
-
-        this.showToast('Security settings updated successfully!', 'success');
-        e.target.reset();
+    getLevelYears(level) {
+        const years = {
+            'Beginner': 1,
+            'Intermediate': 3,
+            'Advanced': 5,
+            'Expert': 7
+        };
+        return years[level] || 3;
     }
 
-    // Delete operations
+    // Delete operations with database integration
     async deleteProject(id) {
         if (!confirm('Are you sure you want to delete this project?')) return;
 
@@ -530,23 +710,102 @@ class AdminDashboard {
         }
     }
 
-    deleteSkill(index) {
+    async deleteSkill(id) {
         if (!confirm('Are you sure you want to delete this skill?')) return;
-        
-        this.data.skills.splice(index, 1);
-        this.populateSkillsGrid();
-        this.updateStats();
-        this.saveToLocalStorage('skills', this.data.skills);
-        this.showToast('Skill deleted successfully!', 'success');
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/skills/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                this.data.skills = this.data.skills.filter(s => s.id !== id);
+                this.populateSkillsGrid();
+                this.updateStats();
+                this.showToast('Skill deleted successfully!', 'success');
+            } else {
+                throw new Error('Failed to delete skill');
+            }
+        } catch (error) {
+            console.error('Error deleting skill:', error);
+            this.showToast('Error deleting skill. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
     }
 
-    deleteEducation(index) {
+    async deleteEducation(id) {
         if (!confirm('Are you sure you want to delete this education entry?')) return;
-        
-        this.data.education.splice(index, 1);
-        this.populateEducationTimeline();
-        this.saveToLocalStorage('education', this.data.education);
-        this.showToast('Education entry deleted successfully!', 'success');
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/education/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                this.data.education = this.data.education.filter(e => e.id !== id);
+                this.populateEducationTimeline();
+                this.showToast('Education entry deleted successfully!', 'success');
+            } else {
+                throw new Error('Failed to delete education');
+            }
+        } catch (error) {
+            console.error('Error deleting education:', error);
+            this.showToast('Error deleting education. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async markAsRead(id) {
+        try {
+            const message = this.data.contacts.find(c => c.id === id);
+            if (message) {
+                message.isRead = true;
+                
+                const response = await fetch(`${this.baseUrl}/contact/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(message)
+                });
+
+                if (response.ok) {
+                    this.populateMessagesGrid();
+                    this.updateStats();
+                    this.showToast('Message marked as read!', 'success');
+                }
+            }
+        } catch (error) {
+            console.error('Error marking message as read:', error);
+            this.showToast('Error updating message status.', 'error');
+        }
+    }
+
+    async deleteMessage(id) {
+        if (!confirm('Delete this message?')) return;
+
+        try {
+            this.showLoading(true);
+            const response = await fetch(`${this.baseUrl}/contact/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                this.data.contacts = this.data.contacts.filter(c => c.id !== id);
+                this.populateMessagesGrid();
+                this.updateStats();
+                this.showToast('Message deleted!', 'success');
+            } else {
+                throw new Error('Failed to delete message');
+            }
+        } catch (error) {
+            console.error('Error deleting message:', error);
+            this.showToast('Error deleting message. Please try again.', 'error');
+        } finally {
+            this.showLoading(false);
+        }
     }
 
     // Navigation and UI functions
@@ -637,67 +896,6 @@ class AdminDashboard {
         return icons[type] || icons.info;
     }
 
-    // Data management
-    saveToLocalStorage(key, data) {
-        try {
-            localStorage.setItem(`portfolio_${key}`, JSON.stringify(data));
-        } catch (error) {
-            console.error('Error saving to localStorage:', error);
-        }
-    }
-
-    loadFromLocalStorage(key) {
-        try {
-            const data = localStorage.getItem(`portfolio_${key}`);
-            return data ? JSON.parse(data) : null;
-        } catch (error) {
-            console.error('Error loading from localStorage:', error);
-            return null;
-        }
-    }
-
-    // Default data functions
-    getDefaultSkills() {
-        const saved = this.loadFromLocalStorage('skills');
-        return saved || [
-            { name: 'JavaScript', category: 'Frontend', level: 'Advanced', icon: 'fab fa-js-square' },
-            { name: 'React', category: 'Frontend', level: 'Advanced', icon: 'fab fa-react' },
-            { name: 'Node.js', category: 'Backend', level: 'Intermediate', icon: 'fab fa-node-js' },
-            { name: 'C#', category: 'Languages', level: 'Advanced', icon: 'fas fa-code' },
-            { name: 'ASP.NET Core', category: 'Backend', level: 'Advanced', icon: 'fas fa-server' },
-            { name: 'SQL Server', category: 'Database', level: 'Intermediate', icon: 'fas fa-database' },
-            { name: 'Azure', category: 'DevOps', level: 'Intermediate', icon: 'fab fa-microsoft' },
-            { name: 'Git', category: 'Tools', level: 'Advanced', icon: 'fab fa-git-alt' }
-        ];
-    }
-
-    getDefaultProfile() {
-        const saved = this.loadFromLocalStorage('profile');
-        return saved || {
-            fullName: 'MD. Jahid Hasan Jim',
-            title: 'Full Stack Developer & Software Engineer',
-            description: 'Passionate about creating innovative web solutions and scalable applications. I transform ideas into digital reality with clean code and modern technologies.',
-            linkedin: 'https://www.linkedin.com/in/md-jahid-hasan-jim/',
-            github: 'https://github.com/jim2107054',
-            facebook: 'https://facebook.com/jahid.hasan.jim',
-            whatsapp: '+8801581705456'
-        };
-    }
-
-    getDefaultEducation() {
-        const saved = this.loadFromLocalStorage('education');
-        return saved || [
-            {
-                degree: 'Bachelor of Science in Computer Science',
-                school: 'University of Technology',
-                year: '2019 - 2023',
-                gpa: '3.8/4.0',
-                location: 'Dhaka, Bangladesh',
-                description: 'Specialized in software engineering and web development'
-            }
-        ];
-    }
-
     // Filter functions
     filterSkills() {
         const filter = document.getElementById('skill-filter')?.value;
@@ -717,11 +915,10 @@ class AdminDashboard {
         const cards = document.querySelectorAll('.project-card');
         
         cards.forEach(card => {
-            if (filter === 'all') {
+            if (filter === 'all' || card.dataset.status === filter) {
                 card.style.display = 'block';
             } else {
-                // For now, show all since we don't have status in the API
-                card.style.display = 'block';
+                card.style.display = 'none';
             }
         });
     }
@@ -731,11 +928,10 @@ class AdminDashboard {
         const cards = document.querySelectorAll('.achievement-card');
         
         cards.forEach(card => {
-            if (filter === 'all') {
+            if (filter === 'all' || card.dataset.type === filter) {
                 card.style.display = 'block';
             } else {
-                // For now, show all since we don't have type in the API
-                card.style.display = 'block';
+                card.style.display = 'none';
             }
         });
     }
@@ -779,7 +975,7 @@ class AdminDashboard {
         
         // Apply theme (this would be implemented based on your theming system)
         document.body.className = `theme-${theme}`;
-        this.saveToLocalStorage('adminTheme', theme);
+        localStorage.setItem('adminTheme', theme);
         this.showToast(`Theme changed to ${theme}`, 'success');
     }
 
@@ -815,7 +1011,7 @@ class AdminDashboard {
             skills: this.data.skills,
             education: this.data.education,
             profile: this.data.profile,
-            about: this.data.about,
+            contacts: this.data.contacts,
             exportDate: new Date().toISOString()
         };
 
@@ -849,6 +1045,43 @@ class AdminDashboard {
                 this.showToast('Please select a valid image file!', 'error');
             }
         }
+    }
+
+    handleGeneralSettingsSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const settings = {
+            siteTitle: formData.get('siteTitle'),
+            siteDescription: formData.get('siteDescription'),
+            contactEmail: formData.get('contactEmail'),
+            portfolioTheme: formData.get('portfolioTheme')
+        };
+        
+        localStorage.setItem('generalSettings', JSON.stringify(settings));
+        this.showToast('General settings saved successfully!', 'success');
+    }
+
+    handleSecuritySettingsSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        // In a real application, you would hash passwords and validate them properly
+        const currentPassword = formData.get('currentPassword');
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+
+        if (newPassword && newPassword !== confirmPassword) {
+            this.showToast('New passwords do not match!', 'error');
+            return;
+        }
+
+        if (newPassword && newPassword.length < 8) {
+            this.showToast('Password must be at least 8 characters long!', 'error');
+            return;
+        }
+
+        this.showToast('Security settings updated successfully!', 'success');
+        e.target.reset();
     }
 }
 
@@ -887,6 +1120,28 @@ function filterMessages() {
 
 function exportAllData() {
     adminDashboard.exportAllData();
+}
+
+function markAsRead(id) {
+    adminDashboard.markAsRead(id);
+}
+
+function deleteMessage(id) {
+    adminDashboard.deleteMessage(id);
+}
+
+function deleteAllRead() {
+    if (confirm('Delete all read messages?')) {
+        const readMessages = adminDashboard.data.contacts.filter(c => c.isRead);
+        Promise.all(readMessages.map(msg => 
+            fetch(`${adminDashboard.baseUrl}/contact/${msg.id}`, { method: 'DELETE' })
+        )).then(() => {
+            adminDashboard.data.contacts = adminDashboard.data.contacts.filter(c => !c.isRead);
+            adminDashboard.populateMessagesGrid();
+            adminDashboard.updateStats();
+            adminDashboard.showToast('Read messages deleted!', 'success');
+        });
+    }
 }
 
 function previewProfile() {
@@ -936,34 +1191,6 @@ function clearAllData() {
             adminDashboard.showToast('All data cleared!', 'warning');
             setTimeout(() => location.reload(), 2000);
         }
-    }
-}
-
-function deleteAllRead() {
-    if (confirm('Delete all read messages?')) {
-        adminDashboard.data.contacts = adminDashboard.data.contacts.filter(c => !c.isRead);
-        adminDashboard.populateMessagesGrid();
-        adminDashboard.updateStats();
-        adminDashboard.showToast('Read messages deleted!', 'success');
-    }
-}
-
-function markAsRead(id) {
-    const message = adminDashboard.data.contacts.find(c => c.id === id);
-    if (message) {
-        message.isRead = true;
-        adminDashboard.populateMessagesGrid();
-        adminDashboard.updateStats();
-        adminDashboard.showToast('Message marked as read!', 'success');
-    }
-}
-
-function deleteMessage(id) {
-    if (confirm('Delete this message?')) {
-        adminDashboard.data.contacts = adminDashboard.data.contacts.filter(c => c.id !== id);
-        adminDashboard.populateMessagesGrid();
-        adminDashboard.updateStats();
-        adminDashboard.showToast('Message deleted!', 'success');
     }
 }
 
