@@ -77,6 +77,11 @@
     --z-modal: 1050;
     --z-popover: 1060;
     --z-tooltip: 1070;
+    
+    /* Scrollbar Colors */
+    --scrollbar-track: #f1f5f9;
+    --scrollbar-thumb: #cbd5e1;
+    --scrollbar-thumb-hover: #94a3b8;
 }
 
 /* Enhanced Reset and Base Styles */
@@ -258,7 +263,6 @@ p {
 }
 
 .navbar.scrolled {
-    background: rgba(255, 255, 255, 0.98);
     box-shadow: var(--shadow-lg);
 }
 
@@ -626,17 +630,37 @@ section {
     animation: profileFloat 6s ease-in-out infinite;
     position: relative;
     z-index: 1;
+    overflow: hidden;
 }
 
-@keyframes profileFloat {
-    0%, 100% { transform: translateY(0px) scale(1); }
-    50% { transform: translateY(-10px) scale(1.02); }
+/* About Avatar */
+.about-avatar {
+    width: clamp(250px, 25vw, 300px);
+    height: clamp(250px, 25vw, 300px);
+    border-radius: var(--border-radius-2xl);
+    background: var(--gradient-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(3rem, 6vw, 4rem);
+    color: white;
+    transition: var(--transition);
+    box-shadow: var(--shadow-xl);
+    position: relative;
+    overflow: hidden;
 }
 
-.hero-avatar:hover {
+/* About Profile Image Styling */
+.about-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius-2xl);
+    transition: var(--transition);
+}
+
+.about-avatar:hover .about-profile-img {
     transform: scale(1.05);
-    border-color: rgba(255, 255, 255, 0.4);
-    box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
 }
 
 /* Scroll Indicator */
@@ -793,6 +817,19 @@ section {
 .about-avatar:hover {
     transform: translateY(-10px) scale(1.05);
     box-shadow: var(--shadow-2xl);
+}
+
+/* About Profile Image Styling */
+.about-profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--border-radius-2xl);
+    transition: var(--transition);
+}
+
+.about-avatar:hover .about-profile-img {
+    transform: scale(1.05);
 }
 
 .about-text {
@@ -1519,6 +1556,36 @@ section {
     to { opacity: 1; transform: scale(1); }
 }
 
+/* Custom Scrollbar Styling - Prevents color changes during scroll */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 6px;
+    border: 2px solid var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-hover);
+}
+
+/* Firefox Scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .container {
@@ -1640,6 +1707,39 @@ section {
         width: 45px;
         height: 45px;
     }
+    
+    /* Tablet Image Sizes */
+    .hero-avatar {
+        width: clamp(220px, 35vw, 280px);
+        height: clamp(220px, 35vw, 280px);
+    }
+    
+    .about-avatar {
+        width: clamp(200px, 30vw, 240px);
+        height: clamp(200px, 30vw, 240px);
+    }
+    
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .skill-category {
+        padding: var(--spacing-lg);
+    }
+    
+    .category-title {
+        font-size: 1.1rem;
+    }
+    
+    .skill-item {
+        padding: var(--spacing-md);
+    }
+    
+    .skill-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-xs);
+    }
 }
 
 @media (max-width: 576px) {
@@ -1693,6 +1793,17 @@ section {
     .form-group textarea {
         padding: var(--spacing-md);
     }
+    
+    /* Mobile Image Sizes */
+    .hero-avatar {
+        width: clamp(200px, 45vw, 250px);
+        height: clamp(200px, 45vw, 250px);
+    }
+    
+    .about-avatar {
+        width: clamp(180px, 40vw, 220px);
+        height: clamp(180px, 40vw, 220px);
+    }
 }
 
 @media (max-width: 400px) {
@@ -1710,9 +1821,16 @@ section {
         padding: 0 var(--spacing-md);
     }
     
+    /* Extra Small Device Image Sizes */
     .hero-avatar {
-        width: clamp(180px, 45vw, 200px);
-        height: clamp(180px, 45vw, 200px);
+        width: clamp(160px, 50vw, 180px);
+        height: clamp(160px, 50vw, 180px);
+        border: 3px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .about-avatar {
+        width: clamp(140px, 45vw, 160px);
+        height: clamp(140px, 45vw, 160px);
     }
     
     .social-link {
@@ -1722,11 +1840,6 @@ section {
     
     .social-link i {
         font-size: 1rem;
-    }
-    
-    .about-avatar {
-        width: clamp(200px, 50vw, 220px);
-        height: clamp(200px, 50vw, 220px);
     }
     
     .back-to-top {

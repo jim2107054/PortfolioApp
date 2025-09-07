@@ -141,7 +141,7 @@ class AdminAuth {
         // 1. Already logged in
         // 2. On localhost/development environment
         // 3. URL contains admin parameter
-        // 4. Special key combination was pressed
+        // 4. Always show for testing purposes (can be removed in production)
 
         if (this.isLoggedIn) return true;
         
@@ -151,14 +151,16 @@ class AdminAuth {
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('admin')) return true;
 
-        return false;
+        // Show admin button for all users during development/testing
+        // Remove this line in production if you want to hide admin access
+        return true;
     }
 
     showAdminButton() {
         const adminNavItem = document.getElementById('admin-nav-item');
         const dashboardNavItem = document.getElementById('dashboard-nav-item');
         
-        if (adminNavItem) adminNavItem.style.display = 'block';
+        if (adminNavItem) adminNavItem.style.display = 'flex';
         if (dashboardNavItem) dashboardNavItem.style.display = 'none';
     }
 
@@ -167,7 +169,7 @@ class AdminAuth {
         const dashboardNavItem = document.getElementById('dashboard-nav-item');
         
         if (adminNavItem) adminNavItem.style.display = 'none';
-        if (dashboardNavItem) dashboardNavItem.style.display = 'block';
+        if (dashboardNavItem) dashboardNavItem.style.display = 'flex';
     }
 
     showAdminFeatures() {
@@ -215,14 +217,22 @@ class AdminAuth {
         if (modal) {
             modal.classList.add('show');
             
-            // Focus on email field
+            // Focus on email field with delay for better UX
             const emailField = document.getElementById('admin-email');
             if (emailField) {
-                setTimeout(() => emailField.focus(), 300);
+                setTimeout(() => {
+                    emailField.focus();
+                    emailField.select();
+                }, 400);
             }
 
             // Prevent body scroll
             document.body.style.overflow = 'hidden';
+            
+            // Clear any previous error states
+            this.hideLoginError();
+            this.hideLoginSuccess();
+            this.showLoginLoading(false);
         }
     }
 
@@ -235,16 +245,18 @@ class AdminAuth {
             document.body.style.overflow = '';
         }
 
-        // Clear form
-        const form = document.getElementById('admin-login-form');
-        if (form) {
-            form.reset();
-        }
+        // Clear form with a small delay to avoid flickering
+        setTimeout(() => {
+            const form = document.getElementById('admin-login-form');
+            if (form) {
+                form.reset();
+            }
 
-        // Hide any messages
-        this.hideLoginError();
-        this.hideLoginSuccess();
-        this.showLoginLoading(false);
+            // Hide any messages
+            this.hideLoginError();
+            this.hideLoginSuccess();
+            this.showLoginLoading(false);
+        }, 300);
     }
 
     showLoginLoading(show) {
@@ -252,16 +264,18 @@ class AdminAuth {
         const loginBtn = document.querySelector('.admin-login-btn');
         
         if (loading) {
-            loading.style.display = show ? 'block' : 'none';
+            loading.style.display = show ? 'flex' : 'none';
         }
         
         if (loginBtn) {
             if (show) {
                 loginBtn.disabled = true;
                 loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Authenticating...';
+                loginBtn.classList.remove('success');
             } else {
                 loginBtn.disabled = false;
                 loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+                loginBtn.classList.remove('success');
             }
         }
     }
@@ -269,7 +283,13 @@ class AdminAuth {
     showLoginError() {
         const error = document.getElementById('admin-login-error');
         if (error) {
-            error.style.display = 'block';
+            error.style.display = 'flex';
+            
+            // Add shake animation
+            error.style.animation = 'shake 0.5s ease-in-out';
+            setTimeout(() => {
+                error.style.animation = '';
+            }, 500);
         }
     }
 
@@ -283,10 +303,13 @@ class AdminAuth {
     showLoginSuccess() {
         const loginBtn = document.querySelector('.admin-login-btn');
         if (loginBtn) {
-            loginBtn.innerHTML = '<i class="fas fa-check"></i> Login Successful!';
+            loginBtn.innerHTML = '<i class="fas fa-check-circle"></i> Login Successful!';
             loginBtn.disabled = true;
             loginBtn.classList.add('success');
         }
+        
+        // Hide error if visible
+        this.hideLoginError();
     }
 
     hideLoginSuccess() {
@@ -343,6 +366,10 @@ class AdminAuth {
     }
 
     showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.admin-toast');
+        existingToasts.forEach(toast => toast.remove());
+
         // Create and show toast
         const toast = document.createElement('div');
         toast.className = `admin-toast ${type}-toast`;
@@ -357,7 +384,9 @@ class AdminAuth {
 
         // Auto remove after 3 seconds
         setTimeout(() => {
-            toast.remove();
+            if (toast.parentNode) {
+                toast.remove();
+            }
         }, 3000);
     }
 
@@ -411,3 +440,14 @@ document.addEventListener('DOMContentLoaded', () => {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = AdminAuth;
 }
+
+// Add CSS for shake animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+    }
+`;
+document.head.appendChild(style);

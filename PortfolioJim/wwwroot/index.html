@@ -124,13 +124,61 @@
                     <a href="#contact" class="nav-link" role="menuitem">Contact</a>
                 </li>
             </ul>
-            <button class="nav-toggle" id="mobile-menu" aria-label="Toggle mobile menu" aria-expanded="false">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </button>
+            <!-- Admin Button - Shows based on login status -->
+            <div class="admin-access">
+                <button id="admin-nav-item" class="admin-btn" onclick="showAdminLogin()" aria-label="Admin Login" style="display: none;">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Admin</span>
+                </button>
+                <a id="dashboard-nav-item" href="admin.html" class="admin-btn dashboard-btn" aria-label="Admin Dashboard" style="display: none;">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
         </div>
     </nav>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="admin-modal">
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Admin Login</h2>
+                <button class="admin-modal-close" onclick="hideAdminLogin()" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="admin-modal-body">
+                <form id="admin-login-form">
+                    <div class="admin-form-group">
+                        <label for="admin-email">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" id="admin-email" name="email" placeholder="Enter admin email" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="admin-password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" id="admin-password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <div id="admin-login-error" class="admin-error-message" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Invalid email or password. Please try again.
+                    </div>
+                    <div id="admin-login-loading" class="admin-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Authenticating...</span>
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="admin-login-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main id="main-content">
@@ -168,7 +216,7 @@
                     <div class="hero-image">
                         <div class="image-container">
                             <div class="hero-avatar" role="img" aria-label="Jahid Hasan Jim profile image" id="hero-avatar">
-                                <i class="fas fa-user"></i>
+                                <img src="images/portfolio.jpg" alt="MD. Jahid Hasan Jim - Full Stack Developer" class="hero-profile-img">
                             </div>
                         </div>
                     </div>
@@ -191,7 +239,7 @@
                 <div class="about-content">
                     <div class="about-image">
                         <div class="about-avatar" role="img" aria-label="Jahid Hasan Jim about image">
-                            <i class="fas fa-user"></i>
+                            <img src="images/portfolio.jpg" alt="MD. Jahid Hasan Jim - About Photo" class="about-profile-img">
                         </div>
                     </div>
                     <div class="about-text">
@@ -367,7 +415,7 @@
                 </nav>
             </div>
         </div>
-    </footer>
+    </div>
 
     <!-- Back to Top Button -->
     <button class="back-to-top" id="back-to-top" aria-label="Back to top">
@@ -377,6 +425,7 @@
     <!-- Scripts -->
     <script src="js/portfolio.js"></script>
     <script src="js/jim.js"></script>
+    <script src="js/admin.js"></script>
     
     <!-- Update copyright year -->
     <script>

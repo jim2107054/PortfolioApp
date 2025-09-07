@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Modal Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding: 2rem;
+            background: #f8fafc;
+            font-family: 'Poppins', sans-serif;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .test-button {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 1rem;
+            transition: all 0.3s ease;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -5px rgba(99, 102, 241, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1><i class="fas fa-test-tube"></i> Admin Modal Test</h1>
+        <p>Click the button below to test the admin login modal:</p>
+        
+        <button class="test-button" onclick="showAdminLogin()">
+            <i class="fas fa-shield-alt"></i> Test Admin Login Modal
+        </button>
+        
+        <div class="admin-access" style="margin-top: 2rem;">
+            <button id="admin-nav-item" class="admin-btn" onclick="showAdminLogin()" aria-label="Admin Login">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin</span>
+            </button>
+            <a id="dashboard-nav-item" href="admin.html" class="admin-btn dashboard-btn" aria-label="Admin Dashboard" style="display: none;">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+        
+        <div style="margin-top: 2rem; padding: 1rem; background: #f0f9ff; border-radius: 0.5rem; border-left: 4px solid #6366f1;">
+            <h3><i class="fas fa-info-circle"></i> Test Instructions:</h3>
+            <ul>
+                <li>Click either button to open the admin login modal</li>
+                <li>Default credentials: admin@portfolio.com / admin123</li>
+                <li>Modal should appear smoothly with proper styling</li>
+                <li>Form should validate and show loading states</li>
+                <li>Press Escape or click outside to close modal</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="admin-modal">
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h2><i class="fas fa-shield-alt"></i> Admin Login</h2>
+                <button class="admin-modal-close" onclick="hideAdminLogin()" aria-label="Close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="admin-modal-body">
+                <form id="admin-login-form">
+                    <div class="admin-form-group">
+                        <label for="admin-email">
+                            <i class="fas fa-envelope"></i> Email
+                        </label>
+                        <input type="email" id="admin-email" name="email" placeholder="Enter admin email" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label for="admin-password">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <input type="password" id="admin-password" name="password" placeholder="Enter password" required>
+                    </div>
+                    <div id="admin-login-error" class="admin-error-message" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Invalid email or password. Please try again.
+                    </div>
+                    <div id="admin-login-loading" class="admin-loading" style="display: none;">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>Authenticating...</span>
+                    </div>
+                    <div class="admin-form-actions">
+                        <button type="submit" class="admin-login-btn">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login
+                        </button>
+                    </div>
+                </form>
+                <div class="admin-info">
+                    <p><i class="fas fa-info-circle"></i> Default credentials: admin@portfolio.com / admin123</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
