@@ -2,588 +2,385 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="description" content="MD. Jahid Hasan Jim - Full Stack Developer & Software Engineer Portfolio">
-    <meta name="keywords" content="full stack developer, software engineer, web development, portfolio">
-    <meta name="theme-color" content="#2563eb">
-    <title>MD. Jahid Hasan Jim - Portfolio</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MD. Jahid Hasan Jim - Portfolio | Full Stack Developer</title>
+    <meta name="description" content="Professional portfolio of MD. Jahid Hasan Jim - Full Stack Developer specializing in .NET, React, and modern web technologies.">
+    <meta name="keywords" content="Full Stack Developer, Web Developer, .NET, React, JavaScript, Portfolio, Jahid Hasan Jim">
+    <meta name="author" content="MD. Jahid Hasan Jim">
+    <meta name="robots" content="index, follow">
     
-    <!-- Admin Modal Styles -->
-    <style>
-        /* Admin Modal Overlay */
-        .admin-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .admin-modal.show {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideIn {
-            from { 
-                opacity: 0;
-                transform: translateY(-50px) scale(0.9);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        /* Modal Content */
-        .admin-modal-content {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            max-width: 450px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideIn 0.3s ease-out;
-            position: relative;
-        }
-
-        /* Modal Header */
-        .admin-modal-header {
-            padding: 32px 32px 16px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .admin-modal-header h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-modal-close {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-        }
-
-        .admin-modal-close:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: scale(1.05);
-        }
-
-        /* Modal Body */
-        .admin-modal-body {
-            padding: 32px;
-        }
-
-        /* Form Styles */
-        .admin-form-group {
-            margin-bottom: 24px;
-        }
-
-        .admin-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #374151;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .admin-form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        .admin-form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        /* Form Actions */
-        .admin-form-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 32px;
-        }
-
-        .admin-login-btn {
-            flex: 1;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .admin-login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .admin-login-btn:disabled {
-            opacity: 0.7;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .admin-cancel-btn {
-            background: #f3f4f6;
-            color: #6b7280;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .admin-cancel-btn:hover {
-            background: #e5e7eb;
-            transform: translateY(-1px);
-        }
-
-        /* Error and Loading Messages */
-        .admin-error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #fecaca;
-        }
-
-        .admin-loading {
-            text-align: center;
-            padding: 16px;
-            color: #6b7280;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        /* Success State */
-        .admin-login-btn.success {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        /* Admin Indicator Styles */
-        .admin-indicator {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 9999;
-            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-            animation: slideInRight 0.3s ease-out;
-        }
-
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .admin-indicator-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .admin-logout-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            padding: 6px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-        }
-
-        .admin-logout-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 640px) {
-            .admin-modal-content {
-                margin: 20px;
-                width: calc(100% - 40px);
-            }
-
-            .admin-modal-header {
-                padding: 24px 24px 12px;
-            }
-
-            .admin-modal-header h2 {
-                font-size: 20px;
-            }
-
-            .admin-modal-body {
-                padding: 24px;
-            }
-
-            .admin-form-actions {
-                flex-direction: column;
-            }
-
-            .admin-indicator {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                border-radius: 15px;
-            }
-        }
-
-        /* Toast Notifications */
-        .admin-toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: white;
-            color: #374151;
-            padding: 16px 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            z-index: 10001;
-            animation: slideInUp 0.3s ease-out;
-            border-left: 4px solid #10b981;
-        }
-
-        .admin-toast.logout-toast {
-            border-left-color: #f59e0b;
-        }
-
-        @keyframes slideInUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .toast-content {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 500;
-        }
-
-        /* Navigation Admin Button Styles */
-        .nav-link.admin-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white !important;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link.admin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .nav-link.dashboard-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white !important;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link.dashboard-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-    </style>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jahidhasanjim.com/">
+    <meta property="og:title" content="MD. Jahid Hasan Jim - Full Stack Developer Portfolio">
+    <meta property="og:description" content="Professional portfolio showcasing modern web development projects and expertise in .NET, React, and cloud technologies.">
+    <meta property="og:image" content="https://jahidhasanjim.com/images/og-image.jpg">
+    <meta property="og:site_name" content="MD. Jahid Hasan Jim Portfolio">
     
-    <!-- Preload critical resources -->
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://jahidhasanjim.com/">
+    <meta property="twitter:title" content="MD. Jahid Hasan Jim - Full Stack Developer Portfolio">
+    <meta property="twitter:description" content="Professional portfolio showcasing modern web development projects and expertise in .NET, React, and cloud technologies.">
+    <meta property="twitter:image" content="https://jahidhasanjim.com/images/twitter-image.jpg">
+    <meta name="twitter:creator" content="@jahid_hasan_jim">
+    
+    <!-- PWA -->
+    <meta name="application-name" content="Jahid Portfolio">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Jahid Portfolio">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="msapplication-TileColor" content="#6366f1">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="theme-color" content="#6366f1">
+    
+    <!-- Links for PWA -->
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#6366f1">
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://via.placeholder.com">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "MD. Jahid Hasan Jim",
+        "jobTitle": "Full Stack Developer",
+        "description": "Professional Full Stack Developer specializing in .NET and modern web technologies",
+        "url": "https://jahidhasanjim.com",
+        "sameAs": [
+            "https://www.linkedin.com/in/md-jahid-hasan-jim/",
+            "https://github.com/jim2107054",
+            "https://facebook.com/jahid.hasan.jim"
+        ],
+        "knowsAbout": ["C#", ".NET", "React", "JavaScript", "Node.js", "Cloud Computing", "Web Development"],
+        "alumniOf": {
+            "@type": "Organization",
+            "name": "University of Technology"
+        },
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Dhaka",
+            "addressCountry": "Bangladesh"
+        }
+    }
+    </script>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <nav class="container">
-            <div class="logo">JIM54</div>
-            <div class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle mobile menu">
-                <span></span>
-                <span></span>
-                <span></span>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loader">
+            <div class="spinner"></div>
+            <p>Loading Portfolio...</p>
+        </div>
+    </div>
+
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="#home" aria-label="Jahid Hasan Jim Portfolio - Home">
+                    <span class="logo-text">Jahid</span><span class="logo-dot">.</span>
+                </a>
             </div>
-            <ul class="nav-links" id="navLinks" role="navigation" aria-label="Main navigation">
-                <li><a href="#home" class="nav-link active" aria-current="page">Home</a></li>
-                <li><a href="#about" class="nav-link">About</a></li>
-                <li><a href="#projects" class="nav-link">Projects</a></li>
-                <li><a href="#education" class="nav-link">Education</a></li>
-                <li><a href="#achievements" class="nav-link">Achievements</a></li>
-                <li><a href="#contact" class="nav-link">Contact</a></li>
-                <!-- Admin Button (hidden by default) -->
-                <li id="admin-nav-item" style="display: none;">
-                    <a href="#" class="nav-link admin-btn" onclick="showAdminLogin()" aria-label="Admin Login">
-                        <i class="fas fa-cog"></i> Admin
-                    </a>
+            <ul class="nav-menu" id="nav-menu" role="menubar">
+                <li class="nav-item" role="none">
+                    <a href="#home" class="nav-link active" role="menuitem">Home</a>
                 </li>
-                <!-- Dashboard Button (hidden by default, shown when logged in) -->
-                <li id="dashboard-nav-item" style="display: none;">
-                    <a href="admin.html" class="nav-link dashboard-btn" aria-label="Admin Dashboard">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
+                <li class="nav-item" role="none">
+                    <a href="#about" class="nav-link" role="menuitem">About</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#education" class="nav-link" role="menuitem">Education</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#projects" class="nav-link" role="menuitem">Projects</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#achievements" class="nav-link" role="menuitem">Achievements</a>
+                </li>
+                <li class="nav-item" role="none">
+                    <a href="#contact" class="nav-link" role="menuitem">Contact</a>
                 </li>
             </ul>
-        </nav>
-    </header>
+            <button class="nav-toggle" id="mobile-menu" aria-label="Toggle mobile menu" aria-expanded="false">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </nav>
 
     <!-- Main Content -->
-    <main id="main">
+    <main id="main-content">
         <!-- Home Section -->
-        <section id="home" class="section" aria-label="Introduction">
-            <div class="container-hero">
+        <section id="home" class="hero" aria-label="Introduction">
+            <div class="hero-container">
                 <div class="hero-content">
-                    <div class="profile-image">
-                        <img src="images/portfolio.jpg" alt="MD. Jahid Hasan Jim - Professional photo" class="profile-photo">
-                    </div>
                     <div class="hero-text">
-                        <h1>MD. Jahid Hasan Jim</h1>
-                        <p>Full Stack Developer & Software Engineer</p>
+                        <p class="hero-subtitle">Hello, I'm</p>
+                        <h1 class="hero-title" id="hero-name">MD. Jahid Hasan Jim</h1>
+                        <h2 class="hero-description" id="hero-title">Full Stack Developer & Software Engineer</h2>
+                        <p class="hero-paragraph" id="hero-description">
+                            Passionate about creating innovative web solutions and scalable applications. 
+                            I transform ideas into digital reality with clean code and modern technologies.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="#projects" class="btn btn-primary">View My Work</a>
+                            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                        </div>
+                        <div class="hero-social" role="list" aria-label="Social media links" id="hero-social">
+                            <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" class="social-link" aria-label="LinkedIn Profile" role="listitem" target="_blank">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="https://github.com/jim2107054" class="social-link" aria-label="GitHub Profile" role="listitem" target="_blank">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://facebook.com/jahid.hasan.jim" class="social-link" aria-label="Facebook Profile" role="listitem" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="https://wa.me/8801581705456" class="social-link" aria-label="WhatsApp Contact" role="listitem" target="_blank">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
                     </div>
-                    <div class="work-description">
-                        <p>Passionate about creating innovative web solutions and scalable applications. I transform ideas into digital reality with clean code and modern technologies.</p>
+                    <div class="hero-image">
+                        <div class="image-container">
+                            <div class="hero-avatar" role="img" aria-label="Jahid Hasan Jim profile image" id="hero-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
                     </div>
-                    <div class="social-links" role="list" aria-label="Social media links">
-                        <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" target="_blank" rel="noopener noreferrer" class="social-link" title="LinkedIn" aria-label="Visit my LinkedIn profile">
-                            <i class="fab fa-linkedin" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://github.com/jim2107054" target="_blank" rel="noopener noreferrer" class="social-link" title="GitHub" aria-label="Visit my GitHub profile">
-                            <i class="fab fa-github" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://facebook.com/jahid.hasan.jim" target="_blank" rel="noopener noreferrer" class="social-link" title="Facebook" aria-label="Visit my Facebook profile">
-                            <i class="fab fa-facebook" aria-hidden="true"></i>
-                        </a>
-                        <a href="https://wa.me/+8801581705456" target="_blank" rel="noopener noreferrer" class="social-link" title="WhatsApp" aria-label="Contact me on WhatsApp">
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
-                        </a>
-                    </div>
+                </div>
+                <div class="scroll-indicator">
+                    <a href="#about" class="scroll-down" aria-label="Scroll to about section">
+                        <i class="fas fa-chevron-down"></i>
+                    </a>
                 </div>
             </div>
         </section>
 
         <!-- About Section -->
-        <section id="about" class="section" aria-label="About me">
+        <section id="about" class="about" aria-label="About Jahid Hasan Jim">
             <div class="container">
-                <h2 class="section-title">About Me</h2>
-                <div class="about-content">
-                    <div class="about-text">
-                        <p>Hello! I'm MD. Jahid Hasan Jim, a passionate full-stack developer with over 3 years of experience creating digital solutions that make a difference. I specialize in modern web technologies and love turning complex problems into simple, beautiful designs.</p>
-
-                        <p>My journey in software development started during my computer science studies, where I discovered my passion for creating user-centric applications. Since then, I've worked on various projects ranging from e-commerce platforms to enterprise solutions.</p>
-
-                        <p>When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing knowledge with the developer community.</p>
-                    </div>
-
-                    <div class="skills" role="list" aria-label="Technical skills">
-                        <div class="skill-tag" role="listitem">JavaScript</div>
-                        <div class="skill-tag" role="listitem">React</div>
-                        <div class="skill-tag" role="listitem">Node.js</div>
-                        <div class="skill-tag" role="listitem">ASP.NET Core</div>
-                        <div class="skill-tag" role="listitem">C#</div>
-                        <div class="skill-tag" role="listitem">SQL Server</div>
-                        <div class="skill-tag" role="listitem">MongoDB</div>
-                        <div class="skill-tag" role="listitem">Azure</div>
-                    </div>
+                <div class="section-header">
+                    <h2 class="section-title">About Me</h2>
+                    <p class="section-subtitle">Get to know me better</p>
                 </div>
-            </div>
-        </section>
-
-        <!-- Projects Section -->
-        <section id="projects" class="section" aria-label="My projects">
-            <div class="container">
-                <h2 class="section-title">My Projects</h2>
-                <div class="projects-grid" id="projects-container" role="list" aria-label="Project portfolio">
-                    <!-- Projects will be loaded dynamically from database -->
+                <div class="about-content">
+                    <div class="about-image">
+                        <div class="about-avatar" role="img" aria-label="Jahid Hasan Jim about image">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <div class="about-text">
+                        <h3>I'm a passionate Full Stack Developer</h3>
+                        <div id="about-content">
+                            <p>
+                                Hello! I'm MD. Jahid Hasan Jim, a passionate full-stack developer with over 3 years of experience 
+                                creating digital solutions that make a difference. I specialize in modern web technologies and love 
+                                turning complex problems into simple, beautiful designs.
+                            </p>
+                            <p>
+                                My journey in software development started during my computer science studies, where I discovered 
+                                my passion for creating user-centric applications. I have expertise in .NET, React, JavaScript, 
+                                and cloud technologies.
+                            </p>
+                        </div>
+                        <div class="skills-grid" role="list" aria-label="Technical skills" id="skills-container">
+                            <!-- Skills will be loaded dynamically -->
+                        </div>
+                        <a href="/cv/jahid-hasan-jim-cv.pdf" class="btn btn-primary" download aria-label="Download CV">Download CV</a>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- Education Section -->
-        <section id="education" class="section" aria-label="Education background">
+        <section id="education" class="education" aria-label="Educational background">
             <div class="container">
-                <h2 class="section-title">Education</h2>
-                <div class="education-content">
-                    <!-- Education will be loaded dynamically from database -->
+                <div class="section-header">
+                    <h2 class="section-title">Education</h2>
+                    <p class="section-subtitle">My academic journey</p>
+                </div>
+                <div class="education-timeline" id="education-container">
+                    <!-- Education items will be loaded dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="projects" aria-label="Portfolio projects">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">Projects</h2>
+                    <p class="section-subtitle">My recent work</p>
+                </div>
+                <div class="projects-filters" role="tablist" aria-label="Project filters">
+                    <button class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+                    <button class="filter-btn" data-filter="Web Development" role="tab" aria-selected="false">Web Development</button>
+                    <button class="filter-btn" data-filter="Mobile App" role="tab" aria-selected="false">Mobile Apps</button>
+                    <button class="filter-btn" data-filter="Desktop App" role="tab" aria-selected="false">Desktop Apps</button>
+                </div>
+                <div class="projects-grid" role="tabpanel" id="projects-container">
+                    <!-- Projects will be loaded dynamically -->
                 </div>
             </div>
         </section>
 
         <!-- Achievements Section -->
-        <section id="achievements" class="section" aria-label="Achievements and certifications">
+        <section id="achievements" class="achievements" aria-label="Achievements and certifications">
             <div class="container">
-                <h2 class="section-title">Achievements</h2>
-                <div class="achievements-grid" id="achievements-container" role="list" aria-label="Achievement portfolio">
-                    <!-- Achievements will be loaded dynamically from database -->
+                <div class="section-header">
+                    <h2 class="section-title">Achievements</h2>
+                    <p class="section-subtitle">Certifications and accomplishments</p>
+                </div>
+                <div class="achievements-grid" id="achievements-container">
+                    <!-- Achievements will be loaded dynamically -->
                 </div>
             </div>
         </section>
 
         <!-- Contact Section -->
-        <section id="contact" class="section" aria-label="Contact information">
+        <section id="contact" class="contact" aria-label="Contact information and form">
             <div class="container">
-                <h2 class="section-title">Get In Touch</h2>
+                <div class="section-header">
+                    <h2 class="section-title">Get In Touch</h2>
+                    <p class="section-subtitle">Let's work together</p>
+                </div>
                 <div class="contact-content">
+                    <div class="contact-info">
+                        <h3>Let's talk about your project</h3>
+                        <p>
+                            I'm always excited to work on new projects and collaborate with 
+                            amazing people. Feel free to reach out if you have any questions 
+                            or just want to say hello!
+                        </p>
+                        <div class="contact-details" id="contact-details">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope" aria-hidden="true"></i>
+                                <div>
+                                    <h4>Email</h4>
+                                    <p><a href="mailto:jahid.hasan.jim@gmail.com">jahid.hasan.jim@gmail.com</a></p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                                <div>
+                                    <h4>WhatsApp</h4>
+                                    <p><a href="https://wa.me/8801581705456">+880 158 170 5456</a></p>
+                                </div>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                                <div>
+                                    <h4>Location</h4>
+                                    <p>Dhaka, Bangladesh</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="contact-social" role="list" aria-label="Social media links">
+                            <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" class="social-link" aria-label="LinkedIn Profile" role="listitem" target="_blank">
+                                <i class="fab fa-linkedin"></i>
+                            </a>
+                            <a href="https://github.com/jim2107054" class="social-link" aria-label="GitHub Profile" role="listitem" target="_blank">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="https://facebook.com/jahid.hasan.jim" class="social-link" aria-label="Facebook Profile" role="listitem" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="https://wa.me/8801581705456" class="social-link" aria-label="WhatsApp Contact" role="listitem" target="_blank">
+                                <i class="fab fa-whatsapp"></i>
+                            </a>
+                        </div>
+                    </div>
                     <form class="contact-form" id="contact-form" novalidate>
-                        <div class="form-group">
-                            <label for="contact-name">Name</label>
-                            <input type="text" id="contact-name" name="name" required autocomplete="name">
+                        <div class="form-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                            <span class="progress-text">0% Complete</span>
                         </div>
                         <div class="form-group">
-                            <label for="contact-email">Email</label>
-                            <input type="email" id="contact-email" name="email" required autocomplete="email">
+                            <label for="name" class="sr-only">Your Name</label>
+                            <input type="text" id="name" name="name" placeholder="Your Name" required aria-required="true">
                         </div>
                         <div class="form-group">
-                            <label for="contact-subject">Subject</label>
-                            <input type="text" id="contact-subject" name="subject" required>
+                            <label for="email" class="sr-only">Your Email</label>
+                            <input type="email" id="email" name="email" placeholder="Your Email" required aria-required="true">
                         </div>
                         <div class="form-group">
-                            <label for="contact-message">Message</label>
-                            <textarea id="contact-message" name="message" rows="5" required></textarea>
+                            <label for="subject" class="sr-only">Subject</label>
+                            <input type="text" id="subject" name="subject" placeholder="Subject" required aria-required="true">
                         </div>
-                        <button type="submit" class="submit-btn">Send Message</button>
+                        <div class="form-group">
+                            <label for="message" class="sr-only">Your Message</label>
+                            <textarea id="message" name="message" placeholder="Your Message" rows="5" required aria-required="true"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="btn-text">Send Message</span>
+                            <span class="btn-loader" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Sending...
+                            </span>
+                        </button>
                     </form>
-
-                    <div class="loading" id="contact-loading" aria-live="polite" style="display: none;">
-                        <i class="fas fa-spinner fa-spin" aria-hidden="true"></i> Sending message...
-                    </div>
-                    <div class="success-message" id="contact-success" role="alert" aria-live="polite" style="display: none;">
-                        Message sent successfully! I'll get back to you soon.
-                    </div>
-                    <div class="error-message" id="contact-error" role="alert" aria-live="polite" style="display: none;">
-                        There was an error sending your message. Please try again.
-                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Admin Login Modal -->
-    <div id="admin-login-modal" class="admin-modal">
-        <div class="admin-modal-content">
-            <div class="admin-modal-header">
-                <h2><i class="fas fa-shield-alt"></i> Admin Login</h2>
-                <button class="admin-modal-close" onclick="hideAdminLogin()" aria-label="Close admin login">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="admin-modal-body">
-                <form id="admin-login-form">
-                    <div class="admin-form-group">
-                        <label for="admin-email">
-                            <i class="fas fa-user"></i> Email Address
-                        </label>
-                        <input type="email" id="admin-email" name="email" required autocomplete="username" placeholder="Enter your email">
-                    </div>
-                    <div class="admin-form-group">
-                        <label for="admin-password">
-                            <i class="fas fa-lock"></i> Password
-                        </label>
-                        <input type="password" id="admin-password" name="password" required autocomplete="current-password" placeholder="Enter your password">
-                    </div>
-                    <div class="admin-form-actions">
-                        <button type="submit" class="admin-login-btn">
-                            <i class="fas fa-sign-in-alt"></i> Login
-                        </button>
-                        <button type="button" class="admin-cancel-btn" onclick="hideAdminLogin()">
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-                <div id="admin-login-error" class="admin-error-message" style="display: none;">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Invalid email or password. Please try again.
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-text">
+                    <p>&copy; <span id="current-year">2024</span> MD. Jahid Hasan Jim. All rights reserved.</p>
                 </div>
-                <div id="admin-login-loading" class="admin-loading" style="display: none;">
-                    <i class="fas fa-spinner fa-spin"></i> Authenticating...
-                </div>
+                <nav class="footer-links" aria-label="Footer navigation">
+                    <a href="#home">Home</a>
+                    <a href="#about">About</a>
+                    <a href="#education">Education</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#achievements">Achievements</a>
+                    <a href="#contact">Contact</a>
+                </nav>
             </div>
         </div>
-    </div>
+    </footer>
 
-    <!-- Scroll to Top Button -->
-    <button class="scroll-to-top" id="scrollToTop" aria-label="Scroll to top of page">
-        <i class="fas fa-chevron-up" aria-hidden="true"></i>
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top">
+        <i class="fas fa-arrow-up"></i>
     </button>
 
     <!-- Scripts -->
+    <script src="js/portfolio.js"></script>
     <script src="js/jim.js"></script>
-    <script src="js/admin.js"></script>
+    
+    <!-- Update copyright year -->
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
 </body>
 </html>
