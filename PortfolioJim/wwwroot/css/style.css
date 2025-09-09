@@ -2076,7 +2076,7 @@ body.nav-open {
     }
     
     .hero-title {
-        font-size: clamp(2rem, 8vw, 3rem);
+        font-size: 24px;
         line-height: 1.1;
         margin-bottom: var(--spacing-lg);
     }
