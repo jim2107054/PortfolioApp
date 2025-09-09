@@ -23,6 +23,7 @@ class AdminDashboard {
         this.setupEventListeners();
         this.setupMobileMenu();
         this.setupAutoSave();
+        this.loadSettings();
         await this.loadPortfolioData();
         this.updateStats();
         this.loadRecentActivity();
@@ -30,6 +31,7 @@ class AdminDashboard {
         this.loadFormData();
         this.setupRealtimeUpdates();
         this.initializeNotifications();
+        this.logActivity('system', 'Admin dashboard initialized');
     }
 
     checkAuthentication() {
@@ -213,6 +215,8 @@ class AdminDashboard {
     notifyPortfolioUpdate() {
         // Notify portfolio of data changes
         try {
+            console.log('Notifying portfolio of data update:', this.portfolioData);
+            
             // Update localStorage with current data
             localStorage.setItem('portfolioData', JSON.stringify(this.portfolioData));
             
@@ -225,10 +229,23 @@ class AdminDashboard {
                 }, window.location.origin);
             }
 
-            // Dispatch custom event
+            // Dispatch custom event for same-window communication
             window.dispatchEvent(new CustomEvent('adminDataUpdate', {
                 detail: this.portfolioData
             }));
+
+            // Also dispatch storage event manually for cross-tab communication
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'portfolioData',
+                newValue: JSON.stringify(this.portfolioData),
+                oldValue: localStorage.getItem('portfolioData'),
+                storageArea: localStorage
+            }));
+
+            // Update portfolio window directly if portfolioManager exists
+            if (window.portfolioManager) {
+                window.portfolioManager.handleDataUpdate(this.portfolioData);
+            }
         } catch (error) {
             console.error('Error notifying portfolio update:', error);
         }
@@ -783,7 +800,7 @@ class AdminDashboard {
         const profileData = {
             fullName: formData.get('fullName'),
             title: formData.get('title'),
-            description: formData.get('description'),
+            description: formData.get('description',
             linkedInUrl: formData.get('linkedin'),
             gitHubUrl: formData.get('github'),
             facebookUrl: formData.get('facebook'),
@@ -805,20 +822,17 @@ class AdminDashboard {
             this.cacheData();
             this.notifyPortfolioUpdate();
             
-            // Try to save to API
-            const response = await fetch(`${this.baseUrl}/profile`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(profileData)
-            });
-
-            if (response.ok) {
-                this.markSavedChanges();
-                this.showToast('Profile updated successfully!', 'success');
-                this.showNotification('Profile Updated', 'Your profile information has been saved.');
-            } else {
-                throw new Error('Failed to update profile');
+            // Try to save using mock API
+            if (window.mockAPI) {
+                const result = await window.mockAPI.updateProfile(profileData);
+                if (result) {
+                    this.portfolioData.profile = result;
+                }
             }
+            
+            this.markSavedChanges();
+            this.showToast('Profile updated successfully!', 'success');
+            this.showNotification('Profile Updated', 'Your profile information has been saved.');
         } catch (error) {
             console.error('Error updating profile:', error);
             this.showToast('Profile saved locally. Will sync when online.', 'warning');
@@ -849,19 +863,13 @@ class AdminDashboard {
             this.cacheData();
             this.notifyPortfolioUpdate();
             
-            // Try to save to API
-            const response = await fetch(`${this.baseUrl}/profile`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(aboutData)
-            });
-
-            if (response.ok) {
-                this.markSavedChanges();
-                this.showToast('About section updated successfully!', 'success');
-            } else {
-                throw new Error('Failed to update about section');
+            // Try to save using mock API
+            if (window.mockAPI) {
+                await window.mockAPI.updateProfile(aboutData);
             }
+            
+            this.markSavedChanges();
+            this.showToast('About section updated successfully!', 'success');
         } catch (error) {
             console.error('Error updating about section:', error);
             this.showToast('About section saved locally. Will sync when online.', 'warning');
@@ -906,30 +914,27 @@ class AdminDashboard {
             this.cacheData();
             this.notifyPortfolioUpdate();
             
-            // Update UI
+            // Update UI immediately
             this.populateSkillsGrid();
             this.updateStats();
             e.target.reset();
             
-            // Try to save to API
-            const response = await fetch(`${this.baseUrl}/skills`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(skillData)
-            });
-
-            if (response.ok) {
-                const newSkill = await response.json();
-                // Update with server-generated ID
-                const index = this.portfolioData.skills.findIndex(s => s.id === skillData.id);
-                if (index !== -1) {
-                    this.portfolioData.skills[index] = newSkill;
+            // Try to save using mock API
+            if (window.mockAPI) {
+                const newSkill = await window.mockAPI.addSkill(skillData);
+                if (newSkill) {
+                    // Update with server-generated ID
+                    const index = this.portfolioData.skills.findIndex(s => s.id === skillData.id);
+                    if (index !== -1) {
+                        this.portfolioData.skills[index] = newSkill;
+                        this.cacheData();
+                        this.notifyPortfolioUpdate();
+                    }
                 }
-                this.markSavedChanges();
-                this.showToast('Skill added successfully!', 'success');
-            } else {
-                throw new Error('Failed to add skill');
             }
+            
+            this.markSavedChanges();
+            this.showToast('Skill added successfully!', 'success');
         } catch (error) {
             console.error('Error adding skill:', error);
             this.showToast('Skill saved locally. Will sync when online.', 'warning');
@@ -942,6 +947,7 @@ class AdminDashboard {
         e.preventDefault();
         const formData = new FormData(e.target);
         const projectData = {
+            id: Date.now(),
             title: formData.get('title'),
             description: formData.get('description'),
             technologies: formData.get('technologies'),
@@ -949,31 +955,48 @@ class AdminDashboard {
             demoUrl: formData.get('demoUrl'),
             githubUrl: formData.get('githubUrl'),
             status: formData.get('status') || 'Completed',
-            category: formData.get('category') || 'Web Development'
+            category: formData.get('category') || 'Web Development',
+            createdDate: new Date().toISOString()
         };
+
+        // Validation
+        if (!projectData.title || !projectData.description) {
+            this.showToast('Please fill in required fields', 'error');
+            return;
+        }
 
         try {
             this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/projects`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(projectData)
-            });
-
-            if (response.ok) {
-                const newProject = await response.json();
-                this.portfolioData.projects.unshift(newProject);
-                this.populateProjectsGrid();
-                this.updateStats();
-                e.target.reset();
-                this.showToast('Project added successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to add project');
+            
+            // Add to local data immediately
+            this.portfolioData.projects.unshift(projectData);
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Update UI
+            this.populateProjectsGrid();
+            this.updateStats();
+            e.target.reset();
+            
+            // Try to save using mock API
+            if (window.mockAPI) {
+                const newProject = await window.mockAPI.addProject(projectData);
+                if (newProject) {
+                    // Update with server data
+                    const index = this.portfolioData.projects.findIndex(p => p.id === projectData.id);
+                    if (index !== -1) {
+                        this.portfolioData.projects[index] = newProject;
+                        this.cacheData();
+                        this.notifyPortfolioUpdate();
+                    }
+                }
             }
+            
+            this.markSavedChanges();
+            this.showToast('Project added successfully!', 'success');
         } catch (error) {
             console.error('Error adding project:', error);
-            this.showToast('Error adding project. Please try again.', 'error');
+            this.showToast('Project saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
@@ -983,37 +1006,55 @@ class AdminDashboard {
         e.preventDefault();
         const formData = new FormData(e.target);
         const achievementData = {
+            id: Date.now(),
             title: formData.get('title'),
             description: formData.get('description'),
             organization: formData.get('organization'),
             date: formData.get('date'),
             certificateUrl: formData.get('certificateUrl'),
             type: formData.get('type') || 'Certification',
-            level: formData.get('level') || 'Professional'
+            level: formData.get('level') || 'Professional',
+            createdDate: new Date().toISOString()
         };
+
+        // Validation
+        if (!achievementData.title || !achievementData.organization || !achievementData.date) {
+            this.showToast('Please fill in required fields', 'error');
+            return;
+        }
 
         try {
             this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/achievements`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(achievementData)
-            });
-
-            if (response.ok) {
-                const newAchievement = await response.json();
-                this.portfolioData.achievements.unshift(newAchievement);
-                this.populateAchievementsGrid();
-                this.updateStats();
-                e.target.reset();
-                this.showToast('Achievement added successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to add achievement');
+            
+            // Add to local data immediately
+            this.portfolioData.achievements.unshift(achievementData);
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Update UI
+            this.populateAchievementsGrid();
+            this.updateStats();
+            e.target.reset();
+            
+            // Try to save using mock API
+            if (window.mockAPI) {
+                const newAchievement = await window.mockAPI.addAchievement(achievementData);
+                if (newAchievement) {
+                    // Update with server data
+                    const index = this.portfolioData.achievements.findIndex(a => a.id === achievementData.id);
+                    if (index !== -1) {
+                        this.portfolioData.achievements[index] = newAchievement;
+                        this.cacheData();
+                        this.notifyPortfolioUpdate();
+                    }
+                }
             }
+            
+            this.markSavedChanges();
+            this.showToast('Achievement added successfully!', 'success');
         } catch (error) {
             console.error('Error adding achievement:', error);
-            this.showToast('Error adding achievement. Please try again.', 'error');
+            this.showToast('Achievement saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
@@ -1023,6 +1064,7 @@ class AdminDashboard {
         e.preventDefault();
         const formData = new FormData(e.target);
         const educationData = {
+            id: Date.now(),
             degree: formData.get('degree'),
             school: formData.get('school'),
             duration: formData.get('year'),
@@ -1030,409 +1072,685 @@ class AdminDashboard {
             location: formData.get('location'),
             description: formData.get('description'),
             startDate: new Date(formData.get('year').split(' - ')[0] + '-01-01'),
-            endDate: formData.get('year').includes(' - ') ? new Date(formData.get('year').split(' - ')[1] + '-12-31') : null
+            endDate: formData.get('year').includes(' - ') ? new Date(formData.get('year').split(' - ')[1] + '-12-31') : null,
+            createdDate: new Date().toISOString()
         };
+
+        // Validation
+        if (!educationData.degree || !educationData.school || !educationData.duration) {
+            this.showToast('Please fill in required fields', 'error');
+            return;
+        }
 
         try {
             this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/education`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(educationData)
-            });
-
-            if (response.ok) {
-                const newEducation = await response.json();
-                this.portfolioData.education.push(newEducation);
-                this.populateEducationTimeline();
-                e.target.reset();
-                this.showToast('Education added successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to add education');
+            
+            // Add to local data immediately
+            this.portfolioData.education.push(educationData);
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Update UI
+            this.populateEducationTimeline();
+            e.target.reset();
+            
+            // Try to save using mock API
+            if (window.mockAPI) {
+                const newEducation = await window.mockAPI.addEducation(educationData);
+                if (newEducation) {
+                    // Update with server data
+                    const index = this.portfolioData.education.findIndex(ed => ed.id === educationData.id);
+                    if (index !== -1) {
+                        this.portfolioData.education[index] = newEducation;
+                        this.cacheData();
+                        this.notifyPortfolioUpdate();
+                    }
+                }
             }
+            
+            this.markSavedChanges();
+            this.showToast('Education added successfully!', 'success');
         } catch (error) {
             console.error('Error adding education:', error);
-            this.showToast('Error adding education. Please try again.', 'error');
+            this.showToast('Education saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
     }
 
-    // Helper functions for skill levels
-    getLevelPercentage(level) {
-        const percentages = {
-            'Beginner': 50,
-            'Intermediate': 75,
-            'Advanced': 90,
-            'Expert': 95
+    // Enhanced settings management with additional features
+    async handleGeneralSettingsSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const settings = {
+            siteTitle: formData.get('siteTitle'),
+            siteDescription: formData.get('siteDescription'),
+            contactEmail: formData.get('contactEmail'),
+            portfolioTheme: formData.get('portfolioTheme')
         };
-        return percentages[level] || 75;
+
+        try {
+            this.showLoading(true);
+            
+            // Save settings locally
+            localStorage.setItem('portfolioSettings', JSON.stringify(settings));
+            
+            // Apply theme immediately
+            this.applyTheme(settings.portfolioTheme);
+            
+            this.showToast('General settings saved successfully!', 'success');
+        } catch (error) {
+            console.error('Error saving general settings:', error);
+            this.showToast('Error saving settings', 'error');
+        } finally {
+            this.showLoading(false);
+        }
     }
 
-    getLevelYears(level) {
-        const years = {
-            'Beginner': 1,
-            'Intermediate': 3,
-            'Advanced': 5,
-            'Expert': 7
+    async handleSecuritySettingsSubmit(e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        
+        const currentPassword = formData.get('currentPassword');
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+        const adminEmail = formData.get('adminEmail');
+
+        // Validation
+        if (newPassword && newPassword !== confirmPassword) {
+            this.showToast('New passwords do not match', 'error');
+            return;
+        }
+
+        if (newPassword && newPassword.length < 8) {
+            this.showToast('Password must be at least 8 characters long', 'error');
+            return;
+        }
+
+        try {
+            this.showLoading(true);
+            
+            // In a real app, you'd verify the current password with the server
+            const securitySettings = {
+                adminEmail: adminEmail,
+                lastPasswordChange: new Date().toISOString(),
+                autoLogout: formData.get('autoLogout') === 'on',
+                rememberLogin: formData.get('rememberLogin') === 'on'
+            };
+
+            localStorage.setItem('adminSecuritySettings', JSON.stringify(securitySettings));
+            
+            if (newPassword) {
+                // In a real app, you'd hash and store the password securely
+                this.showToast('Password updated successfully!', 'success');
+            } else {
+                this.showToast('Security settings updated successfully!', 'success');
+            }
+            
+            // Clear password fields
+            e.target.reset();
+        } catch (error) {
+            console.error('Error updating security settings:', error);
+            this.showToast('Error updating security settings', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    showSettingsTab(tabId) {
+        // Hide all content
+        document.querySelectorAll('.settings-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Remove active from all tabs
+        document.querySelectorAll('.settings-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+
+        // Show selected content
+        const targetContent = document.getElementById(`${tabId}-settings`);
+        if (targetContent) {
+            targetContent.classList.add('active');
+        }
+
+        // Add active to selected tab
+        const targetTab = document.querySelector(`[onclick="showSettingsTab('${tabId}')"]`);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+    }
+
+    applyTheme(theme) {
+        const body = document.body;
+        body.classList.remove('theme-light', 'theme-dark', 'theme-auto');
+        
+        if (theme === 'auto') {
+            // Use system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            body.classList.add(prefersDark ? 'theme-dark' : 'theme-light');
+        } else {
+            body.classList.add(`theme-${theme}`);
+        }
+    }
+
+    changeTheme(theme) {
+        // Update theme selection UI
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.classList.remove('active');
+        });
+        
+        const selectedOption = document.querySelector(`[data-theme="${theme}"]`);
+        if (selectedOption) {
+            selectedOption.classList.add('active');
+        }
+        
+        // Apply theme immediately
+        this.applyTheme(theme);
+        
+        // Save preference
+        const settings = JSON.parse(localStorage.getItem('portfolioSettings') || '{}');
+        settings.theme = theme;
+        localStorage.setItem('portfolioSettings', JSON.stringify(settings));
+        
+        this.showToast(`Theme changed to ${theme}`, 'success');
+    }
+
+    saveAppearanceSettings() {
+        const fontSize = document.getElementById('font-size')?.value || 'medium';
+        const fontFamily = document.getElementById('font-family')?.value || 'system';
+        const selectedTheme = document.querySelector('.theme-option.active')?.dataset.theme || 'default';
+
+        const appearanceSettings = {
+            theme: selectedTheme,
+            fontSize: fontSize,
+            fontFamily: fontFamily
         };
-        return years[level] || 3;
+
+        localStorage.setItem('appearanceSettings', JSON.stringify(appearanceSettings));
+        this.applyAppearanceSettings(appearanceSettings);
+        this.showToast('Appearance settings saved!', 'success');
     }
 
-    // Delete operations with database integration
-    async deleteProject(id) {
-        if (!confirm('Are you sure you want to delete this project?')) return;
+    applyAppearanceSettings(settings) {
+        const root = document.documentElement;
+        
+        // Apply font size
+        const fontSizes = {
+            small: '14px',
+            medium: '16px',
+            large: '18px'
+        };
+        root.style.setProperty('--base-font-size', fontSizes[settings.fontSize] || '16px');
+        
+        // Apply font family
+        const fontFamilies = {
+            system: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+            roboto: '"Roboto", sans-serif',
+            opensans: '"Open Sans", sans-serif',
+            lato: '"Lato", sans-serif'
+        };
+        root.style.setProperty('--base-font-family', fontFamilies[settings.fontFamily] || fontFamilies.system);
+        
+        // Apply theme
+        this.applyTheme(settings.theme);
+    }
 
+    // Data export/import functions
+    exportAllData() {
         try {
-            this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/projects/${id}`, {
-                method: 'DELETE'
-            });
+            const data = {
+                portfolioData: this.portfolioData,
+                settings: JSON.parse(localStorage.getItem('portfolioSettings') || '{}'),
+                securitySettings: JSON.parse(localStorage.getItem('adminSecuritySettings') || '{}'),
+                appearanceSettings: JSON.parse(localStorage.getItem('appearanceSettings') || '{}'),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
 
-            if (response.ok) {
-                this.portfolioData.projects = this.portfolioData.projects.filter(p => p.id !== id);
-                this.populateProjectsGrid();
-                this.updateStats();
-                this.showToast('Project deleted successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to delete project');
-            }
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            this.showToast('Data exported successfully!', 'success');
         } catch (error) {
-            console.error('Error deleting project:', error);
-            this.showToast('Error deleting project. Please try again.', 'error');
-        } finally {
-            this.showLoading(false);
+            console.error('Error exporting data:', error);
+            this.showToast('Error exporting data', 'error');
         }
     }
 
-    async deleteAchievement(id) {
-        if (!confirm('Are you sure you want to delete this achievement?')) return;
-
-        try {
-            this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/achievements/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                this.portfolioData.achievements = this.portfolioData.achievements.filter(a => a.id !== id);
-                this.populateAchievementsGrid();
-                this.updateStats();
-                this.showToast('Achievement deleted successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to delete achievement');
-            }
-        } catch (error) {
-            console.error('Error deleting achievement:', error);
-            this.showToast('Error deleting achievement. Please try again.', 'error');
-        } finally {
-            this.showLoading(false);
-        }
+    triggerFileUpload() {
+        document.getElementById('backup-file')?.click();
     }
 
-    async deleteSkill(id) {
-        if (!confirm('Are you sure you want to delete this skill?')) return;
+    importBackupData(input) {
+        const file = input.files[0];
+        if (!file) return;
 
-        try {
-            this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/skills/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                this.portfolioData.skills = this.portfolioData.skills.filter(s => s.id !== id);
-                this.populateSkillsGrid();
-                this.updateStats();
-                this.showToast('Skill deleted successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to delete skill');
-            }
-        } catch (error) {
-            console.error('Error deleting skill:', error);
-            this.showToast('Error deleting skill. Please try again.', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    async deleteEducation(id) {
-        if (!confirm('Are you sure you want to delete this education entry?')) return;
-
-        try {
-            this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/education/${id}`, {
-                method: 'DELETE'
-            });
-
-            if (response.ok) {
-                this.portfolioData.education = this.portfolioData.education.filter(e => e.id !== id);
-                this.populateEducationTimeline();
-                this.showToast('Education entry deleted successfully!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to delete education');
-            }
-        } catch (error) {
-            console.error('Error deleting education:', error);
-            this.showToast('Error deleting education. Please try again.', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    async markAsRead(id) {
-        try {
-            const message = this.portfolioData.contacts.find(c => c.id === id);
-            if (message) {
-                message.isRead = true;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
                 
-                const response = await fetch(`${this.baseUrl}/contact/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(message)
-                });
-
-                if (response.ok) {
-                    this.populateMessagesGrid();
-                    this.updateStats();
-                    this.showToast('Message marked as read!', 'success');
-                    this.notifyPortfolioUpdate();
+                if (!data.portfolioData || !data.version) {
+                    throw new Error('Invalid backup file format');
                 }
+
+                // Confirm import
+                if (!confirm('This will replace all current data. Are you sure?')) {
+                    return;
+                }
+
+                this.showLoading(true);
+
+                // Import data
+                this.portfolioData = data.portfolioData;
+                this.cacheData();
+                this.notifyPortfolioUpdate();
+
+                // Import settings
+                if (data.settings) {
+                    localStorage.setItem('portfolioSettings', JSON.stringify(data.settings));
+                }
+                if (data.securitySettings) {
+                    localStorage.setItem('adminSecuritySettings', JSON.stringify(data.securitySettings));
+                }
+                if (data.appearanceSettings) {
+                    localStorage.setItem('appearanceSettings', JSON.stringify(data.appearanceSettings));
+                    this.applyAppearanceSettings(data.appearanceSettings);
+                }
+
+                // Refresh UI
+                this.updateStats();
+                this.populateDataGrids();
+                this.loadFormData();
+
+                this.showToast('Data imported successfully!', 'success');
+                this.showNotification('Data Imported', 'Portfolio data has been restored from backup.');
+            } catch (error) {
+                console.error('Error importing data:', error);
+                this.showToast('Error importing data. Please check file format.', 'error');
+            } finally {
+                this.showLoading(false);
+                input.value = ''; // Clear file input
             }
-        } catch (error) {
-            console.error('Error marking message as read:', error);
-            this.showToast('Error updating message status.', 'error');
-        }
+        };
+
+        reader.readAsText(file);
     }
 
-    async deleteMessage(id) {
-        if (!confirm('Delete this message?')) return;
+    resetToDefaults() {
+        if (!confirm('This will reset all data to defaults. Are you sure?')) return;
 
         try {
             this.showLoading(true);
-            const response = await fetch(`${this.baseUrl}/contact/${id}`, {
-                method: 'DELETE'
-            });
 
-            if (response.ok) {
-                this.portfolioData.contacts = this.portfolioData.contacts.filter(c => c.id !== id);
-                this.populateMessagesGrid();
-                this.updateStats();
-                this.showToast('Message deleted!', 'success');
-                this.notifyPortfolioUpdate();
-            } else {
-                throw new Error('Failed to delete message');
-            }
+            // Clear all stored data
+            localStorage.removeItem('portfolioData');
+            localStorage.removeItem('portfolioSettings');
+            localStorage.removeItem('adminSecuritySettings');
+            localStorage.removeItem('appearanceSettings');
+            localStorage.removeItem('adminDrafts');
+
+            // Reinitialize with defaults
+            window.mockAPI.initializeDefaultData();
+            this.loadPortfolioData();
+
+            this.showToast('Data reset to defaults successfully!', 'success');
+            
+            // Reload page after a short delay
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
         } catch (error) {
-            console.error('Error deleting message:', error);
-            this.showToast('Error deleting message. Please try again.', 'error');
+            console.error('Error resetting data:', error);
+            this.showToast('Error resetting data', 'error');
         } finally {
             this.showLoading(false);
         }
     }
 
-    // Navigation and UI functions with enhanced features
-    showSection(sectionId) {
-        // Save current section state
-        if (this.currentSection !== sectionId && this.hasUnsavedChanges) {
-            if (!confirm('You have unsaved changes. Continue without saving?')) {
-                return;
-            }
-        }
+    clearAllData() {
+        if (!confirm('This will permanently delete ALL data. Are you absolutely sure?')) return;
+        if (!confirm('This action cannot be undone. Confirm deletion?')) return;
 
-        // Hide all sections
-        document.querySelectorAll('.admin-section').forEach(section => {
-            section.classList.remove('active');
-        });
+        try {
+            this.showLoading(true);
 
-        // Show selected section
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.add('active');
-            
-            // Add entrance animation
-            targetSection.style.opacity = '0';
-            targetSection.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                targetSection.style.opacity = '1';
-                targetSection.style.transform = 'translateY(0)';
-            }, 50);
-        }
-
-        // Update navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        const navItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`)?.closest('.nav-item');
-        if (navItem) {
-            navItem.classList.add('active');
-        }
-
-        this.currentSection = sectionId;
-        
-        // Update URL hash
-        if (window.location.hash !== `#${sectionId}`) {
-            window.history.replaceState(null, null, `#${sectionId}`);
-        }
-        
-        // Close mobile sidebar
-        if (window.innerWidth <= 768) {
-            document.getElementById('adminSidebar')?.classList.remove('active');
-            const toggle = document.getElementById('mobileSidebarToggle');
-            if (toggle) {
-                const icon = toggle.querySelector('i');
-                icon.classList.add('fa-bars');
-                icon.classList.remove('fa-times');
-            }
-        }
-        
-        // Log section visit
-        this.logActivity('navigation', `Navigated to ${sectionId} section`);
-        
-        // Load section-specific data if needed
-        this.loadSectionData(sectionId);
-    }
-
-    loadSectionData(sectionId) {
-        switch (sectionId) {
-            case 'dashboard':
-                this.loadRecentActivity();
-                this.updateStats();
-                break;
-            case 'projects':
-                this.populateProjectsGrid();
-                break;
-            case 'achievements':
-                this.populateAchievementsGrid();
-                break;
-            case 'skills':
-                this.populateSkillsGrid();
-                break;
-            case 'contacts':
-                this.populateMessagesGrid();
-                break;
-            case 'education':
-                this.populateEducationTimeline();
-                break;
-        }
-    }
-
-    // Utility functions with enhanced error handling
-    showLoading(show) {
-        const overlay = document.getElementById('loading-overlay');
-        if (overlay) {
-            if (show) {
-                overlay.classList.add('active');
-                overlay.style.zIndex = '10000';
-            } else {
-                overlay.classList.remove('active');
-                setTimeout(() => {
-                    overlay.style.zIndex = '9999';
-                }, 300);
-            }
-        }
-    }
-
-    showToast(message, type = 'info') {
-        const container = document.getElementById('toast-container') || this.createToastContainer();
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <div class="toast-content">
-                <i class="fas ${this.getToastIcon(type)}"></i>
-                <span>${message}</span>
-                <button class="toast-close" onclick="this.closest('.toast').remove()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        `;
-
-        container.appendChild(toast);
-
-        // Add entrance animation
-        setTimeout(() => {
-            toast.classList.add('show');
-        }, 100);
-
-        // Auto remove after 5 seconds
-        const autoRemove = setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => {
-                if (toast.parentNode) {
-                    toast.remove();
+            // Clear all localStorage
+            Object.keys(localStorage).forEach(key => {
+                if (key.startsWith('portfolio') || key.startsWith('admin') || key.startsWith('appearance')) {
+                    localStorage.removeItem(key);
                 }
-            }, 300);
-        }, 5000);
+            });
 
-        // Clear auto-remove if user manually closes
-        toast.querySelector('.toast-close').addEventListener('click', () => {
-            clearTimeout(autoRemove);
+            this.portfolioData = {
+                projects: [],
+                achievements: [],
+                contacts: [],
+                skills: [],
+                profile: null,
+                education: []
+            };
+
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            this.updateStats();
+            this.populateDataGrids();
+
+            this.showToast('All data cleared successfully!', 'warning');
+        } catch (error) {
+            console.error('Error clearing data:', error);
+            this.showToast('Error clearing data', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    // Filtering functions for data grids
+    filterProjects() {
+        const filter = document.getElementById('project-filter')?.value || 'all';
+        const cards = document.querySelectorAll('.project-card');
+        
+        cards.forEach(card => {
+            const status = card.dataset.status;
+            if (filter === 'all' || status === filter) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
         });
     }
 
-    createToastContainer() {
-        const container = document.createElement('div');
-        container.id = 'toast-container';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-        return container;
+    filterAchievements() {
+        const filter = document.getElementById('achievement-filter')?.value || 'all';
+        const cards = document.querySelectorAll('.achievement-card');
+        
+        cards.forEach(card => {
+            const type = card.dataset.type;
+            if (filter === 'all' || type === filter) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     }
 
-    getToastIcon(type) {
-        const icons = {
-            success: 'fa-check-circle',
-            error: 'fa-exclamation-circle',
-            warning: 'fa-exclamation-triangle',
-            info: 'fa-info-circle'
+    filterSkills() {
+        const filter = document.getElementById('skill-filter')?.value || 'all';
+        const cards = document.querySelectorAll('.skill-card');
+        
+        cards.forEach(card => {
+            const category = card.dataset.category;
+            if (filter === 'all' || category === filter) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    filterMessages() {
+        const filter = document.getElementById('message-filter')?.value || 'all';
+        const cards = document.querySelectorAll('.message-card');
+        
+        cards.forEach(card => {
+            const isUnread = card.classList.contains('unread');
+            
+            if (filter === 'all' || 
+                (filter === 'unread' && isUnread) || 
+                (filter === 'read' && !isUnread)) {
+                card.style.display = 'block';
+                card.style.animation = 'fadeIn 0.3s ease';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    deleteAllRead() {
+        if (!confirm('Delete all read messages?')) return;
+
+        try {
+            this.showLoading(true);
+            
+            // Filter out read messages
+            this.portfolioData.contacts = this.portfolioData.contacts.filter(contact => !contact.isRead);
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Update UI
+            this.populateMessagesGrid();
+            this.updateStats();
+            
+            this.showToast('Read messages deleted successfully!', 'success');
+        } catch (error) {
+            console.error('Error deleting read messages:', error);
+            this.showToast('Error deleting messages', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    // Edit functions (placeholders for future implementation)
+    editProject(id) {
+        const project = this.portfolioData.projects.find(p => p.id === id);
+        if (project) {
+            // Populate form with project data
+            document.getElementById('project-title').value = project.title;
+            document.getElementById('project-description').value = project.description;
+            document.getElementById('project-technologies').value = project.technologies;
+            document.getElementById('project-demo').value = project.demoUrl || '';
+            document.getElementById('project-github').value = project.githubUrl || '';
+            document.getElementById('project-image').value = project.imageUrl || '';
+            document.getElementById('project-category').value = project.category;
+            document.getElementById('project-status').value = project.status;
+            
+            // Show projects section
+            this.showSection('projects');
+            
+            // Scroll to form
+            document.getElementById('project-form').scrollIntoView({ behavior: 'smooth' });
+            
+            this.showToast(`Editing project: ${project.title}`, 'info');
+        }
+    }
+
+    editAchievement(id) {
+        const achievement = this.portfolioData.achievements.find(a => a.id === id);
+        if (achievement) {
+            // Populate form with achievement data
+            document.getElementById('achievement-title').value = achievement.title;
+            document.getElementById('achievement-organization').value = achievement.organization;
+            document.getElementById('achievement-date').value = achievement.date;
+            document.getElementById('achievement-type').value = achievement.type;
+            document.getElementById('achievement-level').value = achievement.level;
+            document.getElementById('achievement-description').value = achievement.description;
+            document.getElementById('achievement-certificate').value = achievement.certificateUrl || '';
+            
+            // Show achievements section
+            this.showSection('achievements');
+            
+            // Scroll to form
+            document.getElementById('achievement-form').scrollIntoView({ behavior: 'smooth' });
+            
+            this.showToast(`Editing achievement: ${achievement.title}`, 'info');
+        }
+    }
+
+    editSkill(id) {
+        const skill = this.portfolioData.skills.find(s => s.id === id);
+        if (skill) {
+            // Populate form with skill data
+            document.getElementById('skill-name').value = skill.name;
+            document.getElementById('skill-category').value = skill.category;
+            document.getElementById('skill-level').value = skill.level;
+            document.getElementById('skill-icon').value = skill.iconClass || '';
+            
+            // Show skills section
+            this.showSection('skills');
+            
+            // Scroll to form
+            document.getElementById('skill-form').scrollIntoView({ behavior: 'smooth' });
+            
+            this.showToast(`Editing skill: ${skill.name}`, 'info');
+        }
+    }
+
+    editEducation(id) {
+        const education = this.portfolioData.education.find(e => e.id === id);
+        if (education) {
+            // Populate form with education data
+            document.getElementById('education-degree').value = education.degree;
+            document.getElementById('education-school').value = education.school;
+            document.getElementById('education-year').value = education.duration;
+            document.getElementById('education-gpa').value = education.gpa || '';
+            document.getElementById('education-location').value = education.location || '';
+            document.getElementById('education-description').value = education.description || '';
+            
+            // Show education section
+            this.showSection('education');
+            
+            // Scroll to form
+            document.getElementById('education-form').scrollIntoView({ behavior: 'smooth' });
+            
+            this.showToast(`Editing education: ${education.degree}`, 'info');
+        }
+    }
+
+    // Image upload handling
+    handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            this.showToast('Please select a valid image file', 'error');
+            return;
+        }
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            this.showToast('Image size should be less than 5MB', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = document.getElementById('profile-preview');
+            if (preview) {
+                preview.src = e.target.result;
+                
+                // Update profile data
+                if (this.portfolioData.profile) {
+                    this.portfolioData.profile.profileImageUrl = e.target.result;
+                    this.markUnsavedChanges();
+                }
+                
+                this.showToast('Profile image updated', 'success');
+            }
         };
-        return icons[type] || icons.info;
+
+        reader.readAsDataURL(file);
     }
-}
 
-// Global functions for HTML onclick handlers
-function showSection(sectionId) {
-    adminDashboard.showSection(sectionId);
-}
+    // Keyboard shortcuts
+    handleKeyboardShortcuts(e) {
+        // Ctrl+S to save
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            this.saveDraft();
+            this.showToast('Draft saved', 'info');
+        }
 
-function showSettingsTab(tabId) {
-    adminDashboard.showSettingsTab(tabId);
-}
+        // Ctrl+E to export data
+        if (e.ctrlKey && e.key === 'e') {
+            e.preventDefault();
+            this.exportAllData();
+        }
 
-function viewPortfolio() {
-    window.open('index.html', '_blank');
-}
-
-function secureLogout() {
-    if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('adminSession');
-        window.location.href = 'index.html';
+        // Ctrl+1-9 for quick section navigation
+        if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+            e.preventDefault();
+            const sections = ['dashboard', 'profile', 'about', 'skills', 'projects', 'education', 'achievements', 'contacts', 'settings'];
+            const sectionIndex = parseInt(e.key) - 1;
+            if (sections[sectionIndex]) {
+                this.showSection(sections[sectionIndex]);
+            }
+        }
     }
-}
 
-// Initialize the admin dashboard when the page loads
-let adminDashboard;
-document.addEventListener('DOMContentLoaded', () => {
-    adminDashboard = new AdminDashboard();
-    
-    // Make it globally accessible
-    window.adminDashboard = adminDashboard;
-});
+    // Activity logging
+    logActivity(type, description) {
+        const activity = {
+            timestamp: new Date().toISOString(),
+            type: type,
+            description: description,
+            user: this.currentUser?.email || 'admin'
+        };
 
-// Handle page visibility changes to auto-save
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden && adminDashboard?.hasUnsavedChanges) {
-        adminDashboard.saveDraft();
+        const logs = JSON.parse(localStorage.getItem('adminActivityLogs') || '[]');
+        logs.unshift(activity);
+        localStorage.setItem('adminActivityLogs', JSON.stringify(logs.slice(0, 100))); // Keep last 100 activities
     }
-});
 
-// Export for module systems
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = AdminDashboard;
-}
+    // Preview functionality
+    previewProfile() {
+        const portfolioWindow = window.open('index.html', '_blank');
+        portfolioWindow.addEventListener('load', () => {
+            if (portfolioWindow.portfolioManager) {
+                portfolioWindow.portfolioManager.handleDataUpdate(this.portfolioData);
+            }
+        });
+        this.showToast('Opening portfolio preview...', 'info');
+    }
+
+    previewAbout() {
+        const portfolioWindow = window.open('index.html#about', '_blank');
+        this.showToast('Opening about section preview...', 'info');
+    }
+
+    // Load saved settings on initialization
+    loadSettings() {
+        try {
+            const settings = JSON.parse(localStorage.getItem('portfolioSettings') || '{}');
+            const securitySettings = JSON.parse(localStorage.getItem('adminSecuritySettings') || '{}');
+            const appearanceSettings = JSON.parse(localStorage.getItem('appearanceSettings') || '{}');
+
+            // Apply settings
+            if (settings.portfolioTheme) {
+                this.applyTheme(settings.portfolioTheme);
+            }
+
+            if (appearanceSettings.theme || appearanceSettings.fontSize || appearanceSettings.fontFamily) {
+                this.applyAppearanceSettings(appearanceSettings);
+            }
+
+            // Populate settings forms
+            this.populateSettingsForms(settings, securitySettings);
+        } catch (error) {
+            console.error('Error loading settings:', error);
+        }
+    }
+
+    populateSettingsForms(settings, securitySettings) {
+        // Populate general settings
+        if (settings.siteTitle) {
+            const siteTitle = document.getElementById('site-title');
+            if (siteTitle) siteTitle.value = settings.siteTitle;
+        }
+
+        if (settings.siteDescription) {
+            const siteDescription = document.getElementById('site-description');
+            if

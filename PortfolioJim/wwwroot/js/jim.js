@@ -19,7 +19,7 @@ class PortfolioMain {
         this.setupEventListeners();
         this.setupMobileMenu();
         this.setupScrollEffects();
-        this.setupThemeToggle();
+        // this.setupThemeToggle(); // REMOVED - Theme toggle functionality disabled
         this.setupTypingEffect();
         this.setupParticleSystem();
         await this.loadData();
@@ -445,6 +445,7 @@ class PortfolioMain {
         });
     }
 
+    /* REMOVED - Theme toggle functionality disabled
     setupThemeToggle() {
         // Create theme toggle button if it doesn't exist
         let themeToggle = document.querySelector('.theme-toggle');
@@ -476,6 +477,7 @@ class PortfolioMain {
             themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
         }
     }
+    */
 
     setupTypingEffect() {
         const typingElement = document.querySelector('.hero-description');

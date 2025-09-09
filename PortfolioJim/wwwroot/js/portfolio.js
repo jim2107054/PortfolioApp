@@ -38,9 +38,15 @@ class PortfolioManager {
                         block: 'start'
                     });
                     this.updateActiveNavLink(anchor.getAttribute('href'));
+                    
+                    // Close mobile menu when link is clicked
+                    this.closeMobileMenu();
                 }
             });
         });
+
+        // Hamburger menu toggle functionality
+        this.setupMobileMenu();
 
         // Navbar scroll behavior
         window.addEventListener('scroll', () => {
@@ -67,21 +73,23 @@ class PortfolioManager {
 
         // Window resize for mobile menu
         window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                document.getElementById('nav-menu')?.classList.remove('active');
+            if (window.innerWidth > 992) {
+                this.closeMobileMenu();
             }
         });
 
-        // Keyboard shortcuts
+        // Escape key to close mobile menu
         document.addEventListener('keydown', (e) => {
-            // Alt + A to open admin panel
-            if (e.altKey && e.key === 'a') {
-                e.preventDefault();
-                if (window.adminAuth?.isAuthenticated()) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.adminAuth?.showAdminLogin();
-                }
+            if (e.key === 'Escape') {
+                this.closeMobileMenu();
+            }
+        });
+
+        // Storage event listener for real-time updates from admin
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'portfolioData' && e.newValue) {
+                console.log('Portfolio data updated from admin dashboard');
+                this.handleDataUpdate(JSON.parse(e.newValue));
             }
         });
 
@@ -94,24 +102,229 @@ class PortfolioManager {
         window.addEventListener('portfolioDataUpdate', (e) => {
             this.handleDataUpdate(e.detail);
         });
+
+        // Listen for messages from admin window
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'adminDataUpdate') {
+                console.log('Received data update from admin:', e.data.data);
+                this.handleDataUpdate(e.data.data);
+            }
+        });
+    }
+
+    setupMobileMenu() {
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        if (!navToggle || !navMenu) return;
+
+        // Toggle mobile menu
+        navToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleMobileMenu();
+        });
+
+        // Close menu when clicking on overlay
+        document.addEventListener('click', (e) => {
+            if (navMenu.classList.contains('active') && 
+                !navMenu.contains(e.target) && 
+                !navToggle.contains(e.target)) {
+                this.closeMobileMenu();
+            }
+        });
+
+        // Handle touch events for better mobile experience
+        let touchStartY = 0;
+        navMenu.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        navMenu.addEventListener('touchmove', (e) => {
+            if (navMenu.classList.contains('active')) {
+                const touchY = e.touches[0].clientY;
+                const deltaY = touchY - touchStartY;
+                
+                // Prevent scrolling when menu is open
+                if (Math.abs(deltaY) > 10) {
+                    e.preventDefault();
+                }
+            }
+        });
+
+        // Add keyboard navigation support
+        navToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.toggleMobileMenu();
+            }
+        });
+
+        // Enhanced navigation link handling
+        navLinks.forEach((link, index) => {
+            link.addEventListener('focus', () => {
+                if (window.innerWidth <= 992 && !navMenu.classList.contains('active')) {
+                    this.openMobileMenu();
+                }
+            });
+        });
+    }
+
+    toggleMobileMenu() {
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (!navToggle || !navMenu) return;
+
+        const isActive = navMenu.classList.contains('active');
+        
+        if (isActive) {
+            this.closeMobileMenu();
+        } else {
+            this.openMobileMenu();
+        }
+    }
+
+    openMobileMenu() {
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (!navToggle || !navMenu) return;
+
+        // Add active classes
+        navToggle.classList.add('active');
+        navMenu.classList.add('active');
+        
+        // Update ARIA attributes
+        navToggle.setAttribute('aria-expanded', 'true');
+        navMenu.setAttribute('aria-hidden', 'false');
+        
+        // Prevent body scroll
+        document.body.classList.add('nav-open');
+        
+        // Create and show overlay
+        this.createMobileOverlay();
+        
+        // Focus management for accessibility
+        setTimeout(() => {
+            const firstNavLink = navMenu.querySelector('.nav-link');
+            if (firstNavLink) {
+                firstNavLink.focus();
+            }
+        }, 300);
+
+        // Announce to screen readers
+        this.announceToScreenReader('Navigation menu opened');
+    }
+
+    closeMobileMenu() {
+        const navToggle = document.getElementById('nav-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        
+        if (!navToggle || !navMenu) return;
+
+        // Remove active classes
+        navToggle.classList.remove('active');
+        navMenu.classList.remove('active');
+        
+        // Update ARIA attributes
+        navToggle.setAttribute('aria-expanded', 'false');
+        navMenu.setAttribute('aria-hidden', 'true');
+        
+        // Allow body scroll
+        document.body.classList.remove('nav-open');
+        
+        // Remove overlay
+        this.removeMobileOverlay();
+
+        // Return focus to toggle button
+        if (document.activeElement !== navToggle) {
+            navToggle.focus();
+        }
+
+        // Announce to screen readers
+        this.announceToScreenReader('Navigation menu closed');
+    }
+
+    createMobileOverlay() {
+        // Remove existing overlay if any
+        this.removeMobileOverlay();
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
+        
+        // Close menu when overlay is clicked
+        overlay.addEventListener('click', () => {
+            this.closeMobileMenu();
+        });
+        
+        document.body.appendChild(overlay);
+        
+        // Trigger animation
+        setTimeout(() => {
+            overlay.classList.add('active');
+        }, 10);
+    }
+
+    removeMobileOverlay() {
+        const overlay = document.querySelector('.nav-overlay');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.remove();
+                }
+            }, 300);
+        }
+    }
+
+    announceToScreenReader(message) {
+        const announcement = document.createElement('div');
+        announcement.setAttribute('aria-live', 'polite');
+        announcement.setAttribute('aria-atomic', 'true');
+        announcement.className = 'sr-only';
+        announcement.textContent = message;
+        
+        document.body.appendChild(announcement);
+        
+        setTimeout(() => {
+            document.body.removeChild(announcement);
+        }, 1000);
     }
 
     async loadPortfolioData() {
         try {
-            // Try to load from localStorage first (for offline support)
+            // Always load from localStorage first (this is where admin saves data)
             const cachedData = this.loadCachedData();
             if (cachedData) {
-                this.data = cachedData;
+                this.data = { ...this.data, ...cachedData };
+                console.log('Loaded portfolio data:', this.data);
+            } else {
+                // If no cached data, load default data
+                this.loadDefaultData();
             }
 
-            // Then try to load from API
-            await this.loadFromAPI();
+            // Initialize mock API if not already done
+            if (!window.mockAPI) {
+                await this.initializeMockAPI();
+            }
+
+            // Try to load fresh data from mock API
+            await this.loadFromMockAPI();
         } catch (error) {
             console.error('Error loading portfolio data:', error);
             // Fall back to default data if no cached data and API fails
             if (!this.data.profile) {
                 this.loadDefaultData();
             }
+        }
+    }
+
+    async initializeMockAPI() {
+        // Initialize mock API if the script is loaded
+        if (typeof MockAPIService !== 'undefined') {
+            window.mockAPI = new MockAPIService();
         }
     }
 
@@ -125,41 +338,31 @@ class PortfolioManager {
         }
     }
 
-    async loadFromAPI() {
-        const baseUrl = '/api';
+    async loadFromMockAPI() {
+        if (!window.mockAPI) return;
+
         try {
-            const [profileRes, skillsRes, projectsRes, educationRes, achievementsRes] = await Promise.all([
-                fetch(`${baseUrl}/profile`).catch(() => null),
-                fetch(`${baseUrl}/skills`).catch(() => null),
-                fetch(`${baseUrl}/projects`).catch(() => null),
-                fetch(`${baseUrl}/education`).catch(() => null),
-                fetch(`${baseUrl}/achievements`).catch(() => null)
+            // Load all data sections
+            const [profile, skills, projects, education, achievements, contacts] = await Promise.all([
+                window.mockAPI.getProfile(),
+                window.mockAPI.getSkills(),
+                window.mockAPI.getProjects(),
+                window.mockAPI.getEducation(),
+                window.mockAPI.getAchievements(),
+                window.mockAPI.getContacts()
             ]);
 
-            if (profileRes?.ok) {
-                this.data.profile = await profileRes.json();
-            }
+            // Update data if API returns valid results
+            if (profile) this.data.profile = profile;
+            if (skills && skills.length > 0) this.data.skills = skills;
+            if (projects && projects.length > 0) this.data.projects = projects;
+            if (education && education.length > 0) this.data.education = education;
+            if (achievements && achievements.length > 0) this.data.achievements = achievements;
+            if (contacts && contacts.length > 0) this.data.contacts = contacts;
 
-            if (skillsRes?.ok) {
-                this.data.skills = await skillsRes.json();
-            }
-
-            if (projectsRes?.ok) {
-                this.data.projects = await projectsRes.json();
-            }
-
-            if (educationRes?.ok) {
-                this.data.education = await educationRes.json();
-            }
-
-            if (achievementsRes?.ok) {
-                this.data.achievements = await achievementsRes.json();
-            }
-
-            // Cache the loaded data
-            this.cacheData();
+            console.log('Updated data from mock API:', this.data);
         } catch (error) {
-            console.warn('API not available, using cached or default data');
+            console.warn('Mock API not available, using cached data');
         }
     }
 
@@ -353,7 +556,7 @@ class PortfolioManager {
 
     async refreshContent() {
         this.showToast('Refreshing content...', 'info');
-        await this.loadFromAPI();
+        await this.loadPortfolioData();
         this.renderContent();
         this.showToast('Content refreshed!', 'success');
     }
@@ -364,7 +567,16 @@ class PortfolioManager {
         this.showToast(isPreview ? 'Preview mode enabled' : 'Preview mode disabled', 'info');
     }
 
+    handleDataUpdate(updatedData) {
+        console.log('Handling data update:', updatedData);
+        this.data = { ...this.data, ...updatedData };
+        this.cacheData();
+        this.renderContent();
+        this.showToast('Content updated from admin panel', 'success');
+    }
+
     renderContent() {
+        console.log('Rendering content with data:', this.data);
         this.renderProfile();
         this.renderAbout();
         this.renderSkills();
@@ -429,8 +641,13 @@ class PortfolioManager {
 
     renderSkills() {
         const skillsContainer = document.getElementById('skills-container');
-        if (!skillsContainer || !this.data.skills.length) return;
+        if (!skillsContainer || !this.data.skills || this.data.skills.length === 0) {
+            console.log('No skills to render or container not found');
+            return;
+        }
 
+        console.log('Rendering skills:', this.data.skills);
+        
         const skillsByCategory = this.groupBy(this.data.skills, 'category');
         
         skillsContainer.innerHTML = Object.entries(skillsByCategory).map(([category, skills]) => `
@@ -459,7 +676,12 @@ class PortfolioManager {
 
     renderProjects() {
         const projectsContainer = document.getElementById('projects-container');
-        if (!projectsContainer || !this.data.projects.length) return;
+        if (!projectsContainer || !this.data.projects || this.data.projects.length === 0) {
+            console.log('No projects to render or container not found');
+            return;
+        }
+
+        console.log('Rendering projects:', this.data.projects);
 
         projectsContainer.innerHTML = this.data.projects.map(project => `
             <div class="project-card" data-category="${project.category}" data-status="${project.status}">
@@ -494,7 +716,12 @@ class PortfolioManager {
 
     renderEducation() {
         const educationContainer = document.getElementById('education-container');
-        if (!educationContainer || !this.data.education.length) return;
+        if (!educationContainer || !this.data.education || this.data.education.length === 0) {
+            console.log('No education to render or container not found');
+            return;
+        }
+
+        console.log('Rendering education:', this.data.education);
 
         educationContainer.innerHTML = this.data.education.map(edu => `
             <div class="education-item">
@@ -522,7 +749,12 @@ class PortfolioManager {
 
     renderAchievements() {
         const achievementsContainer = document.getElementById('achievements-container');
-        if (!achievementsContainer || !this.data.achievements.length) return;
+        if (!achievementsContainer || !this.data.achievements || this.data.achievements.length === 0) {
+            console.log('No achievements to render or container not found');
+            return;
+        }
+
+        console.log('Rendering achievements:', this.data.achievements);
 
         achievementsContainer.innerHTML = this.data.achievements.map(achievement => `
             <div class="achievement-card" data-type="${achievement.type}" data-level="${achievement.level}">
@@ -704,7 +936,7 @@ class PortfolioManager {
         const formData = new FormData(e.target);
         const contactData = {
             name: formData.get('name'),
-            email: formData.get('email'),
+            email: formData.get('email',
             subject: formData.get('subject'),
             message: formData.get('message'),
             createdDate: new Date().toISOString(),
@@ -721,24 +953,23 @@ class PortfolioManager {
         submitBtn.disabled = true;
 
         try {
-            // Try to submit to API
-            const response = await fetch('/api/contact', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(contactData)
-            });
-
-            if (response.ok) {
-                this.showToast('Message sent successfully!', 'success');
-                e.target.reset();
-                this.updateFormProgress();
+            // Use mock API to save contact
+            if (window.mockAPI) {
+                const result = await window.mockAPI.addContact(contactData);
+                if (result) {
+                    this.showToast('Message sent successfully!', 'success');
+                    e.target.reset();
+                    this.updateFormProgress();
+                } else {
+                    throw new Error('Failed to send message');
+                }
             } else {
-                throw new Error('Failed to send message');
+                throw new Error('API not available');
             }
         } catch (error) {
             console.error('Error sending message:', error);
             
-            // Fallback: store in localStorage and show alternative
+            // Fallback: store in localStorage
             const contacts = JSON.parse(localStorage.getItem('portfolioContacts') || '[]');
             contacts.push(contactData);
             localStorage.setItem('portfolioContacts', JSON.stringify(contacts));
@@ -854,36 +1085,216 @@ class PortfolioManager {
         this.showToast('Admin logged out', 'info');
     }
 
-    handleDataUpdate(updatedData) {
-        this.data = { ...this.data, ...updatedData };
-        this.cacheData();
-        this.renderContent();
-        this.showToast('Content updated from admin panel', 'success');
+    // Enhanced Hero Section functionality
+    initializeHero() {
+        this.createParticles();
+        this.animateCounters();
+        this.setupTypingEffect();
+        this.addScrollParallax();
     }
 
-    // Public API for external access
-    async updateData(section, data) {
-        if (this.data[section]) {
-            this.data[section] = data;
-            this.cacheData();
-            this.renderContent();
+    createParticles() {
+        const particlesContainer = document.getElementById('hero-particles');
+        if (!particlesContainer) return;
+
+        const particleCount = window.innerWidth < 768 ? 15 : 25;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
             
-            // Dispatch event for other components
-            window.dispatchEvent(new CustomEvent('portfolioDataUpdate', {
-                detail: { [section]: data }
-            }));
+            // Random size between 2px and 6px
+            const size = Math.random() * 4 + 2;
+            particle.style.width = size + 'px';
+            particle.style.height = size + 'px';
+            
+            // Random horizontal position
+            particle.style.left = Math.random() * 100 + '%';
+            
+            // Random animation delay
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            
+            // Random animation duration
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            
+            particlesContainer.appendChild(particle);
         }
     }
 
-    getData(section) {
-        return section ? this.data[section] : this.data;
+    animateCounters() {
+        const counters = document.querySelectorAll('.hero-stat-number');
+        
+        const animateCounter = (counter) => {
+            const target = parseInt(counter.textContent.replace(/[^0-9]/g, ''));
+            const increment = target / 50;
+            let current = 0;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = counter.textContent.replace(/[0-9]+/, target);
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = counter.textContent.replace(/[0-9]+/, Math.ceil(current));
+                }
+            }, 40);
+        };
+
+        // Use Intersection Observer to trigger animation when section is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    counters.forEach(counter => animateCounter(counter));
+                    observer.disconnect(); // Run only once
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const heroSection = document.getElementById('home');
+        if (heroSection) {
+            observer.observe(heroSection);
+        }
     }
 
-    // Method to refresh from admin updates
-    async refreshFromAdmin() {
-        await this.loadFromAPI();
-        this.renderContent();
-        this.showToast('Portfolio updated from admin panel!', 'success');
+    setupTypingEffect() {
+        const titles = [
+            'Full Stack Developer',
+            'Software Engineer', 
+            'Web Developer',
+            'Problem Solver',
+            'Tech Enthusiast'
+        ];
+        
+        const titleElement = document.getElementById('hero-title');
+        if (!titleElement) return;
+
+        let titleIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        let isPaused = false;
+
+        const typeTitle = () => {
+            const currentTitle = titles[titleIndex];
+            
+            if (!isDeleting && charIndex < currentTitle.length) {
+                // Typing
+                titleElement.textContent = currentTitle.substring(0, charIndex + 1);
+                charIndex++;
+                setTimeout(typeTitle, 100);
+            } else if (isDeleting && charIndex > 0) {
+                // Deleting
+                titleElement.textContent = currentTitle.substring(0, charIndex - 1);
+                charIndex--;
+                setTimeout(typeTitle, 50);
+            } else if (!isDeleting && charIndex === currentTitle.length) {
+                // Pause before deleting
+                if (!isPaused) {
+                    isPaused = true;
+                    setTimeout(() => {
+                        isPaused = false;
+                        isDeleting = true;
+                        typeTitle();
+                    }, 2000);
+                }
+            } else if (isDeleting && charIndex === 0) {
+                // Move to next title
+                isDeleting = false;
+                titleIndex = (titleIndex + 1) % titles.length;
+                setTimeout(typeTitle, 200);
+            }
+        };
+
+        // Start typing effect after a delay
+        setTimeout(typeTitle, 1000);
+    }
+
+    addScrollParallax() {
+        const hero = document.getElementById('home');
+        const heroContent = hero?.querySelector('.hero-content');
+        
+        if (!hero || !heroContent) return;
+
+        const handleScroll = () => {
+            const scrolled = window.pageYOffset;
+            const heroHeight = hero.offsetHeight;
+            const scrollPercent = scrolled / heroHeight;
+            
+            if (scrollPercent <= 1) {
+                // Parallax effect for hero content
+                heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
+                
+                // Fade out effect
+                const opacity = Math.max(0, 1 - scrollPercent * 1.5);
+                heroContent.style.opacity = opacity;
+            }
+        };
+
+        // Throttle scroll events for better performance
+        let ticking = false;
+        const optimizedScroll = () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    handleScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener('scroll', optimizedScroll);
+    }
+
+    // Enhanced smooth scrolling with easing
+    smoothScrollTo(target) {
+        const targetElement = document.querySelector(target);
+        if (!targetElement) return;
+
+        const targetPosition = targetElement.offsetTop - 80; // Account for fixed navbar
+        const startPosition = window.pageYOffset;
+        const distance = targetPosition - startPosition;
+        const duration = 1000;
+        let start = null;
+
+        const easeInOutCubic = (t) => {
+            return t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+        };
+
+        const animation = (currentTime) => {
+            if (start === null) start = currentTime;
+            const timeElapsed = currentTime - start;
+            const progress = Math.min(timeElapsed / duration, 1);
+            const ease = easeInOutCubic(progress);
+            
+            window.scrollTo(0, startPosition + distance * ease);
+            
+            if (timeElapsed < duration) {
+                requestAnimationFrame(animation);
+            }
+        };
+
+        requestAnimationFrame(animation);
+    }
+
+    // Add floating animation to hero elements
+    addFloatingAnimations() {
+        const floatingElements = document.querySelectorAll('.hero-skills .skill-tag');
+        
+        floatingElements.forEach((element, index) => {
+            element.style.animationDelay = `${index * 0.2}s`;
+            element.classList.add('floating-element');
+        });
+    }
+
+    // Enhanced initialization
+    init() {
+        this.initializeHero();
+        this.addFloatingAnimations();
+        this.loadPortfolioData();
+        this.setupEventListeners();
+        this.updateActiveNavOnScroll();
+        this.initializeContactForm();
+        this.checkAdminStatus();
+        this.addScrollAnimations();
     }
 }
 

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Admin Integration Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .data-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Portfolio Admin Integration Test</h1>
+        
+        <div class="section">
+            <h2>1. Admin Authentication Test</h2>
+            <button class="btn" onclick="testAdminLogin()">Test Admin Login</button>
+            <button class="btn" onclick="testAdminLogout()">Test Admin Logout</button>
+            <div id="auth-status"></div>
+        </div>
+
+        <div class="section">
+            <h2>2. Data Management Test</h2>
+            <button class="btn" onclick="addTestProject()">Add Test Project</button>
+            <button class="btn" onclick="addTestSkill()">Add Test Skill</button>
+            <button class="btn" onclick="addTestAchievement()">Add Test Achievement</button>
+            <button class="btn" onclick="loadPortfolioData()">Load Portfolio Data</button>
+            <div id="data-status"></div>
+        </div>
+
+        <div class="section">
+            <h2>3. Real-time Updates Test</h2>
+            <button class="btn" onclick="testRealTimeUpdates()">Test Real-time Updates</button>
+            <div id="update-status"></div>
+        </div>
+
+        <div class="section">
+            <h2>4. Current Portfolio Data</h2>
+            <button class="btn" onclick="displayCurrentData()">Display Current Data</button>
+            <div id="current-data" class="data-display"></div>
+        </div>
+
+        <div class="section">
+            <h2>5. Integration Status</h2>
+            <div id="integration-status"></div>
+        </div>
+    </div>
+
+    <!-- Include the portfolio scripts -->
+    <script src="js/mock-api.js"></script>
+    <script src="js/portfolio.js"></script>
+    <script src="js/admin.js"></script>
+
+    <script>
+        // Test functions
+        let testResults = {
+            adminAuth: false,
+            dataManagement: false,
+            realTimeUpdates: false,
+            portfolioIntegration: false
+        };
+
+        function updateStatus(elementId, message, isSuccess = true) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        function testAdminLogin() {
+            try {
+                // Test admin authentication
+                if (window.adminAuth) {
+                    // Simulate login
+                    const testCredentials = {
+                        email: 'admin@portfolio.com',
+                        password: 'admin123'
+                    };
+
+                    updateStatus('auth-status', 'Admin authentication system loaded successfully!', true);
+                    testResults.adminAuth = true;
+                } else {
+                    updateStatus('auth-status', 'Admin authentication system not found!', false);
+                }
+            } catch (error) {
+                updateStatus('auth-status', `Admin auth error: ${error.message}`, false);
+            }
+        }
+
+        function testAdminLogout() {
+            try {
+                if (window.adminAuth && window.adminAuth.isAuthenticated()) {
+                    window.adminAuth.performLogout();
+                    updateStatus('auth-status', 'Admin logged out successfully!', true);
+                } else {
+                    updateStatus('auth-status', 'No active admin session to logout from.', false);
+                }
+            } catch (error) {
+                updateStatus('auth-status', `Logout error: ${error.message}`, false);
+            }
+        }
+
+        function addTestProject() {
+            try {
+                if (window.mockAPI) {
+                    const testProject = {
+                        title: 'Test Integration Project',
+                        description: 'This is a test project to verify admin-portfolio integration',
+                        technologies: 'JavaScript, HTML, CSS',
+                        status: 'Completed',
+                        category: 'Web Development',
+                        imageUrl: 'images/test-project.jpg',
+                        githubUrl: 'https://github.com/test/integration-test'
+                    };
+
+                    window.mockAPI.addProject(testProject).then(result => {
+                        if (result) {
+                            updateStatus('data-status', 'Test project added successfully!', true);
+                            testResults.dataManagement = true;
+                        } else {
+                            updateStatus('data-status', 'Failed to add test project!', false);
+                        }
+                    });
+                } else {
+                    updateStatus('data-status', 'Mock API not available!', false);
+                }
+            } catch (error) {
+                updateStatus('data-status', `Project add error: ${error.message}`, false);
+            }
+        }
+
+        function addTestSkill() {
+            try {
+                if (window.mockAPI) {
+                    const testSkill = {
+                        name: 'Test Integration',
+                        category: 'Tools',
+                        level: 'Advanced',
+                        iconClass: 'fas fa-cog',
+                        proficiencyPercentage: 95
+                    };
+
+                    window.mockAPI.addSkill(testSkill).then(result => {
+                        if (result) {
+                            updateStatus('data-status', 'Test skill added successfully!', true);
+                        } else {
+                            updateStatus('data-status', 'Failed to add test skill!', false);
+                        }
+                    });
+                } else {
+                    updateStatus('data-status', 'Mock API not available!', false);
+                }
+            } catch (error) {
+                updateStatus('data-status', `Skill add error: ${error.message}`, false);
+            }
+        }
+
+        function addTestAchievement() {
+            try {
+                if (window.mockAPI) {
+                    const testAchievement = {
+                        title: 'Integration Test Achievement',
+                        organization: 'Portfolio Test Suite',
+                        date: new Date().toISOString().split('T')[0],
+                        type: 'Certification',
+                        level: 'Professional',
+                        description: 'Successfully tested admin-portfolio integration system'
+                    };
+
+                    window.mockAPI.addAchievement(testAchievement).then(result => {
+                        if (result) {
+                            updateStatus('data-status', 'Test achievement added successfully!', true);
+                        } else {
+                            updateStatus('data-status', 'Failed to add test achievement!', false);
+                        }
+                    });
+                } else {
+                    updateStatus('data-status', 'Mock API not available!', false);
+                }
+            } catch (error) {
+                updateStatus('data-status', `Achievement add error: ${error.message}`, false);
+            }
+        }
+
+        function loadPortfolioData() {
+            try {
+                const portfolioData = localStorage.getItem('portfolioData');
+                if (portfolioData) {
+                    const data = JSON.parse(portfolioData);
+                    const projectCount = data.projects ? data.projects.length : 0;
+                    const skillCount = data.skills ? data.skills.length : 0;
+                    const achievementCount = data.achievements ? data.achievements.length : 0;
+                    
+                    updateStatus('data-status', 
+                        `Portfolio data loaded: ${projectCount} projects, ${skillCount} skills, ${achievementCount} achievements`, 
+                        true
+                    );
+                } else {
+                    updateStatus('data-status', 'No portfolio data found in localStorage!', false);
+                }
+            } catch (error) {
+                updateStatus('data-status', `Data load error: ${error.message}`, false);
+            }
+        }
+
+        function testRealTimeUpdates() {
+            try {
+                // Test real-time update mechanism
+                let updateReceived = false;
+
+                const testListener = (event) => {
+                    updateReceived = true;
+                    updateStatus('update-status', 'Real-time update received successfully!', true);
+                    testResults.realTimeUpdates = true;
+                    window.removeEventListener('storage', testListener);
+                };
+
+                window.addEventListener('storage', testListener);
+
+                // Simulate data update
+                const testData = { test: 'Real-time update test', timestamp: Date.now() };
+                localStorage.setItem('testUpdate', JSON.stringify(testData));
+                
+                // Check if update was received
+                setTimeout(() => {
+                    if (!updateReceived) {
+                        updateStatus('update-status', 'Real-time updates may not be working properly', false);
+                        window.removeEventListener('storage', testListener);
+                    }
+                    localStorage.removeItem('testUpdate');
+                }, 1000);
+
+            } catch (error) {
+                updateStatus('update-status', `Real-time update error: ${error.message}`, false);
+            }
+        }
+
+        function displayCurrentData() {
+            try {
+                const portfolioData = localStorage.getItem('portfolioData');
+                if (portfolioData) {
+                    const data = JSON.parse(portfolioData);
+                    document.getElementById('current-data').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    document.getElementById('current-data').textContent = 'No portfolio data found';
+                }
+            } catch (error) {
+                document.getElementById('current-data').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function checkIntegrationStatus() {
+            const status = document.getElementById('integration-status');
+            let statusHtml = '<h3>Integration Status:</h3>';
+
+            // Check if all components are loaded
+            const components = {
+                'Mock API': window.mockAPI,
+                'Portfolio Manager': window.portfolioManager,
+                'Admin Auth': window.adminAuth,
+                'Local Storage': localStorage.getItem('portfolioData')
+            };
+
+            Object.entries(components).forEach(([name, component]) => {
+                const isAvailable = component ? true : false;
+                statusHtml += `<div class="${isAvailable ? 'success' : 'error'}">${name}: ${isAvailable ? 'Available' : 'Not Available'}</div>`;
+            });
+
+            // Overall integration status
+            const allAvailable = Object.values(components).every(c => c);
+            statusHtml += `<div class="${allAvailable ? 'success' : 'error'}">Overall Integration: ${allAvailable ? 'Working' : 'Issues Detected'}</div>`;
+
+            status.innerHTML = statusHtml;
+            testResults.portfolioIntegration = allAvailable;
+        }
+
+        // Initialize tests when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait a bit for all scripts to load
+            setTimeout(() => {
+                checkIntegrationStatus();
+                
+                // Auto-run some basic tests
+                testAdminLogin();
+                loadPortfolioData();
+            }, 1000);
+        });
+
+        // Run comprehensive test
+        function runAllTests() {
+            testAdminLogin();
+            addTestProject();
+            addTestSkill();
+            addTestAchievement();
+            testRealTimeUpdates();
+            
+            setTimeout(() => {
+                loadPortfolioData();
+                displayCurrentData();
+                checkIntegrationStatus();
+            }, 2000);
+        }
+
+        // Auto-run all tests after 2 seconds
+        setTimeout(runAllTests, 2000);
+    </script>
+</body>
+</html>

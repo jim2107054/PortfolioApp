@@ -104,6 +104,14 @@
                     <span class="logo-text">Jahid</span><span class="logo-dot">.</span>
                 </a>
             </div>
+            
+            <!-- Hamburger Menu Button for Mobile -->
+            <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+            
             <ul class="nav-menu" id="nav-menu" role="menubar">
                 <li class="nav-item" role="none">
                     <a href="#home" class="nav-link active" role="menuitem">Home</a>
@@ -184,6 +192,9 @@
     <main id="main-content">
         <!-- Home Section -->
         <section id="home" class="hero" aria-label="Introduction">
+            <!-- Particle Background -->
+            <div class="hero-particles" id="hero-particles"></div>
+            
             <div class="hero-container">
                 <div class="hero-content">
                     <div class="hero-text">
@@ -194,10 +205,28 @@
                             Passionate about creating innovative web solutions and scalable applications. 
                             I transform ideas into digital reality with clean code and modern technologies.
                         </p>
-                        <div class="hero-buttons">
-                            <a href="#projects" class="btn btn-primary">View My Work</a>
-                            <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                        
+                        <!-- Skills Preview -->
+                        <div class="hero-skills">
+                            <span class="skill-tag">React</span>
+                            <span class="skill-tag">Node.js</span>
+                            <span class="skill-tag">C#</span>
+                            <span class="skill-tag">ASP.NET</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">Azure</span>
                         </div>
+                        
+                        <div class="hero-buttons">
+                            <a href="#projects" class="btn btn-primary">
+                                <i class="fas fa-rocket"></i>
+                                View My Work
+                            </a>
+                            <a href="#contact" class="btn btn-secondary">
+                                <i class="fas fa-envelope"></i>
+                                Get In Touch
+                            </a>
+                        </div>
+                        
                         <div class="hero-social" role="list" aria-label="Social media links" id="hero-social">
                             <a href="https://www.linkedin.com/in/md-jahid-hasan-jim/" class="social-link" aria-label="LinkedIn Profile" role="listitem" target="_blank">
                                 <i class="fab fa-linkedin"></i>
@@ -212,7 +241,24 @@
                                 <i class="fab fa-whatsapp"></i>
                             </a>
                         </div>
+                        
+                        <!-- Statistics -->
+                        <div class="hero-stats">
+                            <div class="hero-stat">
+                                <span class="hero-stat-number" id="projects-count">4+</span>
+                                <span class="hero-stat-label">Projects</span>
+                            </div>
+                            <div class="hero-stat">
+                                <span class="hero-stat-number" id="experience-years">3+</span>
+                                <span class="hero-stat-label">Years Exp</span>
+                            </div>
+                            <div class="hero-stat">
+                                <span class="hero-stat-number" id="technologies-count">10+</span>
+                                <span class="hero-stat-label">Technologies</span>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="hero-image">
                         <div class="image-container">
                             <div class="hero-avatar" role="img" aria-label="Jahid Hasan Jim profile image" id="hero-avatar">
@@ -221,6 +267,7 @@
                         </div>
                     </div>
                 </div>
+                
                 <div class="scroll-indicator">
                     <a href="#about" class="scroll-down" aria-label="Scroll to about section">
                         <i class="fas fa-chevron-down"></i>
