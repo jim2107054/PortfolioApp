@@ -1,4 +1,4 @@
-// Admin Authentication and Management - Enhanced Modal Version
+// Enhanced Admin Authentication and Management with Portfolio Integration
 class AdminAuth {
     constructor() {
         this.currentUser = null;
@@ -7,6 +7,7 @@ class AdminAuth {
             email: 'admin@portfolio.com',
             password: 'admin123'
         };
+        this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
         this.init();
     }
 
@@ -14,6 +15,7 @@ class AdminAuth {
         this.checkExistingSession();
         this.setupEventListeners();
         this.showAdminAccess();
+        this.initializePortfolioIntegration();
     }
 
     setupEventListeners() {
@@ -31,6 +33,16 @@ class AdminAuth {
                 this.showAdminLogin();
             }
 
+            // Alt + A for quick admin access
+            if (e.altKey && e.key === 'a') {
+                e.preventDefault();
+                if (this.isLoggedIn) {
+                    window.location.href = 'admin.html';
+                } else {
+                    this.showAdminLogin();
+                }
+            }
+
             // Escape to close modal
             if (e.key === 'Escape') {
                 this.hideAdminLogin();
@@ -46,6 +58,44 @@ class AdminAuth {
                 }
             });
         }
+
+        // Listen for logout from admin panel
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'adminLogout') {
+                this.handleAdminPanelLogout();
+            }
+        });
+
+        // Listen for admin data updates
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'adminSession') {
+                this.checkExistingSession();
+            }
+        });
+    }
+
+    initializePortfolioIntegration() {
+        // Connect with portfolio manager if available
+        if (window.portfolioManager) {
+            this.portfolioManager = window.portfolioManager;
+        }
+
+        // Set up communication channel
+        this.setupPortfolioCommunication();
+    }
+
+    setupPortfolioCommunication() {
+        // Create a communication bridge between admin and portfolio
+        window.addEventListener('adminDataUpdate', (e) => {
+            this.handleAdminDataUpdate(e.detail);
+        });
+
+        // Notify portfolio of admin state changes
+        window.addEventListener('beforeunload', () => {
+            if (this.isLoggedIn) {
+                this.notifyPortfolioUpdate();
+            }
+        });
     }
 
     checkExistingSession() {
@@ -55,16 +105,19 @@ class AdminAuth {
                 const session = JSON.parse(savedSession);
                 const now = new Date().getTime();
                 
-                // Check if session is still valid (24 hours)
+                // Check if session is still valid
                 if (session.expires > now) {
                     this.currentUser = session.user;
                     this.isLoggedIn = true;
                     this.showAdminFeatures();
+                    this.dispatchAuthStateChange(true);
                 } else {
                     localStorage.removeItem('adminSession');
+                    this.dispatchAuthStateChange(false);
                 }
             } catch (error) {
                 localStorage.removeItem('adminSession');
+                this.dispatchAuthStateChange(false);
             }
         }
     }
@@ -79,48 +132,83 @@ class AdminAuth {
         this.showLoginLoading(true);
         this.hideLoginError();
 
-        // Simulate authentication delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+            // Simulate authentication delay for better UX
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-        if (email === this.adminCredentials.email && password === this.adminCredentials.password) {
-            this.loginSuccess(email);
-        } else {
-            this.loginError();
+            // Check credentials (in production, this would be an API call)
+            if (await this.validateCredentials(email, password)) {
+                await this.loginSuccess(email);
+            } else {
+                this.loginError();
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            this.loginError('An error occurred during login. Please try again.');
+        } finally {
+            this.showLoginLoading(false);
         }
-
-        this.showLoginLoading(false);
     }
 
-    loginSuccess(email) {
-        this.currentUser = { email };
+    async validateCredentials(email, password) {
+        // In a real application, this would make an API call
+        // For demo purposes, we'll check against hardcoded credentials
+        return email === this.adminCredentials.email && password === this.adminCredentials.password;
+    }
+
+    async loginSuccess(email) {
+        this.currentUser = { 
+            email,
+            loginTime: new Date().toISOString(),
+            permissions: ['read', 'write', 'delete'] // Example permissions
+        };
         this.isLoggedIn = true;
 
-        // Save session to localStorage
+        // Save session to localStorage with expiration
         const session = {
             user: this.currentUser,
-            expires: new Date().getTime() + (24 * 60 * 60 * 1000) // 24 hours
+            expires: new Date().getTime() + this.sessionTimeout,
+            tokenHash: this.generateSessionToken()
         };
         localStorage.setItem('adminSession', JSON.stringify(session));
 
         // Show success message
         this.showLoginSuccess();
 
+        // Log the successful login
+        this.logAdminActivity('login', 'Admin logged in successfully');
+
         // Hide login modal after delay and redirect
         setTimeout(() => {
             this.hideAdminLogin();
             this.showAdminFeatures();
-            this.redirectToAdmin();
+            this.dispatchAuthStateChange(true);
+            
+            // Check if we should redirect to admin panel
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('redirect') === 'admin' || window.location.pathname.includes('admin')) {
+                this.redirectToAdmin();
+            }
         }, 1500);
     }
 
-    loginError() {
-        this.showLoginError();
-        // Clear password field
+    generateSessionToken() {
+        // Generate a simple session token (in production, use proper JWT or similar)
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
+    loginError(message = 'Invalid email or password. Please try again.') {
+        this.showLoginError(message);
+        
+        // Clear password field and focus on it
         const passwordField = document.getElementById('admin-password');
         if (passwordField) {
             passwordField.value = '';
             passwordField.focus();
         }
+
+        // Log failed login attempt
+        this.logAdminActivity('login_failed', 'Failed login attempt');
     }
 
     showAdminAccess() {
@@ -141,35 +229,47 @@ class AdminAuth {
         // 1. Already logged in
         // 2. On localhost/development environment
         // 3. URL contains admin parameter
-        // 4. Always show for testing purposes (can be removed in production)
+        // 4. Development mode is enabled
 
         if (this.isLoggedIn) return true;
         
         const hostname = window.location.hostname;
-        if (hostname === 'localhost' || hostname === '127.0.0.1') return true;
+        if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname.includes('dev')) return true;
         
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('admin')) return true;
+        if (urlParams.has('admin') || urlParams.has('debug')) return true;
 
-        // Show admin button for all users during development/testing
-        // Remove this line in production if you want to hide admin access
-        return true;
+        // Check for development mode flag
+        if (localStorage.getItem('devMode') === 'true') return true;
+
+        // For production, you might want to hide this completely or require a special key
+        return window.location.hostname.includes('localhost'); // Only show on localhost in production
     }
 
     showAdminButton() {
         const adminNavItem = document.getElementById('admin-nav-item');
         const dashboardNavItem = document.getElementById('dashboard-nav-item');
         
-        if (adminNavItem) adminNavItem.style.display = 'flex';
-        if (dashboardNavItem) dashboardNavItem.style.display = 'none';
+        if (adminNavItem) {
+            adminNavItem.style.display = 'flex';
+            adminNavItem.classList.add('admin-available');
+        }
+        if (dashboardNavItem) {
+            dashboardNavItem.style.display = 'none';
+        }
     }
 
     showDashboardButton() {
         const adminNavItem = document.getElementById('admin-nav-item');
         const dashboardNavItem = document.getElementById('dashboard-nav-item');
         
-        if (adminNavItem) adminNavItem.style.display = 'none';
-        if (dashboardNavItem) dashboardNavItem.style.display = 'flex';
+        if (adminNavItem) {
+            adminNavItem.style.display = 'none';
+        }
+        if (dashboardNavItem) {
+            dashboardNavItem.style.display = 'flex';
+            dashboardNavItem.classList.add('admin-authenticated');
+        }
     }
 
     showAdminFeatures() {
@@ -186,6 +286,24 @@ class AdminAuth {
         adminElements.forEach(element => {
             element.style.display = 'block';
         });
+
+        // Add admin styles to body
+        document.body.classList.add('admin-authenticated');
+
+        // Enable admin features in portfolio
+        this.enablePortfolioAdminFeatures();
+    }
+
+    enablePortfolioAdminFeatures() {
+        // Enable portfolio admin features if portfolio manager is available
+        if (window.portfolioManager) {
+            window.portfolioManager.showAdminFeatures();
+        }
+
+        // Dispatch event for other components
+        window.dispatchEvent(new CustomEvent('adminAuthenticated', {
+            detail: { user: this.currentUser }
+        }));
     }
 
     addAdminIndicator() {
@@ -195,21 +313,50 @@ class AdminAuth {
             existingIndicator.remove();
         }
 
-        // Create admin indicator
+        // Create enhanced admin indicator
         const indicator = document.createElement('div');
         indicator.className = 'admin-indicator';
         indicator.innerHTML = `
             <div class="admin-indicator-content">
-                <i class="fas fa-shield-alt"></i>
-                <span>Admin Mode</span>
-                <button onclick="adminAuth.logout()" class="admin-logout-btn" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+                <div class="admin-status">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="admin-info">
+                        <span class="admin-label">Admin Mode</span>
+                        <span class="admin-user">${this.currentUser.email}</span>
+                    </div>
+                </div>
+                <div class="admin-actions">
+                    <button onclick="adminAuth.openAdminPanel()" class="admin-action-btn" title="Open Admin Panel">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </button>
+                    <button onclick="adminAuth.refreshPortfolio()" class="admin-action-btn" title="Refresh Portfolio">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                    <button onclick="adminAuth.logout()" class="admin-logout-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
         `;
 
         // Add to page
         document.body.appendChild(indicator);
+
+        // Add animation
+        setTimeout(() => {
+            indicator.classList.add('visible');
+        }, 100);
+    }
+
+    openAdminPanel() {
+        window.open('admin.html', '_blank');
+    }
+
+    async refreshPortfolio() {
+        if (window.portfolioManager) {
+            await window.portfolioManager.refreshFromAdmin();
+            this.showToast('Portfolio refreshed!', 'success');
+        }
     }
 
     showAdminLogin() {
@@ -222,7 +369,9 @@ class AdminAuth {
             if (emailField) {
                 setTimeout(() => {
                     emailField.focus();
-                    emailField.select();
+                    if (emailField.value) {
+                        emailField.select();
+                    }
                 }, 400);
             }
 
@@ -233,16 +382,35 @@ class AdminAuth {
             this.hideLoginError();
             this.hideLoginSuccess();
             this.showLoginLoading(false);
+
+            // Add modal animation
+            const modalContent = modal.querySelector('.admin-modal-content');
+            if (modalContent) {
+                modalContent.style.transform = 'scale(0.8)';
+                modalContent.style.opacity = '0';
+                
+                setTimeout(() => {
+                    modalContent.style.transform = 'scale(1)';
+                    modalContent.style.opacity = '1';
+                }, 50);
+            }
         }
     }
 
     hideAdminLogin() {
         const modal = document.getElementById('admin-login-modal');
         if (modal) {
-            modal.classList.remove('show');
+            const modalContent = modal.querySelector('.admin-modal-content');
+            
+            if (modalContent) {
+                modalContent.style.transform = 'scale(0.8)';
+                modalContent.style.opacity = '0';
+            }
 
-            // Allow body scroll
-            document.body.style.overflow = '';
+            setTimeout(() => {
+                modal.classList.remove('show');
+                document.body.style.overflow = '';
+            }, 200);
         }
 
         // Clear form with a small delay to avoid flickering
@@ -280,9 +448,10 @@ class AdminAuth {
         }
     }
 
-    showLoginError() {
+    showLoginError(message = 'Invalid email or password. Please try again.') {
         const error = document.getElementById('admin-login-error');
         if (error) {
+            error.querySelector('span').textContent = message;
             error.style.display = 'flex';
             
             // Add shake animation
@@ -327,42 +496,132 @@ class AdminAuth {
         
         // Redirect to admin panel after a short delay
         setTimeout(() => {
-            window.location.href = 'admin.html';
+            if (window.location.pathname.includes('admin.html')) {
+                window.location.reload();
+            } else {
+                window.location.href = 'admin.html';
+            }
         }, 1000);
     }
 
     logout() {
         if (confirm('Are you sure you want to logout?')) {
-            // Clear session
-            localStorage.removeItem('adminSession');
-            this.currentUser = null;
-            this.isLoggedIn = false;
-
-            // Remove admin features
-            this.removeAdminFeatures();
-
-            // Show logout message
-            this.showLogoutMessage();
-
-            // Reset navbar
-            this.showAdminButton();
+            this.performLogout();
         }
+    }
+
+    performLogout() {
+        // Log the logout activity
+        this.logAdminActivity('logout', 'Admin logged out');
+
+        // Clear session
+        localStorage.removeItem('adminSession');
+        sessionStorage.clear();
+        
+        this.currentUser = null;
+        this.isLoggedIn = false;
+
+        // Remove admin features
+        this.removeAdminFeatures();
+
+        // Show logout message
+        this.showLogoutMessage();
+
+        // Reset navbar
+        this.showAdminButton();
+
+        // Dispatch auth state change
+        this.dispatchAuthStateChange(false);
+
+        // Notify portfolio of logout
+        if (window.portfolioManager) {
+            window.portfolioManager.hideAdminFeatures();
+        }
+
+        // If on admin page, redirect to portfolio
+        if (window.location.pathname.includes('admin.html')) {
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+    }
+
+    handleAdminPanelLogout() {
+        // Handle logout initiated from admin panel
+        this.performLogout();
     }
 
     removeAdminFeatures() {
         // Remove admin indicator
         const indicator = document.querySelector('.admin-indicator');
-        if (indicator) indicator.remove();
+        if (indicator) {
+            indicator.classList.remove('visible');
+            setTimeout(() => indicator.remove(), 300);
+        }
 
         // Hide admin-only elements
         const adminElements = document.querySelectorAll('.admin-only');
         adminElements.forEach(element => {
             element.style.display = 'none';
         });
+
+        // Remove admin styles from body
+        document.body.classList.remove('admin-authenticated');
+
+        // Dispatch logout event
+        window.dispatchEvent(new CustomEvent('adminLogout'));
     }
 
     showLogoutMessage() {
         this.showToast('Successfully logged out', 'success');
+    }
+
+    dispatchAuthStateChange(isAuthenticated) {
+        // Dispatch auth state change event for other components
+        window.dispatchEvent(new CustomEvent('adminStateChange', {
+            detail: { 
+                isAuthenticated,
+                user: this.currentUser 
+            }
+        }));
+    }
+
+    logAdminActivity(action, description) {
+        const activity = {
+            action,
+            description,
+            timestamp: new Date().toISOString(),
+            user: this.currentUser?.email || 'anonymous',
+            ip: '127.0.0.1', // In production, get real IP
+            userAgent: navigator.userAgent
+        };
+
+        // Store in localStorage (in production, send to server)
+        const logs = JSON.parse(localStorage.getItem('adminLogs') || '[]');
+        logs.unshift(activity);
+        
+        // Keep only last 100 logs
+        if (logs.length > 100) {
+            logs.splice(100);
+        }
+        
+        localStorage.setItem('adminLogs', JSON.stringify(logs));
+
+        console.log('Admin Activity:', activity);
+    }
+
+    handleAdminDataUpdate(data) {
+        // Handle data updates from admin panel
+        if (window.portfolioManager) {
+            window.portfolioManager.handleDataUpdate(data);
+        }
+    }
+
+    notifyPortfolioUpdate() {
+        // Notify portfolio of any updates when leaving admin
+        window.dispatchEvent(new CustomEvent('adminDataUpdate', {
+            detail: { timestamp: new Date().toISOString() }
+        }));
     }
 
     showToast(message, type = 'info') {
@@ -382,12 +641,20 @@ class AdminAuth {
 
         document.body.appendChild(toast);
 
-        // Auto remove after 3 seconds
+        // Add animation
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.remove();
-            }
-        }, 3000);
+            toast.classList.add('visible');
+        }, 100);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }, 4000);
     }
 
     getToastIcon(type) {
@@ -416,6 +683,32 @@ class AdminAuth {
         }
         return true;
     }
+
+    hasPermission(permission) {
+        return this.currentUser?.permissions?.includes(permission) || false;
+    }
+
+    getSessionInfo() {
+        if (!this.isLoggedIn) return null;
+        
+        const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
+        return {
+            user: this.currentUser,
+            loginTime: this.currentUser?.loginTime,
+            expiresAt: new Date(session.expires),
+            timeRemaining: session.expires - new Date().getTime()
+        };
+    }
+
+    extendSession() {
+        if (this.isLoggedIn) {
+            const session = JSON.parse(localStorage.getItem('adminSession') || '{}');
+            session.expires = new Date().getTime() + this.sessionTimeout;
+            localStorage.setItem('adminSession', JSON.stringify(session));
+            
+            this.showToast('Session extended', 'info');
+        }
+    }
 }
 
 // Global functions for HTML onclick handlers
@@ -434,6 +727,19 @@ function hideAdminLogin() {
 // Initialize admin authentication when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.adminAuth = new AdminAuth();
+    
+    // Auto-extend session on user activity
+    let activityTimer;
+    ['click', 'scroll', 'keypress'].forEach(event => {
+        document.addEventListener(event, () => {
+            if (window.adminAuth?.isAuthenticated()) {
+                clearTimeout(activityTimer);
+                activityTimer = setTimeout(() => {
+                    window.adminAuth.extendSession();
+                }, 30 * 60 * 1000); // Extend after 30 minutes of activity
+            }
+        });
+    });
 });
 
 // Export for module systems

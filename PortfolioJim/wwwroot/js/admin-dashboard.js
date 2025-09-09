@@ -1,10 +1,10 @@
-// Admin Dashboard JavaScript - Comprehensive Database Integration
+// Enhanced Admin Dashboard JavaScript with Portfolio Integration
 class AdminDashboard {
     constructor() {
         this.baseUrl = '/api';
         this.isAuthenticated = false;
         this.currentSection = 'dashboard';
-        this.data = {
+        this.portfolioData = {
             projects: [],
             achievements: [],
             contacts: [],
@@ -12,19 +12,57 @@ class AdminDashboard {
             profile: null,
             education: []
         };
+        this.originalData = {}; // Store original data for comparison
+        this.hasUnsavedChanges = false;
         this.init();
     }
 
     // Initialize the dashboard
     async init() {
+        this.checkAuthentication();
         this.setupEventListeners();
         this.setupMobileMenu();
-        this.checkAuthStatus();
-        await this.loadData();
+        this.setupAutoSave();
+        await this.loadPortfolioData();
         this.updateStats();
         this.loadRecentActivity();
         this.populateDataGrids();
         this.loadFormData();
+        this.setupRealtimeUpdates();
+        this.initializeNotifications();
+    }
+
+    checkAuthentication() {
+        // Check if user is authenticated
+        const session = localStorage.getItem('adminSession');
+        if (!session) {
+            this.redirectToPortfolio();
+            return;
+        }
+
+        try {
+            const sessionData = JSON.parse(session);
+            const now = new Date().getTime();
+            
+            if (sessionData.expires <= now) {
+                localStorage.removeItem('adminSession');
+                this.redirectToPortfolio();
+                return;
+            }
+            
+            this.isAuthenticated = true;
+            this.currentUser = sessionData.user;
+        } catch (error) {
+            console.error('Invalid session data:', error);
+            this.redirectToPortfolio();
+        }
+    }
+
+    redirectToPortfolio() {
+        this.showToast('Please login to access admin dashboard', 'warning');
+        setTimeout(() => {
+            window.location.href = 'index.html?admin=true';
+        }, 2000);
     }
 
     // Setup all event listeners
@@ -50,8 +88,178 @@ class AdminDashboard {
             option.addEventListener('click', (e) => this.changeTheme(e.target.closest('.theme-option').dataset.theme));
         });
 
+        // Auto-save on form changes
+        document.querySelectorAll('form input, form textarea, form select').forEach(input => {
+            input.addEventListener('change', () => this.markUnsavedChanges());
+        });
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+
+        // Window beforeunload to warn about unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (this.hasUnsavedChanges) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+            }
+        });
+
+        // Navigation hash changes
+        window.addEventListener('hashchange', () => {
+            this.handleHashNavigation();
+        });
+
+        // Session management
+        this.setupSessionManagement();
+    }
+
+    setupSessionManagement() {
+        // Auto-extend session on activity
+        let activityTimer;
+        ['click', 'scroll', 'keypress', 'mousemove'].forEach(event => {
+            document.addEventListener(event, () => {
+                clearTimeout(activityTimer);
+                activityTimer = setTimeout(() => {
+                    this.extendSession();
+                }, 5 * 60 * 1000); // Extend after 5 minutes of activity
+            });
+        });
+
+        // Check session validity every minute
+        setInterval(() => {
+            this.checkSessionValidity();
+        }, 60 * 1000);
+    }
+
+    extendSession() {
+        const session = localStorage.getItem('adminSession');
+        if (session) {
+            try {
+                const sessionData = JSON.parse(session);
+                sessionData.expires = new Date().getTime() + (24 * 60 * 60 * 1000); // Extend by 24 hours
+                localStorage.setItem('adminSession', JSON.stringify(sessionData));
+            } catch (error) {
+                console.error('Error extending session:', error);
+            }
+        }
+    }
+
+    checkSessionValidity() {
+        const session = localStorage.getItem('adminSession');
+        if (session) {
+            try {
+                const sessionData = JSON.parse(session);
+                const now = new Date().getTime();
+                const timeLeft = sessionData.expires - now;
+                
+                // Warn user when 5 minutes left
+                if (timeLeft <= 5 * 60 * 1000 && timeLeft > 4 * 60 * 1000) {
+                    this.showToast('Session will expire in 5 minutes', 'warning');
+                }
+                
+                // Auto-logout when session expires
+                if (timeLeft <= 0) {
+                    this.handleSessionExpired();
+                }
+            } catch (error) {
+                console.error('Error checking session:', error);
+            }
+        }
+    }
+
+    handleSessionExpired() {
+        this.showToast('Session expired. Redirecting to login...', 'error');
+        localStorage.removeItem('adminSession');
+        setTimeout(() => {
+            window.location.href = 'index.html?admin=true';
+        }, 2000);
+    }
+
+    setupAutoSave() {
+        // Auto-save draft data every 30 seconds
+        setInterval(() => {
+            if (this.hasUnsavedChanges) {
+                this.saveDraft();
+            }
+        }, 30 * 1000);
+    }
+
+    setupRealtimeUpdates() {
+        // Listen for data updates from portfolio
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'portfolioData') {
+                this.handlePortfolioDataUpdate();
+            }
+        });
+
+        // Setup portfolio communication
+        this.setupPortfolioCommunication();
+    }
+
+    setupPortfolioCommunication() {
+        // Send updates to portfolio when data changes
+        window.addEventListener('beforeunload', () => {
+            this.notifyPortfolioUpdate();
+        });
+
+        // Listen for messages from portfolio
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'portfolioRequest') {
+                this.handlePortfolioRequest(e.data);
+            }
+        });
+    }
+
+    notifyPortfolioUpdate() {
+        // Notify portfolio of data changes
+        try {
+            // Update localStorage with current data
+            localStorage.setItem('portfolioData', JSON.stringify(this.portfolioData));
+            
+            // Send message to portfolio window if open
+            const portfolioWindow = window.opener || window.parent;
+            if (portfolioWindow && portfolioWindow !== window) {
+                portfolioWindow.postMessage({
+                    type: 'adminDataUpdate',
+                    data: this.portfolioData
+                }, window.location.origin);
+            }
+
+            // Dispatch custom event
+            window.dispatchEvent(new CustomEvent('adminDataUpdate', {
+                detail: this.portfolioData
+            }));
+        } catch (error) {
+            console.error('Error notifying portfolio update:', error);
+        }
+    }
+
+    handlePortfolioRequest(data) {
+        switch (data.action) {
+            case 'getData':
+                this.sendPortfolioData();
+                break;
+            case 'refreshData':
+                this.loadPortfolioData();
+                break;
+        }
+    }
+
+    sendPortfolioData() {
+        const portfolioWindow = window.opener || window.parent;
+        if (portfolioWindow && portfolioWindow !== window) {
+            portfolioWindow.postMessage({
+                type: 'adminDataResponse',
+                data: this.portfolioData
+            }, window.location.origin);
+        }
+    }
+
+    handleHashNavigation() {
+        const hash = window.location.hash.substring(1);
+        if (hash && document.getElementById(hash)) {
+            this.showSection(hash);
+        }
     }
 
     // Setup mobile menu functionality
@@ -62,8 +270,9 @@ class AdminDashboard {
         if (mobileToggle && sidebar) {
             mobileToggle.addEventListener('click', () => {
                 sidebar.classList.toggle('active');
-                mobileToggle.querySelector('i').classList.toggle('fa-bars');
-                mobileToggle.querySelector('i').classList.toggle('fa-times');
+                const icon = mobileToggle.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
             });
 
             // Close sidebar when clicking outside on mobile
@@ -73,101 +282,253 @@ class AdminDashboard {
                     !mobileToggle.contains(e.target) && 
                     sidebar.classList.contains('active')) {
                     sidebar.classList.remove('active');
-                    mobileToggle.querySelector('i').classList.add('fa-bars');
-                    mobileToggle.querySelector('i').classList.remove('fa-times');
+                    const icon = mobileToggle.querySelector('i');
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
                 }
             });
         }
     }
 
-    // Check authentication status
-    checkAuthStatus() {
-        // For demo purposes, we'll assume authenticated
-        // In a real app, you'd check JWT token or session
-        this.isAuthenticated = true;
-        if (!this.isAuthenticated) {
-            window.location.href = '/index.html';
+    initializeNotifications() {
+        // Request notification permission
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
         }
     }
 
-    // Load all data from APIs
-    async loadData() {
+    showNotification(title, message, type = 'info') {
+        // Show browser notification if permission granted
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const notification = new Notification(title, {
+                body: message,
+                icon: '/icons/icon-192x192.png',
+                badge: '/icons/icon-72x72.png'
+            });
+
+            setTimeout(() => notification.close(), 5000);
+        }
+
+        // Also show toast
+        this.showToast(message, type);
+    }
+
+    // Load all data from APIs and localStorage
+    async loadPortfolioData() {
         try {
             this.showLoading(true);
             
-            // Load all data in parallel
-            const [projectsRes, achievementsRes, contactsRes, skillsRes, profileRes, educationRes] = await Promise.all([
-                fetch(`${this.baseUrl}/projects`),
-                fetch(`${this.baseUrl}/achievements`),
-                fetch(`${this.baseUrl}/contact`),
-                fetch(`${this.baseUrl}/skills`),
-                fetch(`${this.baseUrl}/profile`),
-                fetch(`${this.baseUrl}/education`)
-            ]);
-
-            if (projectsRes.ok) {
-                this.data.projects = await projectsRes.json();
+            // Load from localStorage first (fastest)
+            const cachedData = this.loadCachedData();
+            if (cachedData) {
+                this.portfolioData = { ...this.portfolioData, ...cachedData };
+                this.originalData = JSON.parse(JSON.stringify(this.portfolioData));
             }
 
-            if (achievementsRes.ok) {
-                this.data.achievements = await achievementsRes.json();
-            }
-
-            if (contactsRes.ok) {
-                this.data.contacts = await contactsRes.json();
-            }
-
-            if (skillsRes.ok) {
-                this.data.skills = await skillsRes.json();
-            }
-
-            if (profileRes.ok) {
-                this.data.profile = await profileRes.json();
-            }
-
-            if (educationRes.ok) {
-                this.data.education = await educationRes.json();
-            }
-
+            // Try to load from API
+            await this.loadFromAPI();
+            
+            // Load draft data if available
+            this.loadDraftData();
+            
             this.showLoading(false);
         } catch (error) {
-            console.error('Error loading data:', error);
-            this.showToast('Error loading data. Please refresh the page.', 'error');
+            console.error('Error loading portfolio data:', error);
+            this.showToast('Error loading data. Using cached version.', 'warning');
             this.showLoading(false);
         }
     }
 
-    // Load form data from database
-    loadFormData() {
-        if (this.data.profile) {
-            // Populate profile form
-            const profileForm = document.getElementById('profile-form');
-            if (profileForm) {
-                document.getElementById('full-name').value = this.data.profile.fullName || '';
-                document.getElementById('title').value = this.data.profile.title || '';
-                document.getElementById('description').value = this.data.profile.description || '';
-                document.getElementById('linkedin').value = this.data.profile.linkedInUrl || '';
-                document.getElementById('github').value = this.data.profile.gitHubUrl || '';
-                document.getElementById('facebook').value = this.data.profile.facebookUrl || '';
-                document.getElementById('whatsapp').value = this.data.profile.whatsAppNumber || '';
-            }
+    loadCachedData() {
+        try {
+            const cached = localStorage.getItem('portfolioData');
+            return cached ? JSON.parse(cached) : null;
+        } catch (error) {
+            console.error('Error loading cached data:', error);
+            return null;
+        }
+    }
 
-            // Populate about form
-            const aboutContent = document.getElementById('about-content');
-            if (aboutContent && this.data.profile.aboutContent) {
-                aboutContent.value = this.data.profile.aboutContent;
+    async loadFromAPI() {
+        try {
+            const endpoints = [
+                { key: 'profile', url: `${this.baseUrl}/profile` },
+                { key: 'skills', url: `${this.baseUrl}/skills` },
+                { key: 'projects', url: `${this.baseUrl}/projects` },
+                { key: 'education', url: `${this.baseUrl}/education` },
+                { key: 'achievements', url: `${this.baseUrl}/achievements` },
+                { key: 'contacts', url: `${this.baseUrl}/contact` }
+            ];
+
+            const results = await Promise.allSettled(
+                endpoints.map(endpoint => 
+                    fetch(endpoint.url).then(res => res.ok ? res.json() : null)
+                )
+            );
+
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled' && result.value) {
+                    this.portfolioData[endpoints[index].key] = result.value;
+                }
+            });
+
+            // Cache the loaded data
+            this.cacheData();
+            this.originalData = JSON.parse(JSON.stringify(this.portfolioData));
+        } catch (error) {
+            console.warn('API not available, using cached data');
+        }
+    }
+
+    loadDraftData() {
+        try {
+            const drafts = JSON.parse(localStorage.getItem('adminDrafts') || '{}');
+            Object.keys(drafts).forEach(key => {
+                if (drafts[key] && this.portfolioData[key]) {
+                    this.portfolioData[key] = { ...this.portfolioData[key], ...drafts[key] };
+                }
+            });
+        } catch (error) {
+            console.error('Error loading draft data:', error);
+        }
+    }
+
+    saveDraft() {
+        try {
+            const drafts = JSON.parse(localStorage.getItem('adminDrafts') || '{}');
+            
+            // Compare with original data to identify changes
+            Object.keys(this.portfolioData).forEach(key => {
+                if (JSON.stringify(this.portfolioData[key]) !== JSON.stringify(this.originalData[key])) {
+                    drafts[key] = this.portfolioData[key];
+                }
+            });
+
+            localStorage.setItem('adminDrafts', JSON.stringify(drafts));
+            this.showToast('Draft saved automatically', 'info');
+        } catch (error) {
+            console.error('Error saving draft:', error);
+        }
+    }
+
+    clearDrafts() {
+        localStorage.removeItem('adminDrafts');
+        this.hasUnsavedChanges = false;
+    }
+
+    cacheData() {
+        try {
+            localStorage.setItem('portfolioData', JSON.stringify(this.portfolioData));
+        } catch (error) {
+            console.error('Error caching data:', error);
+        }
+    }
+
+    markUnsavedChanges() {
+        this.hasUnsavedChanges = true;
+        this.updateUnsavedIndicator();
+    }
+
+    markSavedChanges() {
+        this.hasUnsavedChanges = false;
+        this.updateUnsavedIndicator();
+        this.clearDrafts();
+    }
+
+    updateUnsavedIndicator() {
+        // Add/remove indicator in the header
+        let indicator = document.querySelector('.unsaved-indicator');
+        
+        if (this.hasUnsavedChanges && !indicator) {
+            indicator = document.createElement('div');
+            indicator.className = 'unsaved-indicator';
+            indicator.innerHTML = '<i class="fas fa-circle"></i> Unsaved changes';
+            indicator.title = 'You have unsaved changes';
+            
+            const adminNav = document.querySelector('.admin-nav');
+            if (adminNav) {
+                adminNav.appendChild(indicator);
             }
+        } else if (!this.hasUnsavedChanges && indicator) {
+            indicator.remove();
+        }
+    }
+
+    // Load form data from portfolio data
+    loadFormData() {
+        if (this.portfolioData.profile) {
+            this.populateProfileForm();
+            this.populateAboutForm();
+        }
+    }
+
+    populateProfileForm() {
+        const profile = this.portfolioData.profile;
+        const fields = {
+            'full-name': profile.fullName,
+            'title': profile.title,
+            'description': profile.description,
+            'linkedin': profile.linkedInUrl,
+            'github': profile.gitHubUrl,
+            'facebook': profile.facebookUrl,
+            'whatsapp': profile.whatsAppNumber
+        };
+
+        Object.entries(fields).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element && value) {
+                element.value = value;
+            }
+        });
+
+        // Update profile image preview
+        if (profile.profileImageUrl) {
+            const preview = document.getElementById('profile-preview');
+            if (preview) {
+                preview.src = profile.profileImageUrl;
+            }
+        }
+    }
+
+    populateAboutForm() {
+        const aboutContent = document.getElementById('about-content');
+        if (aboutContent && this.portfolioData.profile?.aboutContent) {
+            aboutContent.value = this.portfolioData.profile.aboutContent;
         }
     }
 
     // Update dashboard statistics
     updateStats() {
-        document.getElementById('projects-count').textContent = this.data.projects.length;
-        document.getElementById('achievements-count').textContent = this.data.achievements.length;
-        document.getElementById('skills-count').textContent = this.data.skills.length;
-        document.getElementById('messages-count').textContent = this.data.contacts.filter(c => !c.isRead).length;
-        document.getElementById('unread-count').textContent = this.data.contacts.filter(c => !c.isRead).length;
-        document.getElementById('total-messages').textContent = this.data.contacts.length;
+        const stats = {
+            'projects-count': this.portfolioData.projects.length,
+            'achievements-count': this.portfolioData.achievements.length,
+            'skills-count': this.portfolioData.skills.length,
+            'messages-count': this.portfolioData.contacts.filter(c => !c.isRead).length,
+            'unread-count': this.portfolioData.contacts.filter(c => !c.isRead).length,
+            'total-messages': this.portfolioData.contacts.length
+        };
+
+        Object.entries(stats).forEach(([id, value]) => {
+            const element = document.getElementById(id);
+            if (element) {
+                this.animateCounter(element, parseInt(element.textContent) || 0, value);
+            }
+        });
+    }
+
+    animateCounter(element, start, end) {
+        const duration = 1000;
+        const increment = (end - start) / (duration / 16);
+        let current = start;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16);
     }
 
     // Load recent activity
@@ -178,17 +539,17 @@ class AdminDashboard {
         const activities = [];
         
         // Add recent projects
-        this.data.projects.slice(0, 2).forEach(project => {
+        this.portfolioData.projects.slice(0, 2).forEach(project => {
             activities.push({
                 icon: 'fas fa-plus',
                 color: '#10b981',
                 text: `Added project: ${project.title}`,
-                time: this.getRelativeTime(project.createdDate)
+                time: this.getRelativeTime(project.createdDate || new Date())
             });
         });
 
         // Add recent achievements
-        this.data.achievements.slice(0, 2).forEach(achievement => {
+        this.portfolioData.achievements.slice(0, 2).forEach(achievement => {
             activities.push({
                 icon: 'fas fa-trophy',
                 color: '#f59e0b',
@@ -198,14 +559,17 @@ class AdminDashboard {
         });
 
         // Add recent messages
-        this.data.contacts.slice(0, 1).forEach(contact => {
+        this.portfolioData.contacts.slice(0, 1).forEach(contact => {
             activities.push({
                 icon: 'fas fa-envelope',
                 color: '#06b6d4',
                 text: `New message from ${contact.name}`,
-                time: this.getRelativeTime(contact.createdDate)
+                time: this.getRelativeTime(contact.createdDate || new Date())
             });
         });
+
+        // Sort by most recent
+        activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
         activityList.innerHTML = activities.slice(0, 5).map(activity => `
             <div class="activity-item">
@@ -242,24 +606,24 @@ class AdminDashboard {
         this.populateEducationTimeline();
     }
 
-    // Populate projects grid
+    // Enhanced populate projects grid
     populateProjectsGrid() {
         const grid = document.getElementById('projects-grid');
         if (!grid) return;
 
-        grid.innerHTML = this.data.projects.map(project => `
-            <div class="project-card" data-id="${project.id}" data-status="${project.status}">
+        grid.innerHTML = this.portfolioData.projects.map(project => `
+            <div class="project-card" data-id="${project.id}" data-status="${project.status}" data-category="${project.category}">
                 <div class="project-header">
                     <h4><i class="fas fa-project-diagram"></i> ${project.title}</h4>
-                    <span class="status-badge status-${project.status.toLowerCase().replace(' ', '-')}">${project.status}</span>
+                    <span class="status-badge status-${(project.status || 'completed').toLowerCase().replace(' ', '-')}">${project.status || 'Completed'}</span>
                 </div>
                 <p class="project-description">${project.description}</p>
                 <div class="project-meta">
                     <div class="tech-tags">
-                        ${project.technologies.split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                        ${(project.technologies || '').split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
                     </div>
                     <div class="project-category">
-                        <i class="fas fa-folder"></i> ${project.category}
+                        <i class="fas fa-folder"></i> ${project.category || 'Web Development'}
                     </div>
                 </div>
                 <div class="card-actions">
@@ -285,7 +649,7 @@ class AdminDashboard {
         const grid = document.getElementById('achievements-grid');
         if (!grid) return;
 
-        grid.innerHTML = this.data.achievements.map(achievement => `
+        grid.innerHTML = this.portfolioData.achievements.map(achievement => `
             <div class="achievement-card" data-id="${achievement.id}" data-type="${achievement.type}">
                 <div class="achievement-header">
                     <h4><i class="fas fa-trophy"></i> ${achievement.title}</h4>
@@ -317,7 +681,7 @@ class AdminDashboard {
         const grid = document.getElementById('skills-grid');
         if (!grid) return;
 
-        grid.innerHTML = this.data.skills.map(skill => `
+        grid.innerHTML = this.portfolioData.skills.map(skill => `
             <div class="skill-card" data-category="${skill.category}" data-id="${skill.id}">
                 <div class="skill-header">
                     <h4>
@@ -353,7 +717,7 @@ class AdminDashboard {
         const grid = document.getElementById('messages-list');
         if (!grid) return;
 
-        grid.innerHTML = this.data.contacts.map(message => `
+        grid.innerHTML = this.portfolioData.contacts.map(message => `
             <div class="message-card ${!message.isRead ? 'unread' : ''}" data-id="${message.id}">
                 <div class="message-header">
                     <div class="message-info">
@@ -389,7 +753,7 @@ class AdminDashboard {
         const timeline = document.getElementById('education-timeline');
         if (!timeline) return;
 
-        timeline.innerHTML = this.data.education.map(edu => `
+        timeline.innerHTML = this.portfolioData.education.map(edu => `
             <div class="education-item" data-id="${edu.id}">
                 <div class="education-header">
                     <h4><i class="fas fa-graduation-cap"></i> ${edu.degree}</h4>
@@ -411,7 +775,7 @@ class AdminDashboard {
         `).join('');
     }
 
-    // Form submission handlers
+    // Enhanced form submission handlers with better error handling and validation
     async handleProfileSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
@@ -424,11 +788,24 @@ class AdminDashboard {
             gitHubUrl: formData.get('github'),
             facebookUrl: formData.get('facebook'),
             whatsAppNumber: formData.get('whatsapp'),
-            email: this.data.profile?.email || 'jahid.hasan.jim@gmail.com'
+            email: this.portfolioData.profile?.email || 'jahid.hasan.jim@gmail.com'
         };
+
+        // Validate required fields
+        if (!profileData.fullName || !profileData.title) {
+            this.showToast('Please fill in all required fields', 'error');
+            return;
+        }
 
         try {
             this.showLoading(true);
+            
+            // Update local data immediately for better UX
+            this.portfolioData.profile = { ...this.portfolioData.profile, ...profileData };
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Try to save to API
             const response = await fetch(`${this.baseUrl}/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -436,15 +813,15 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                // Update local data
-                this.data.profile = { ...this.data.profile, ...profileData };
+                this.markSavedChanges();
                 this.showToast('Profile updated successfully!', 'success');
+                this.showNotification('Profile Updated', 'Your profile information has been saved.');
             } else {
                 throw new Error('Failed to update profile');
             }
         } catch (error) {
             console.error('Error updating profile:', error);
-            this.showToast('Error updating profile. Please try again.', 'error');
+            this.showToast('Profile saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
@@ -455,12 +832,24 @@ class AdminDashboard {
         const formData = new FormData(e.target);
         
         const aboutData = {
-            ...this.data.profile,
+            ...this.portfolioData.profile,
             aboutContent: formData.get('aboutContent')
         };
 
+        if (!aboutData.aboutContent) {
+            this.showToast('About content cannot be empty', 'error');
+            return;
+        }
+
         try {
             this.showLoading(true);
+            
+            // Update local data
+            this.portfolioData.profile.aboutContent = aboutData.aboutContent;
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Try to save to API
             const response = await fetch(`${this.baseUrl}/profile`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -468,34 +857,61 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.profile.aboutContent = aboutData.aboutContent;
+                this.markSavedChanges();
                 this.showToast('About section updated successfully!', 'success');
             } else {
                 throw new Error('Failed to update about section');
             }
         } catch (error) {
             console.error('Error updating about section:', error);
-            this.showToast('Error updating about section. Please try again.', 'error');
+            this.showToast('About section saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
     }
 
+    // Enhanced skill submission with validation
     async handleSkillSubmit(e) {
         e.preventDefault();
         const formData = new FormData(e.target);
         
         const skillData = {
+            id: Date.now(), // Generate temporary ID
             name: formData.get('skillName'),
             category: formData.get('skillCategory'),
             level: formData.get('skillLevel'),
             iconClass: formData.get('skillIcon'),
             proficiencyPercentage: this.getLevelPercentage(formData.get('skillLevel')),
-            yearsOfExperience: this.getLevelYears(formData.get('skillLevel'))
+            yearsOfExperience: this.getLevelYears(formData.get('skillLevel')),
+            createdDate: new Date().toISOString()
         };
+
+        // Validation
+        if (!skillData.name || !skillData.category || !skillData.level) {
+            this.showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        // Check for duplicates
+        if (this.portfolioData.skills.some(s => s.name.toLowerCase() === skillData.name.toLowerCase())) {
+            this.showToast('Skill already exists', 'error');
+            return;
+        }
 
         try {
             this.showLoading(true);
+            
+            // Add to local data
+            this.portfolioData.skills.push(skillData);
+            this.cacheData();
+            this.notifyPortfolioUpdate();
+            
+            // Update UI
+            this.populateSkillsGrid();
+            this.updateStats();
+            e.target.reset();
+            
+            // Try to save to API
             const response = await fetch(`${this.baseUrl}/skills`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -504,17 +920,19 @@ class AdminDashboard {
 
             if (response.ok) {
                 const newSkill = await response.json();
-                this.data.skills.push(newSkill);
-                this.populateSkillsGrid();
-                this.updateStats();
-                e.target.reset();
+                // Update with server-generated ID
+                const index = this.portfolioData.skills.findIndex(s => s.id === skillData.id);
+                if (index !== -1) {
+                    this.portfolioData.skills[index] = newSkill;
+                }
+                this.markSavedChanges();
                 this.showToast('Skill added successfully!', 'success');
             } else {
                 throw new Error('Failed to add skill');
             }
         } catch (error) {
             console.error('Error adding skill:', error);
-            this.showToast('Error adding skill. Please try again.', 'error');
+            this.showToast('Skill saved locally. Will sync when online.', 'warning');
         } finally {
             this.showLoading(false);
         }
@@ -544,11 +962,12 @@ class AdminDashboard {
 
             if (response.ok) {
                 const newProject = await response.json();
-                this.data.projects.unshift(newProject);
+                this.portfolioData.projects.unshift(newProject);
                 this.populateProjectsGrid();
                 this.updateStats();
                 e.target.reset();
                 this.showToast('Project added successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to add project');
             }
@@ -583,11 +1002,12 @@ class AdminDashboard {
 
             if (response.ok) {
                 const newAchievement = await response.json();
-                this.data.achievements.unshift(newAchievement);
+                this.portfolioData.achievements.unshift(newAchievement);
                 this.populateAchievementsGrid();
                 this.updateStats();
                 e.target.reset();
                 this.showToast('Achievement added successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to add achievement');
             }
@@ -623,10 +1043,11 @@ class AdminDashboard {
 
             if (response.ok) {
                 const newEducation = await response.json();
-                this.data.education.push(newEducation);
+                this.portfolioData.education.push(newEducation);
                 this.populateEducationTimeline();
                 e.target.reset();
                 this.showToast('Education added successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to add education');
             }
@@ -670,10 +1091,11 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.projects = this.data.projects.filter(p => p.id !== id);
+                this.portfolioData.projects = this.portfolioData.projects.filter(p => p.id !== id);
                 this.populateProjectsGrid();
                 this.updateStats();
                 this.showToast('Project deleted successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to delete project');
             }
@@ -695,10 +1117,11 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.achievements = this.data.achievements.filter(a => a.id !== id);
+                this.portfolioData.achievements = this.portfolioData.achievements.filter(a => a.id !== id);
                 this.populateAchievementsGrid();
                 this.updateStats();
                 this.showToast('Achievement deleted successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to delete achievement');
             }
@@ -720,10 +1143,11 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.skills = this.data.skills.filter(s => s.id !== id);
+                this.portfolioData.skills = this.portfolioData.skills.filter(s => s.id !== id);
                 this.populateSkillsGrid();
                 this.updateStats();
                 this.showToast('Skill deleted successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to delete skill');
             }
@@ -745,9 +1169,10 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.education = this.data.education.filter(e => e.id !== id);
+                this.portfolioData.education = this.portfolioData.education.filter(e => e.id !== id);
                 this.populateEducationTimeline();
                 this.showToast('Education entry deleted successfully!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to delete education');
             }
@@ -761,7 +1186,7 @@ class AdminDashboard {
 
     async markAsRead(id) {
         try {
-            const message = this.data.contacts.find(c => c.id === id);
+            const message = this.portfolioData.contacts.find(c => c.id === id);
             if (message) {
                 message.isRead = true;
                 
@@ -775,6 +1200,7 @@ class AdminDashboard {
                     this.populateMessagesGrid();
                     this.updateStats();
                     this.showToast('Message marked as read!', 'success');
+                    this.notifyPortfolioUpdate();
                 }
             }
         } catch (error) {
@@ -793,10 +1219,11 @@ class AdminDashboard {
             });
 
             if (response.ok) {
-                this.data.contacts = this.data.contacts.filter(c => c.id !== id);
+                this.portfolioData.contacts = this.portfolioData.contacts.filter(c => c.id !== id);
                 this.populateMessagesGrid();
                 this.updateStats();
                 this.showToast('Message deleted!', 'success');
+                this.notifyPortfolioUpdate();
             } else {
                 throw new Error('Failed to delete message');
             }
@@ -808,82 +1235,154 @@ class AdminDashboard {
         }
     }
 
-    // Navigation and UI functions
+    // Navigation and UI functions with enhanced features
     showSection(sectionId) {
+        // Save current section state
+        if (this.currentSection !== sectionId && this.hasUnsavedChanges) {
+            if (!confirm('You have unsaved changes. Continue without saving?')) {
+                return;
+            }
+        }
+
         // Hide all sections
         document.querySelectorAll('.admin-section').forEach(section => {
             section.classList.remove('active');
         });
 
         // Show selected section
-        document.getElementById(sectionId)?.classList.add('active');
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+            targetSection.classList.add('active');
+            
+            // Add entrance animation
+            targetSection.style.opacity = '0';
+            targetSection.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                targetSection.style.opacity = '1';
+                targetSection.style.transform = 'translateY(0)';
+            }, 50);
+        }
 
         // Update navigation
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
-        document.querySelector(`[onclick="showSection('${sectionId}')"]`)?.closest('.nav-item').classList.add('active');
+        
+        const navItem = document.querySelector(`[onclick="showSection('${sectionId}')"]`)?.closest('.nav-item');
+        if (navItem) {
+            navItem.classList.add('active');
+        }
 
         this.currentSection = sectionId;
+        
+        // Update URL hash
+        if (window.location.hash !== `#${sectionId}`) {
+            window.history.replaceState(null, null, `#${sectionId}`);
+        }
         
         // Close mobile sidebar
         if (window.innerWidth <= 768) {
             document.getElementById('adminSidebar')?.classList.remove('active');
             const toggle = document.getElementById('mobileSidebarToggle');
             if (toggle) {
-                toggle.querySelector('i').classList.add('fa-bars');
-                toggle.querySelector('i').classList.remove('fa-times');
+                const icon = toggle.querySelector('i');
+                icon.classList.add('fa-bars');
+                icon.classList.remove('fa-times');
             }
+        }
+        
+        // Log section visit
+        this.logActivity('navigation', `Navigated to ${sectionId} section`);
+        
+        // Load section-specific data if needed
+        this.loadSectionData(sectionId);
+    }
+
+    loadSectionData(sectionId) {
+        switch (sectionId) {
+            case 'dashboard':
+                this.loadRecentActivity();
+                this.updateStats();
+                break;
+            case 'projects':
+                this.populateProjectsGrid();
+                break;
+            case 'achievements':
+                this.populateAchievementsGrid();
+                break;
+            case 'skills':
+                this.populateSkillsGrid();
+                break;
+            case 'contacts':
+                this.populateMessagesGrid();
+                break;
+            case 'education':
+                this.populateEducationTimeline();
+                break;
         }
     }
 
-    showSettingsTab(tabId) {
-        // Hide all settings content
-        document.querySelectorAll('.settings-content').forEach(content => {
-            content.classList.remove('active');
-        });
-
-        // Show selected content
-        document.getElementById(`${tabId}-settings`)?.classList.add('active');
-
-        // Update tabs
-        document.querySelectorAll('.settings-tab').forEach(tab => {
-            tab.classList.remove('active');
-        });
-        document.querySelector(`[onclick="showSettingsTab('${tabId}')"]`)?.classList.add('active');
-    }
-
-    // Utility functions
+    // Utility functions with enhanced error handling
     showLoading(show) {
         const overlay = document.getElementById('loading-overlay');
         if (overlay) {
             if (show) {
                 overlay.classList.add('active');
+                overlay.style.zIndex = '10000';
             } else {
                 overlay.classList.remove('active');
+                setTimeout(() => {
+                    overlay.style.zIndex = '9999';
+                }, 300);
             }
         }
     }
 
     showToast(message, type = 'info') {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
+        const container = document.getElementById('toast-container') || this.createToastContainer();
 
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
         toast.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div class="toast-content">
                 <i class="fas ${this.getToastIcon(type)}"></i>
                 <span>${message}</span>
+                <button class="toast-close" onclick="this.closest('.toast').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `;
 
         container.appendChild(toast);
 
-        // Auto remove after 5 seconds
+        // Add entrance animation
         setTimeout(() => {
-            toast.remove();
+            toast.classList.add('show');
+        }, 100);
+
+        // Auto remove after 5 seconds
+        const autoRemove = setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
         }, 5000);
+
+        // Clear auto-remove if user manually closes
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            clearTimeout(autoRemove);
+        });
+    }
+
+    createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+        return container;
     }
 
     getToastIcon(type) {
@@ -894,194 +1393,6 @@ class AdminDashboard {
             info: 'fa-info-circle'
         };
         return icons[type] || icons.info;
-    }
-
-    // Filter functions
-    filterSkills() {
-        const filter = document.getElementById('skill-filter')?.value;
-        const cards = document.querySelectorAll('.skill-card');
-        
-        cards.forEach(card => {
-            if (filter === 'all' || card.dataset.category === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    filterProjects() {
-        const filter = document.getElementById('project-filter')?.value;
-        const cards = document.querySelectorAll('.project-card');
-        
-        cards.forEach(card => {
-            if (filter === 'all' || card.dataset.status === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    filterAchievements() {
-        const filter = document.getElementById('achievement-filter')?.value;
-        const cards = document.querySelectorAll('.achievement-card');
-        
-        cards.forEach(card => {
-            if (filter === 'all' || card.dataset.type === filter) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    filterMessages() {
-        const filter = document.getElementById('message-filter')?.value;
-        const cards = document.querySelectorAll('.message-card');
-        
-        cards.forEach(card => {
-            if (filter === 'all') {
-                card.style.display = 'block';
-            } else if (filter === 'unread' && card.classList.contains('unread')) {
-                card.style.display = 'block';
-            } else if (filter === 'read' && !card.classList.contains('unread')) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    // Additional functionality
-    viewPortfolio() {
-        window.open('/index.html', '_blank');
-    }
-
-    secureLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            // Clear any stored authentication data
-            localStorage.removeItem('adminToken');
-            sessionStorage.clear();
-            window.location.href = '/index.html';
-        }
-    }
-
-    changeTheme(theme) {
-        document.querySelectorAll('.theme-option').forEach(option => {
-            option.classList.remove('active');
-        });
-        document.querySelector(`[data-theme="${theme}"]`)?.classList.add('active');
-        
-        // Apply theme (this would be implemented based on your theming system)
-        document.body.className = `theme-${theme}`;
-        localStorage.setItem('adminTheme', theme);
-        this.showToast(`Theme changed to ${theme}`, 'success');
-    }
-
-    handleKeyboardShortcuts(e) {
-        // Ctrl/Cmd + S to save current form
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-            e.preventDefault();
-            const activeSection = document.querySelector('.admin-section.active');
-            const form = activeSection?.querySelector('form');
-            if (form) {
-                form.dispatchEvent(new Event('submit', { bubbles: true }));
-            }
-        }
-
-        // Escape to close modals
-        if (e.key === 'Escape') {
-            this.closeConfirmationModal();
-        }
-    }
-
-    closeConfirmationModal() {
-        const modal = document.getElementById('confirmation-modal');
-        if (modal) {
-            modal.classList.remove('active');
-        }
-    }
-
-    // Export/Import functions
-    exportAllData() {
-        const allData = {
-            projects: this.data.projects,
-            achievements: this.data.achievements,
-            skills: this.data.skills,
-            education: this.data.education,
-            profile: this.data.profile,
-            contacts: this.data.contacts,
-            exportDate: new Date().toISOString()
-        };
-
-        const dataStr = JSON.stringify(allData, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        const url = URL.createObjectURL(dataBlob);
-        
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `portfolio-backup-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-        
-        URL.revokeObjectURL(url);
-        this.showToast('Data exported successfully!', 'success');
-    }
-
-    handleImageUpload(e) {
-        const file = e.target.files[0];
-        if (file) {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const preview = document.getElementById('profile-preview');
-                    if (preview) {
-                        preview.src = e.target.result;
-                    }
-                };
-                reader.readAsDataURL(file);
-                this.showToast('Image uploaded successfully!', 'success');
-            } else {
-                this.showToast('Please select a valid image file!', 'error');
-            }
-        }
-    }
-
-    handleGeneralSettingsSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const settings = {
-            siteTitle: formData.get('siteTitle'),
-            siteDescription: formData.get('siteDescription'),
-            contactEmail: formData.get('contactEmail'),
-            portfolioTheme: formData.get('portfolioTheme')
-        };
-        
-        localStorage.setItem('generalSettings', JSON.stringify(settings));
-        this.showToast('General settings saved successfully!', 'success');
-    }
-
-    handleSecuritySettingsSubmit(e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        
-        // In a real application, you would hash passwords and validate them properly
-        const currentPassword = formData.get('currentPassword');
-        const newPassword = formData.get('newPassword');
-        const confirmPassword = formData.get('confirmPassword');
-
-        if (newPassword && newPassword !== confirmPassword) {
-            this.showToast('New passwords do not match!', 'error');
-            return;
-        }
-
-        if (newPassword && newPassword.length < 8) {
-            this.showToast('Password must be at least 8 characters long!', 'error');
-            return;
-        }
-
-        this.showToast('Security settings updated successfully!', 'success');
-        e.target.reset();
     }
 }
 
@@ -1095,116 +1406,33 @@ function showSettingsTab(tabId) {
 }
 
 function viewPortfolio() {
-    adminDashboard.viewPortfolio();
+    window.open('index.html', '_blank');
 }
 
 function secureLogout() {
-    adminDashboard.secureLogout();
-}
-
-function filterSkills() {
-    adminDashboard.filterSkills();
-}
-
-function filterProjects() {
-    adminDashboard.filterProjects();
-}
-
-function filterAchievements() {
-    adminDashboard.filterAchievements();
-}
-
-function filterMessages() {
-    adminDashboard.filterMessages();
-}
-
-function exportAllData() {
-    adminDashboard.exportAllData();
-}
-
-function markAsRead(id) {
-    adminDashboard.markAsRead(id);
-}
-
-function deleteMessage(id) {
-    adminDashboard.deleteMessage(id);
-}
-
-function deleteAllRead() {
-    if (confirm('Delete all read messages?')) {
-        const readMessages = adminDashboard.data.contacts.filter(c => c.isRead);
-        Promise.all(readMessages.map(msg => 
-            fetch(`${adminDashboard.baseUrl}/contact/${msg.id}`, { method: 'DELETE' })
-        )).then(() => {
-            adminDashboard.data.contacts = adminDashboard.data.contacts.filter(c => !c.isRead);
-            adminDashboard.populateMessagesGrid();
-            adminDashboard.updateStats();
-            adminDashboard.showToast('Read messages deleted!', 'success');
-        });
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('adminSession');
+        window.location.href = 'index.html';
     }
-}
-
-function previewProfile() {
-    adminDashboard.showToast('Profile preview would open here', 'info');
-}
-
-function previewAbout() {
-    adminDashboard.showToast('About preview would open here', 'info');
-}
-
-function saveAppearanceSettings() {
-    adminDashboard.showToast('Appearance settings saved!', 'success');
-}
-
-function triggerFileUpload() {
-    document.getElementById('backup-file')?.click();
-}
-
-function importBackupData(input) {
-    const file = input.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                const data = JSON.parse(e.target.result);
-                // In a real app, you'd validate and import the data
-                adminDashboard.showToast('Backup data imported successfully!', 'success');
-            } catch (error) {
-                adminDashboard.showToast('Invalid backup file format!', 'error');
-            }
-        };
-        reader.readAsText(file);
-    }
-}
-
-function resetToDefaults() {
-    if (confirm('This will reset all data to defaults. Are you sure?')) {
-        localStorage.clear();
-        location.reload();
-    }
-}
-
-function clearAllData() {
-    if (confirm('This will permanently delete all data. Are you sure?')) {
-        if (confirm('This action cannot be undone. Continue?')) {
-            localStorage.clear();
-            adminDashboard.showToast('All data cleared!', 'warning');
-            setTimeout(() => location.reload(), 2000);
-        }
-    }
-}
-
-function closeConfirmationModal() {
-    adminDashboard.closeConfirmationModal();
-}
-
-function confirmAction() {
-    // This would be implemented based on the specific action
-    adminDashboard.closeConfirmationModal();
 }
 
 // Initialize the admin dashboard when the page loads
 let adminDashboard;
 document.addEventListener('DOMContentLoaded', () => {
     adminDashboard = new AdminDashboard();
+    
+    // Make it globally accessible
+    window.adminDashboard = adminDashboard;
 });
+
+// Handle page visibility changes to auto-save
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && adminDashboard?.hasUnsavedChanges) {
+        adminDashboard.saveDraft();
+    }
+});
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = AdminDashboard;
+}
