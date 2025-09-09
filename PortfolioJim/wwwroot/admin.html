@@ -3,37 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Portfolio Admin Dashboard - Manage your portfolio content">
-    <title>Portfolio Admin Dashboard</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/admin.css" rel="stylesheet">
+    <title>Portfolio Admin Dashboard - Jim's Portfolio</title>
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="Admin Dashboard for Jim's Portfolio Management">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#2563eb">
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner"></i>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Admin Header -->
     <header class="admin-header">
-        <div class="admin-nav">
+        <nav class="admin-nav">
             <div class="admin-logo">
-                <i class="fas fa-shield-alt"></i>
+                <i class="fas fa-chart-line"></i>
                 <span>Portfolio Admin</span>
             </div>
+            
             <div class="admin-actions">
-                <button class="btn btn-secondary btn-sm" onclick="viewPortfolio()" title="View Portfolio">
-                    <i class="fas fa-external-link-alt"></i>
-                    View Portfolio
-                </button>
                 <div class="admin-user">
                     <i class="fas fa-user-circle"></i>
-                    <span>Welcome, Admin</span>
-                    <button class="logout-btn" onclick="secureLogout()" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Logout
-                    </button>
+                    <span>Admin User</span>
                 </div>
+                <button class="logout-btn" onclick="adminDashboard.logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
             </div>
-        </div>
+        </nav>
     </header>
 
-    <!-- Mobile Menu Toggle -->
+    <!-- Mobile Sidebar Toggle -->
     <button class="mobile-sidebar-toggle" id="mobileSidebarToggle">
         <i class="fas fa-bars"></i>
     </button>
@@ -43,56 +61,56 @@
         <nav class="sidebar-nav">
             <ul>
                 <li class="nav-item active">
-                    <a href="#dashboard" class="nav-link" onclick="showSection('dashboard')">
+                    <a href="#dashboard" class="nav-link" onclick="adminDashboard.showSection('dashboard')">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#profile" class="nav-link" onclick="showSection('profile')">
+                    <a href="#profile" class="nav-link" onclick="adminDashboard.showSection('profile')">
                         <i class="fas fa-user"></i>
-                        <span>Profile Info</span>
+                        <span>Profile</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#about" class="nav-link" onclick="showSection('about')">
+                    <a href="#about" class="nav-link" onclick="adminDashboard.showSection('about')">
                         <i class="fas fa-info-circle"></i>
-                        <span>About Section</span>
+                        <span>About</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#skills" class="nav-link" onclick="showSection('skills')">
+                    <a href="#skills" class="nav-link" onclick="adminDashboard.showSection('skills')">
                         <i class="fas fa-code"></i>
                         <span>Skills</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#projects" class="nav-link" onclick="showSection('projects')">
+                    <a href="#projects" class="nav-link" onclick="adminDashboard.showSection('projects')">
                         <i class="fas fa-project-diagram"></i>
                         <span>Projects</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#education" class="nav-link" onclick="showSection('education')">
+                    <a href="#education" class="nav-link" onclick="adminDashboard.showSection('education')">
                         <i class="fas fa-graduation-cap"></i>
                         <span>Education</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#achievements" class="nav-link" onclick="showSection('achievements')">
+                    <a href="#achievements" class="nav-link" onclick="adminDashboard.showSection('achievements')">
                         <i class="fas fa-trophy"></i>
                         <span>Achievements</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#contacts" class="nav-link" onclick="showSection('contacts')">
+                    <a href="#contacts" class="nav-link" onclick="adminDashboard.showSection('contacts')">
                         <i class="fas fa-envelope"></i>
                         <span>Messages</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#settings" class="nav-link" onclick="showSection('settings')">
-                        <i class="fas fa-cogs"></i>
+                    <a href="#settings" class="nav-link" onclick="adminDashboard.showSection('settings')">
+                        <i class="fas fa-cog"></i>
                         <span>Settings</span>
                     </a>
                 </li>
@@ -100,15 +118,16 @@
         </nav>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Content Area -->
     <main class="admin-main">
         <!-- Dashboard Section -->
         <section id="dashboard" class="admin-section active">
             <div class="section-header">
                 <h1><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
-                <p>Welcome to your portfolio admin panel</p>
+                <p>Welcome to your portfolio admin dashboard. Manage your content and track your portfolio performance.</p>
             </div>
-            
+
+            <!-- Dashboard Stats -->
             <div class="dashboard-stats">
                 <div class="stat-card projects-stat">
                     <div class="stat-icon">
@@ -116,11 +135,11 @@
                     </div>
                     <div class="stat-info">
                         <h3 id="projects-count">0</h3>
-                        <p>Total Projects</p>
+                        <p>Projects</p>
                         <span class="stat-change">+2 this month</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card achievements-stat">
                     <div class="stat-icon">
                         <i class="fas fa-trophy"></i>
@@ -128,10 +147,10 @@
                     <div class="stat-info">
                         <h3 id="achievements-count">0</h3>
                         <p>Achievements</p>
-                        <span class="stat-change">+1 this week</span>
+                        <span class="stat-change">+1 this month</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card skills-stat">
                     <div class="stat-icon">
                         <i class="fas fa-code"></i>
@@ -139,49 +158,50 @@
                     <div class="stat-info">
                         <h3 id="skills-count">0</h3>
                         <p>Skills</p>
-                        <span class="stat-change">Updated</span>
+                        <span class="stat-change">+3 this month</span>
                     </div>
                 </div>
-                
+
                 <div class="stat-card messages-stat">
                     <div class="stat-icon">
                         <i class="fas fa-envelope"></i>
                     </div>
                     <div class="stat-info">
                         <h3 id="messages-count">0</h3>
-                        <p>New Messages</p>
-                        <span class="stat-change">Today</span>
+                        <p>Unread Messages</p>
+                        <span class="stat-change">New today</span>
                     </div>
                 </div>
             </div>
 
+            <!-- Dashboard Grid -->
             <div class="dashboard-grid">
                 <div class="recent-activity">
                     <h2><i class="fas fa-clock"></i> Recent Activity</h2>
                     <div class="activity-list" id="activity-list">
-                        <!-- Activity items will be populated by JavaScript -->
+                        <!-- Activity items will be populated dynamically -->
                     </div>
                 </div>
 
                 <div class="quick-actions">
                     <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
                     <div class="quick-actions-grid">
-                        <button class="quick-action-btn" onclick="showSection('projects')">
+                        <a href="#projects" class="quick-action-btn" onclick="adminDashboard.showSection('projects')">
                             <i class="fas fa-plus"></i>
                             <span>Add Project</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="showSection('achievements')">
-                            <i class="fas fa-award"></i>
-                            <span>Add Achievement</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="showSection('skills')">
+                        </a>
+                        <a href="#skills" class="quick-action-btn" onclick="adminDashboard.showSection('skills')">
                             <i class="fas fa-code"></i>
-                            <span>Update Skills</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="showSection('contacts')">
-                            <i class="fas fa-envelope-open"></i>
-                            <span>Check Messages</span>
-                        </button>
+                            <span>Add Skill</span>
+                        </a>
+                        <a href="#achievements" class="quick-action-btn" onclick="adminDashboard.showSection('achievements')">
+                            <i class="fas fa-trophy"></i>
+                            <span>Add Achievement</span>
+                        </a>
+                        <a href="index.html" class="quick-action-btn" target="_blank">
+                            <i class="fas fa-eye"></i>
+                            <span>Preview Portfolio</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -190,221 +210,231 @@
         <!-- Profile Section -->
         <section id="profile" class="admin-section">
             <div class="section-header">
-                <h1><i class="fas fa-user"></i> Profile Information</h1>
-                <p>Update your personal information and hero section</p>
+                <h1><i class="fas fa-user"></i> Profile Management</h1>
+                <p>Update your personal information and profile details.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="profile-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="full-name">
-                                <i class="fas fa-user"></i> Full Name
-                            </label>
-                            <input type="text" id="full-name" name="fullName" value="MD. Jahid Hasan Jim" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="title">
-                                <i class="fas fa-briefcase"></i> Professional Title
-                            </label>
-                            <input type="text" id="title" name="title" value="Full Stack Developer & Software Engineer" required>
-                        </div>
-                    </div>
-                    
+
+            <form id="profile-form" class="admin-form">
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="description">
-                            <i class="fas fa-align-left"></i> Description
+                        <label for="full-name">
+                            <i class="fas fa-user"></i>
+                            Full Name *
                         </label>
-                        <textarea id="description" name="description" rows="4" required>Passionate about creating innovative web solutions and scalable applications. I transform ideas into digital reality with clean code and modern technologies.</textarea>
+                        <input type="text" id="full-name" name="fullName" required placeholder="Enter your full name">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="profile-image">
-                            <i class="fas fa-image"></i> Profile Image
+                        <label for="title">
+                            <i class="fas fa-briefcase"></i>
+                            Professional Title *
                         </label>
-                        <div class="image-upload">
-                            <input type="file" id="profile-image" name="profileImage" accept="image/*">
-                            <div class="image-preview">
-                                <img id="profile-preview" src="images/portfolio.jpg" alt="Profile Preview">
-                                <div class="image-overlay">
-                                    <i class="fas fa-camera"></i>
-                                    <span>Click to change</span>
-                                </div>
+                        <input type="text" id="title" name="title" required placeholder="e.g., Full Stack Developer">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">
+                        <i class="fas fa-quote-left"></i>
+                        Professional Summary
+                    </label>
+                    <textarea id="description" name="description" placeholder="Brief description about yourself..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="linkedin">
+                            <i class="fab fa-linkedin"></i>
+                            LinkedIn URL
+                        </label>
+                        <input type="url" id="linkedin" name="linkedin" placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="github">
+                            <i class="fab fa-github"></i>
+                            GitHub URL
+                        </label>
+                        <input type="url" id="github" name="github" placeholder="https://github.com/yourusername">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="facebook">
+                            <i class="fab fa-facebook"></i>
+                            Facebook URL
+                        </label>
+                        <input type="url" id="facebook" name="facebook" placeholder="https://facebook.com/yourprofile">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                            WhatsApp Number
+                        </label>
+                        <input type="tel" id="whatsapp" name="whatsapp" placeholder="+1234567890">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="profile-image">
+                        <i class="fas fa-camera"></i>
+                        Profile Image
+                    </label>
+                    <div class="image-upload">
+                        <div class="image-preview">
+                            <img id="profile-preview" src="https://via.placeholder.com/120x120?text=Upload+Image" alt="Profile Preview">
+                            <div class="image-overlay">
+                                <i class="fas fa-camera"></i>
+                                <span>Click to change</span>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="linkedin">
-                                <i class="fab fa-linkedin"></i> LinkedIn URL
-                            </label>
-                            <input type="url" id="linkedin" name="linkedin" value="https://www.linkedin.com/in/md-jahid-hasan-jim/">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="github">
-                                <i class="fab fa-github"></i> GitHub URL
-                            </label>
-                            <input type="url" id="github" name="github" value="https://github.com/jim2107054">
+                        <div class="upload-info">
+                            <input type="file" id="profile-image" name="profileImage" accept="image/*" style="display: none;">
+                            <p><strong>Upload Profile Picture</strong></p>
+                            <p>Recommended size: 400x400px<br>Max file size: 5MB<br>Formats: JPG, PNG, GIF</p>
                         </div>
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="facebook">
-                                <i class="fab fa-facebook"></i> Facebook URL
-                            </label>
-                            <input type="url" id="facebook" name="facebook" value="https://facebook.com/jahid.hasan.jim">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="whatsapp">
-                                <i class="fab fa-whatsapp"></i> WhatsApp Number
-                            </label>
-                            <input type="text" id="whatsapp" name="whatsapp" value="+8801581705456">
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            Save Changes
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-undo"></i>
-                            Reset
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="previewProfile()">
-                            <i class="fas fa-eye"></i>
-                            Preview
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save Profile
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="adminDashboard.previewProfile()">
+                        <i class="fas fa-eye"></i>
+                        Preview
+                    </button>
+                </div>
+            </form>
         </section>
 
         <!-- About Section -->
         <section id="about" class="admin-section">
             <div class="section-header">
                 <h1><i class="fas fa-info-circle"></i> About Section</h1>
-                <p>Manage your about section content</p>
+                <p>Manage your detailed about section content.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="about-form">
-                    <div class="form-group">
-                        <label for="about-content">
-                            <i class="fas fa-file-alt"></i> About Content
-                        </label>
-                        <textarea id="about-content" name="aboutContent" rows="12" required>Hello! I'm MD. Jahid Hasan Jim, a passionate full-stack developer with over 3 years of experience creating digital solutions that make a difference. I specialize in modern web technologies and love turning complex problems into simple, beautiful designs.
 
-My journey in software development started during my computer science studies, where I discovered my passion for creating user-centric applications. Since then, I've worked on various projects ranging from e-commerce platforms to enterprise solutions.
+            <form id="about-form" class="admin-form">
+                <div class="form-group">
+                    <label for="about-content">
+                        <i class="fas fa-align-left"></i>
+                        About Content *
+                    </label>
+                    <textarea id="about-content" name="aboutContent" required placeholder="Tell your story, background, interests, and goals..." rows="10"></textarea>
+                    <small>You can use basic HTML tags for formatting</small>
+                </div>
 
-When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing knowledge with the developer community.</textarea>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            Save About Content
-                        </button>
-                        <button type="button" class="btn btn-success" onclick="previewAbout()">
-                            <i class="fas fa-eye"></i>
-                            Preview
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Save About Content
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="adminDashboard.previewAbout()">
+                        <i class="fas fa-eye"></i>
+                        Preview
+                    </button>
+                </div>
+            </form>
         </section>
 
         <!-- Skills Section -->
         <section id="skills" class="admin-section">
             <div class="section-header">
                 <h1><i class="fas fa-code"></i> Skills Management</h1>
-                <p>Add, edit, or remove your technical skills</p>
+                <p>Add and manage your technical skills and expertise.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="skill-form" class="add-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="skill-name">
-                                <i class="fas fa-tag"></i> Skill Name
-                            </label>
-                            <input type="text" id="skill-name" name="skillName" placeholder="e.g., JavaScript, React, Node.js" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="skill-category">
-                                <i class="fas fa-folder"></i> Category
-                            </label>
-                            <select id="skill-category" name="skillCategory" required>
-                                <option value="">Select Category</option>
-                                <option value="Frontend">Frontend</option>
-                                <option value="Backend">Backend</option>
-                                <option value="Database">Database</option>
-                                <option value="DevOps">DevOps</option>
-                                <option value="Tools">Tools</option>
-                                <option value="Languages">Programming Languages</option>
-                            </select>
-                        </div>
+
+            <!-- Add Skill Form -->
+            <form id="skill-form" class="admin-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="skill-name">
+                            <i class="fas fa-tag"></i>
+                            Skill Name *
+                        </label>
+                        <input type="text" id="skill-name" name="skillName" required placeholder="e.g., JavaScript">
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="skill-level">
-                                <i class="fas fa-star"></i> Proficiency Level
-                            </label>
-                            <select id="skill-level" name="skillLevel" required>
-                                <option value="">Select Level</option>
-                                <option value="Beginner">Beginner (1-2 years)</option>
-                                <option value="Intermediate">Intermediate (2-4 years)</option>
-                                <option value="Advanced">Advanced (4+ years)</option>
-                                <option value="Expert">Expert (5+ years)</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="skill-icon">
-                                <i class="fas fa-icons"></i> Icon Class (Optional)
-                            </label>
-                            <input type="text" id="skill-icon" name="skillIcon" placeholder="e.g., fab fa-js-square">
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add Skill
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Clear
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="skills-management">
-                    <div class="skills-header">
-                        <h3>Current Skills</h3>
-                        <div class="skills-filters">
-                            <select id="skill-filter" onchange="filterSkills()">
-                                <option value="all">All Categories</option>
-                                <option value="Frontend">Frontend</option>
-                                <option value="Backend">Backend</option>
-                                <option value="Database">Database</option>
-                                <option value="DevOps">DevOps</option>
-                                <option value="Tools">Tools</option>
-                                <option value="Languages">Programming Languages</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="skills-grid" id="skills-grid">
-                        <!-- Skills will be populated by JavaScript -->
+
+                    <div class="form-group">
+                        <label for="skill-category">
+                            <i class="fas fa-folder"></i>
+                            Category *
+                        </label>
+                        <select id="skill-category" name="skillCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Programming Languages">Programming Languages</option>
+                            <option value="Frontend">Frontend</option>
+                            <option value="Backend">Backend</option>
+                            <option value="Database">Database</option>
+                            <option value="Cloud & DevOps">Cloud & DevOps</option>
+                            <option value="Mobile Development">Mobile Development</option>
+                            <option value="Design">Design</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="skill-level">
+                            <i class="fas fa-chart-bar"></i>
+                            Proficiency Level *
+                        </label>
+                        <select id="skill-level" name="skillLevel" required>
+                            <option value="">Select Level</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                            <option value="Expert">Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="skill-icon">
+                            <i class="fas fa-icons"></i>
+                            Icon Class (Optional)
+                        </label>
+                        <input type="text" id="skill-icon" name="skillIcon" placeholder="e.g., fab fa-js-square">
+                        <small>Use Font Awesome icon classes</small>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Skill
+                    </button>
+                </div>
+            </form>
+
+            <!-- Skills Filter -->
+            <div class="form-row" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <label for="skill-filter">
+                        <i class="fas fa-filter"></i>
+                        Filter by Category
+                    </label>
+                    <select id="skill-filter" name="skillFilter" onchange="adminDashboard.filterSkills()">
+                        <option value="all">All Categories</option>
+                        <option value="Programming Languages">Programming Languages</option>
+                        <option value="Frontend">Frontend</option>
+                        <option value="Backend">Backend</option>
+                        <option value="Database">Database</option>
+                        <option value="Cloud & DevOps">Cloud & DevOps</option>
+                        <option value="Mobile Development">Mobile Development</option>
+                        <option value="Design">Design</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Skills Grid -->
+            <div class="skills-grid" id="skills-grid">
+                <!-- Skills will be populated dynamically -->
             </div>
         </section>
 
@@ -412,114 +442,121 @@ When I'm not coding, you can find me exploring new technologies, contributing to
         <section id="projects" class="admin-section">
             <div class="section-header">
                 <h1><i class="fas fa-project-diagram"></i> Projects Management</h1>
-                <p>Manage your portfolio projects</p>
+                <p>Showcase your projects and work portfolio.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="project-form" class="add-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="project-title">
-                                <i class="fas fa-heading"></i> Project Title
-                            </label>
-                            <input type="text" id="project-title" name="title" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="project-status">
-                                <i class="fas fa-flag"></i> Status
-                            </label>
-                            <select id="project-status" name="status">
-                                <option value="Completed">Completed</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Planning">Planning</option>
-                                <option value="On Hold">On Hold</option>
-                            </select>
-                        </div>
-                    </div>
-                    
+
+            <!-- Add Project Form -->
+            <form id="project-form" class="admin-form">
+                <div class="form-row">
                     <div class="form-group">
-                        <label for="project-description">
-                            <i class="fas fa-align-left"></i> Description
+                        <label for="project-title">
+                            <i class="fas fa-heading"></i>
+                            Project Title *
                         </label>
-                        <textarea id="project-description" name="description" rows="4" required></textarea>
+                        <input type="text" id="project-title" name="title" required placeholder="Enter project title">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="project-technologies">
-                            <i class="fas fa-code"></i> Technologies (comma-separated)
+                        <label for="project-category">
+                            <i class="fas fa-folder"></i>
+                            Category
                         </label>
-                        <input type="text" id="project-technologies" name="technologies" placeholder="React, Node.js, MongoDB, Express" required>
-                        <small>Enter technologies separated by commas</small>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="project-demo">
-                                <i class="fas fa-external-link-alt"></i> Demo URL
-                            </label>
-                            <input type="url" id="project-demo" name="demoUrl" placeholder="https://your-demo-url.com">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="project-github">
-                                <i class="fab fa-github"></i> GitHub URL
-                            </label>
-                            <input type="url" id="project-github" name="githubUrl" placeholder="https://github.com/username/repo">
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="project-image">
-                                <i class="fas fa-image"></i> Project Image URL
-                            </label>
-                            <input type="url" id="project-image" name="imageUrl" placeholder="https://example.com/image.jpg">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="project-category">
-                                <i class="fas fa-folder"></i> Category
-                            </label>
-                            <select id="project-category" name="category">
-                                <option value="Web Development">Web Development</option>
-                                <option value="Mobile App">Mobile App</option>
-                                <option value="Desktop App">Desktop App</option>
-                                <option value="API/Backend">API/Backend</option>
-                                <option value="Open Source">Open Source</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add Project
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Clear Form
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="projects-management">
-                    <div class="projects-header">
-                        <h3>Current Projects</h3>
-                        <div class="projects-filters">
-                            <select id="project-filter" onchange="filterProjects()">
-                                <option value="all">All Projects</option>
-                                <option value="Completed">Completed</option>
-                                <option value="In Progress">In Progress</option>
-                                <option value="Planning">Planning</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="projects-grid" id="projects-grid">
-                        <!-- Projects will be populated by JavaScript -->
+                        <select id="project-category" name="category">
+                            <option value="Web Development">Web Development</option>
+                            <option value="Mobile App">Mobile App</option>
+                            <option value="Desktop Application">Desktop Application</option>
+                            <option value="API/Backend">API/Backend</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="project-description">
+                        <i class="fas fa-align-left"></i>
+                        Description *
+                    </label>
+                    <textarea id="project-description" name="description" required placeholder="Describe your project..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="project-technologies">
+                            <i class="fas fa-tools"></i>
+                            Technologies Used
+                        </label>
+                        <input type="text" id="project-technologies" name="technologies" placeholder="e.g., HTML, CSS, JavaScript, React">
+                        <small>Separate technologies with commas</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-status">
+                            <i class="fas fa-flag"></i>
+                            Status
+                        </label>
+                        <select id="project-status" name="status">
+                            <option value="Completed">Completed</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Planning">Planning</option>
+                            <option value="On Hold">On Hold</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="project-demo">
+                            <i class="fas fa-external-link-alt"></i>
+                            Demo URL
+                        </label>
+                        <input type="url" id="project-demo" name="demoUrl" placeholder="https://your-project-demo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-github">
+                            <i class="fab fa-github"></i>
+                            GitHub URL
+                        </label>
+                        <input type="url" id="project-github" name="githubUrl" placeholder="https://github.com/username/repo">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="project-image">
+                        <i class="fas fa-image"></i>
+                        Project Image URL
+                    </label>
+                    <input type="url" id="project-image" name="imageUrl" placeholder="https://your-image-url.com/image.jpg">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Project
+                    </button>
+                </div>
+            </form>
+
+            <!-- Projects Filter -->
+            <div class="form-row" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <label for="project-filter">
+                        <i class="fas fa-filter"></i>
+                        Filter by Status
+                    </label>
+                    <select id="project-filter" name="projectFilter" onchange="adminDashboard.filterProjects()">
+                        <option value="all">All Projects</option>
+                        <option value="Completed">Completed</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Planning">Planning</option>
+                        <option value="On Hold">On Hold</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Projects Grid -->
+            <div class="projects-grid" id="projects-grid">
+                <!-- Projects will be populated dynamically -->
             </div>
         </section>
 
@@ -527,75 +564,74 @@ When I'm not coding, you can find me exploring new technologies, contributing to
         <section id="education" class="admin-section">
             <div class="section-header">
                 <h1><i class="fas fa-graduation-cap"></i> Education Management</h1>
-                <p>Manage your educational background</p>
+                <p>Add and manage your educational background.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="education-form" class="add-form">
+
+            <!-- Add Education Form -->
+            <form id="education-form" class="admin-form">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="education-degree">
-                            <i class="fas fa-certificate"></i> Degree/Certificate
+                            <i class="fas fa-certificate"></i>
+                            Degree/Qualification *
                         </label>
-                        <input type="text" id="education-degree" name="degree" placeholder="e.g., Bachelor of Science in Computer Science" required>
+                        <input type="text" id="education-degree" name="degree" required placeholder="e.g., Bachelor of Computer Science">
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="education-school">
-                                <i class="fas fa-university"></i> School/Institution
-                            </label>
-                            <input type="text" id="education-school" name="school" placeholder="e.g., University of Technology" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="education-year">
-                                <i class="fas fa-calendar"></i> Year/Duration
-                            </label>
-                            <input type="text" id="education-year" name="year" placeholder="e.g., 2019 - 2023" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="education-gpa">
-                                <i class="fas fa-star"></i> GPA/Grade (Optional)
-                            </label>
-                            <input type="text" id="education-gpa" name="gpa" placeholder="e.g., 3.8/4.0">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="education-location">
-                                <i class="fas fa-map-marker-alt"></i> Location (Optional)
-                            </label>
-                            <input type="text" id="education-location" name="location" placeholder="e.g., Dhaka, Bangladesh">
-                        </div>
-                    </div>
-                    
+
                     <div class="form-group">
-                        <label for="education-description">
-                            <i class="fas fa-align-left"></i> Description (Optional)
+                        <label for="education-school">
+                            <i class="fas fa-university"></i>
+                            Institution *
                         </label>
-                        <textarea id="education-description" name="description" rows="3" placeholder="Brief description of your studies, achievements, or relevant coursework"></textarea>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add Education
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Clear
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="education-list">
-                    <h3>Education History</h3>
-                    <div class="education-timeline" id="education-timeline">
-                        <!-- Education items will be populated by JavaScript -->
+                        <input type="text" id="education-school" name="school" required placeholder="University/School name">
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="education-year">
+                            <i class="fas fa-calendar"></i>
+                            Duration *
+                        </label>
+                        <input type="text" id="education-year" name="year" required placeholder="e.g., 2020 - 2024">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="education-gpa">
+                            <i class="fas fa-chart-line"></i>
+                            GPA/Grade (Optional)
+                        </label>
+                        <input type="text" id="education-gpa" name="gpa" placeholder="e.g., 3.8/4.0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="education-location">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Location (Optional)
+                    </label>
+                    <input type="text" id="education-location" name="location" placeholder="City, Country">
+                </div>
+
+                <div class="form-group">
+                    <label for="education-description">
+                        <i class="fas fa-align-left"></i>
+                        Description (Optional)
+                    </label>
+                    <textarea id="education-description" name="description" placeholder="Additional details about your education..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Education
+                    </button>
+                </div>
+            </form>
+
+            <!-- Education Timeline -->
+            <div class="education-timeline" id="education-timeline">
+                <!-- Education items will be populated dynamically -->
             </div>
         </section>
 
@@ -603,416 +639,414 @@ When I'm not coding, you can find me exploring new technologies, contributing to
         <section id="achievements" class="admin-section">
             <div class="section-header">
                 <h1><i class="fas fa-trophy"></i> Achievements Management</h1>
-                <p>Manage your achievements and certifications</p>
+                <p>Showcase your awards, certifications, and accomplishments.</p>
             </div>
-            
-            <div class="admin-form">
-                <form id="achievement-form" class="add-form">
+
+            <!-- Add Achievement Form -->
+            <form id="achievement-form" class="admin-form">
+                <div class="form-row">
                     <div class="form-group">
                         <label for="achievement-title">
-                            <i class="fas fa-award"></i> Achievement Title
+                            <i class="fas fa-trophy"></i>
+                            Achievement Title *
                         </label>
-                        <input type="text" id="achievement-title" name="title" placeholder="e.g., AWS Certified Developer" required>
+                        <input type="text" id="achievement-title" name="title" required placeholder="Enter achievement title">
                     </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="achievement-organization">
-                                <i class="fas fa-building"></i> Organization
-                            </label>
-                            <input type="text" id="achievement-organization" name="organization" placeholder="e.g., Amazon Web Services" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="achievement-date">
-                                <i class="fas fa-calendar"></i> Date
-                            </label>
-                            <input type="date" id="achievement-date" name="date" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="achievement-type">
-                                <i class="fas fa-tag"></i> Type
-                            </label>
-                            <select id="achievement-type" name="type">
-                                <option value="Certification">Certification</option>
-                                <option value="Award">Award</option>
-                                <option value="Competition">Competition</option>
-                                <option value="Publication">Publication</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="achievement-level">
-                                <i class="fas fa-medal"></i> Level
-                            </label>
-                            <select id="achievement-level" name="level">
-                                <option value="International">International</option>
-                                <option value="National">National</option>
-                                <option value="Regional">Regional</option>
-                                <option value="Local">Local</option>
-                                <option value="Institutional">Institutional</option>
-                            </select>
-                        </div>
-                    </div>
-                    
+
                     <div class="form-group">
-                        <label for="achievement-description">
-                            <i class="fas fa-align-left"></i> Description
+                        <label for="achievement-organization">
+                            <i class="fas fa-building"></i>
+                            Organization *
                         </label>
-                        <textarea id="achievement-description" name="description" rows="3" placeholder="Brief description of the achievement" required></textarea>
+                        <input type="text" id="achievement-organization" name="organization" required placeholder="Issuing organization">
                     </div>
-                    
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="achievement-date">
+                            <i class="fas fa-calendar"></i>
+                            Date *
+                        </label>
+                        <input type="date" id="achievement-date" name="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="achievement-type">
+                            <i class="fas fa-tag"></i>
+                            Type
+                        </label>
+                        <select id="achievement-type" name="type">
+                            <option value="Certification">Certification</option>
+                            <option value="Award">Award</option>
+                            <option value="Competition">Competition</option>
+                            <option value="Publication">Publication</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="achievement-level">
+                            <i class="fas fa-medal"></i>
+                            Level
+                        </label>
+                        <select id="achievement-level" name="level">
+                            <option value="Professional">Professional</option>
+                            <option value="Academic">Academic</option>
+                            <option value="Industry">Industry</option>
+                            <option value="Community">Community</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label for="achievement-certificate">
-                            <i class="fas fa-link"></i> Certificate URL (Optional)
+                            <i class="fas fa-certificate"></i>
+                            Certificate URL (Optional)
                         </label>
                         <input type="url" id="achievement-certificate" name="certificateUrl" placeholder="https://certificate-url.com">
                     </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-plus"></i>
-                            Add Achievement
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Clear
-                        </button>
-                    </div>
-                </form>
-                
-                <div class="achievements-management">
-                    <div class="achievements-header">
-                        <h3>Current Achievements</h3>
-                        <div class="achievements-filters">
-                            <select id="achievement-filter" onchange="filterAchievements()">
-                                <option value="all">All Types</option>
-                                <option value="Certification">Certifications</option>
-                                <option value="Award">Awards</option>
-                                <option value="Competition">Competitions</option>
-                                <option value="Publication">Publications</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="achievements-grid" id="achievements-grid">
-                        <!-- Achievements will be populated by JavaScript -->
-                    </div>
                 </div>
+
+                <div class="form-group">
+                    <label for="achievement-description">
+                        <i class="fas fa-align-left"></i>
+                        Description
+                    </label>
+                    <textarea id="achievement-description" name="description" placeholder="Describe the achievement..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Achievement
+                    </button>
+                </div>
+            </form>
+
+            <!-- Achievements Filter -->
+            <div class="form-row" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <label for="achievement-filter">
+                        <i class="fas fa-filter"></i>
+                        Filter by Type
+                    </label>
+                    <select id="achievement-filter" name="achievementFilter" onchange="adminDashboard.filterAchievements()">
+                        <option value="all">All Types</option>
+                        <option value="Certification">Certification</option>
+                        <option value="Award">Award</option>
+                        <option value="Competition">Competition</option>
+                        <option value="Publication">Publication</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Achievements Grid -->
+            <div class="achievements-grid" id="achievements-grid">
+                <!-- Achievements will be populated dynamically -->
             </div>
         </section>
 
-        <!-- Contact Messages Section -->
+        <!-- Messages/Contacts Section -->
         <section id="contacts" class="admin-section">
             <div class="section-header">
-                <h1><i class="fas fa-envelope"></i> Contact Messages</h1>
-                <p>View and manage contact form submissions</p>
+                <h1><i class="fas fa-envelope"></i> Messages & Contacts</h1>
+                <p>Manage incoming messages and contact inquiries.</p>
             </div>
-            
-            <div class="messages-container">
-                <div class="messages-toolbar">
-                    <div class="messages-stats">
-                        <span class="stat-badge unread">
-                            <i class="fas fa-envelope"></i>
-                            <span id="unread-count">0</span> Unread
-                        </span>
-                        <span class="stat-badge total">
-                            <i class="fas fa-envelope-open"></i>
-                            <span id="total-messages">0</span> Total
-                        </span>
+
+            <!-- Messages Toolbar -->
+            <div class="messages-toolbar">
+                <div class="messages-stats">
+                    <div class="stat-badge unread">
+                        <i class="fas fa-envelope"></i>
+                        <span id="unread-count">0</span> Unread
                     </div>
-                    <div class="messages-actions">
-                        <select id="message-filter" onchange="filterMessages()">
-                            <option value="all">All Messages</option>
-                            <option value="unread">Unread Only</option>
-                            <option value="read">Read Only</option>
-                        </select>
-                        <button class="btn btn-danger btn-sm" onclick="deleteAllRead()">
-                            <i class="fas fa-trash"></i>
-                            Delete Read
-                        </button>
+                    <div class="stat-badge total">
+                        <i class="fas fa-inbox"></i>
+                        <span id="total-messages">0</span> Total
                     </div>
                 </div>
-                
-                <div class="messages-list" id="messages-list">
-                    <!-- Messages will be populated by JavaScript -->
+
+                <div class="messages-actions">
+                    <select id="message-filter" onchange="adminDashboard.filterMessages()">
+                        <option value="all">All Messages</option>
+                        <option value="unread">Unread Only</option>
+                        <option value="read">Read Only</option>
+                    </select>
+                    <button class="btn btn-warning btn-sm" onclick="adminDashboard.deleteAllRead()">
+                        <i class="fas fa-trash"></i>
+                        Delete All Read
+                    </button>
                 </div>
+            </div>
+
+            <!-- Messages List -->
+            <div class="messages-list" id="messages-list">
+                <!-- Messages will be populated dynamically -->
             </div>
         </section>
 
         <!-- Settings Section -->
         <section id="settings" class="admin-section">
             <div class="section-header">
-                <h1><i class="fas fa-cogs"></i> Settings</h1>
-                <p>Manage your portfolio and admin settings</p>
+                <h1><i class="fas fa-cog"></i> Settings & Configuration</h1>
+                <p>Manage your admin preferences and system settings.</p>
             </div>
-            
-            <div class="settings-container">
-                <div class="settings-tabs">
-                    <button class="settings-tab active" onclick="showSettingsTab('general')">
-                        <i class="fas fa-cog"></i> General
-                    </button>
-                    <button class="settings-tab" onclick="showSettingsTab('security')">
-                        <i class="fas fa-shield-alt"></i> Security
-                    </button>
-                    <button class="settings-tab" onclick="showSettingsTab('backup')">
-                        <i class="fas fa-database"></i> Backup
-                    </button>
-                    <button class="settings-tab" onclick="showSettingsTab('appearance')">
-                        <i class="fas fa-paint-brush"></i> Appearance
-                    </button>
-                </div>
 
-                <!-- General Settings -->
-                <div class="settings-content active" id="general-settings">
-                    <div class="admin-form">
-                        <h3><i class="fas fa-cog"></i> General Settings</h3>
-                        <form id="general-settings-form">
-                            <div class="form-group">
-                                <label for="site-title">
-                                    <i class="fas fa-heading"></i> Site Title
-                                </label>
-                                <input type="text" id="site-title" name="siteTitle" value="MD. Jahid Hasan Jim - Portfolio">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="site-description">
-                                    <i class="fas fa-align-left"></i> Site Description
-                                </label>
-                                <textarea id="site-description" name="siteDescription" rows="3">Full Stack Developer & Software Engineer Portfolio showcasing innovative web solutions and modern applications.</textarea>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="contact-email">
-                                        <i class="fas fa-envelope"></i> Contact Email
-                                    </label>
-                                    <input type="email" id="contact-email" name="contactEmail" value="jahid.hasan.jim@gmail.com">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="portfolio-theme">
-                                        <i class="fas fa-palette"></i> Portfolio Theme
-                                    </label>
-                                    <select id="portfolio-theme" name="portfolioTheme">
-                                        <option value="dark">Dark Theme</option>
-                                        <option value="light">Light Theme</option>
-                                        <option value="auto">Auto (System)</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    Save General Settings
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+            <!-- Settings Tabs -->
+            <div class="settings-tabs">
+                <button class="settings-tab active" onclick="adminDashboard.showSettingsTab('general')">
+                    <i class="fas fa-cog"></i>
+                    General
+                </button>
+                <button class="settings-tab" onclick="adminDashboard.showSettingsTab('security')">
+                    <i class="fas fa-shield-alt"></i>
+                    Security
+                </button>
+                <button class="settings-tab" onclick="adminDashboard.showSettingsTab('appearance')">
+                    <i class="fas fa-palette"></i>
+                    Appearance
+                </button>
+                <button class="settings-tab" onclick="adminDashboard.showSettingsTab('backup')">
+                    <i class="fas fa-download"></i>
+                    Backup & Import
+                </button>
+            </div>
 
-                <!-- Security Settings -->
-                <div class="settings-content" id="security-settings">
-                    <div class="admin-form">
-                        <h3><i class="fas fa-shield-alt"></i> Security Settings</h3>
-                        <form id="security-settings-form">
-                            <div class="form-group">
-                                <label for="admin-email">
-                                    <i class="fas fa-user"></i> Admin Email
-                                </label>
-                                <input type="email" id="admin-email" name="adminEmail" value="admin@portfolio.com" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="current-password">
-                                    <i class="fas fa-lock"></i> Current Password
-                                </label>
-                                <input type="password" id="current-password" name="currentPassword" placeholder="Enter current password">
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="new-password">
-                                        <i class="fas fa-key"></i> New Password
-                                    </label>
-                                    <input type="password" id="new-password" name="newPassword" placeholder="Enter new password">
-                                </div>
-                                
-                                <div class="form-group">
-                                    <label for="confirm-password">
-                                        <i class="fas fa-key"></i> Confirm New Password
-                                    </label>
-                                    <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm new password">
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>
-                                    <i class="fas fa-clock"></i> Session Settings
-                                </label>
-                                <div class="checkbox-group">
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="auto-logout" name="autoLogout" checked>
-                                        <span class="checkmark"></span>
-                                        Auto-logout after 24 hours
-                                    </label>
-                                    <label class="checkbox-label">
-                                        <input type="checkbox" id="remember-login" name="rememberLogin">
-                                        <span class="checkmark"></span>
-                                        Remember login for 30 days
-                                    </label>
-                                </div>
-                            </div>
-                            
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    Update Security Settings
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Backup Settings -->
-                <div class="settings-content" id="backup-settings">
-                    <div class="admin-form">
-                        <h3><i class="fas fa-database"></i> Data Management</h3>
-                        
-                        <div class="backup-section">
-                            <h4><i class="fas fa-download"></i> Export Data</h4>
-                            <p>Download all your portfolio data as a JSON file for backup purposes.</p>
-                            <button class="btn btn-secondary" onclick="exportAllData()">
-                                <i class="fas fa-download"></i>
-                                Export All Data
-                            </button>
-                        </div>
-                        
-                        <div class="backup-section">
-                            <h4><i class="fas fa-upload"></i> Import Data</h4>
-                            <p>Restore your portfolio data from a backup file.</p>
-                            <div class="file-upload-area" onclick="triggerFileUpload()">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                                <p>Click to select backup file or drag and drop</p>
-                                <input type="file" id="backup-file" accept=".json" style="display: none;" onchange="importBackupData(this)">
-                            </div>
-                        </div>
-                        
-                        <div class="backup-section danger-zone">
-                            <h4><i class="fas fa-exclamation-triangle"></i> Danger Zone</h4>
-                            <p>These actions cannot be undone. Please be careful.</p>
-                            <div class="danger-actions">
-                                <button class="btn btn-warning" onclick="resetToDefaults()">
-                                    <i class="fas fa-undo"></i>
-                                    Reset to Defaults
-                                </button>
-                                <button class="btn btn-danger" onclick="clearAllData()">
-                                    <i class="fas fa-trash"></i>
-                                    Clear All Data
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Appearance Settings -->
-                <div class="settings-content" id="appearance-settings">
-                    <div class="admin-form">
-                        <h3><i class="fas fa-paint-brush"></i> Appearance Settings</h3>
-                        
+            <!-- General Settings -->
+            <div id="general-settings" class="settings-content active">
+                <form id="general-settings-form" class="admin-form">
+                    <div class="form-row">
                         <div class="form-group">
-                            <label>
-                                <i class="fas fa-palette"></i> Admin Theme
+                            <label for="site-title">
+                                <i class="fas fa-heading"></i>
+                                Portfolio Site Title
                             </label>
-                            <div class="theme-selector">
-                                <div class="theme-option active" data-theme="default">
-                                    <div class="theme-preview default-theme"></div>
-                                    <span>Default</span>
-                                </div>
-                                <div class="theme-option" data-theme="dark">
-                                    <div class="theme-preview dark-theme"></div>
-                                    <span>Dark</span>
-                                </div>
-                                <div class="theme-option" data-theme="blue">
-                                    <div class="theme-preview blue-theme"></div>
-                                    <span>Blue</span>
-                                </div>
-                            </div>
+                            <input type="text" id="site-title" name="siteTitle" placeholder="Jim's Portfolio">
                         </div>
-                        
+
                         <div class="form-group">
-                            <label>
-                                <i class="fas fa-text-height"></i> Font Settings
+                            <label for="contact-email">
+                                <i class="fas fa-envelope"></i>
+                                Contact Email
                             </label>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="font-size">Font Size</label>
-                                    <select id="font-size" name="fontSize">
-                                        <option value="small">Small</option>
-                                        <option value="medium" selected>Medium</option>
-                                        <option value="large">Large</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="font-family">Font Family</label>
-                                    <select id="font-family" name="fontFamily">
-                                        <option value="system">System Default</option>
-                                        <option value="roboto">Roboto</option>
-                                        <option value="opensans">Open Sans</option>
-                                        <option value="lato">Lato</option>
-                                    </select>
-                                </div>
+                            <input type="email" id="contact-email" name="contactEmail" placeholder="contact@yoursite.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="site-description">
+                            <i class="fas fa-align-left"></i>
+                            Site Description
+                        </label>
+                        <textarea id="site-description" name="siteDescription" placeholder="Brief description of your portfolio..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Save General Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Settings -->
+            <div id="security-settings" class="settings-content">
+                <form id="security-settings-form" class="admin-form">
+                    <div class="form-group">
+                        <label for="admin-email">
+                            <i class="fas fa-user"></i>
+                            Admin Email
+                        </label>
+                        <input type="email" id="admin-email" name="adminEmail" placeholder="admin@yoursite.com">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="current-password">
+                                <i class="fas fa-lock"></i>
+                                Current Password
+                            </label>
+                            <input type="password" id="current-password" name="currentPassword" placeholder="Enter current password">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="new-password">
+                                <i class="fas fa-key"></i>
+                                New Password
+                            </label>
+                            <input type="password" id="new-password" name="newPassword" placeholder="Enter new password">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm-password">
+                                <i class="fas fa-check"></i>
+                                Confirm Password
+                            </label>
+                            <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm new password">
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="autoLogout">
+                            <span>Auto-logout after 30 minutes of inactivity</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="rememberLogin">
+                            <span>Remember login for 7 days</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Update Security Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Appearance Settings -->
+            <div id="appearance-settings" class="settings-content">
+                <div class="admin-form">
+                    <div class="form-group">
+                        <label>
+                            <i class="fas fa-palette"></i>
+                            Theme Selection
+                        </label>
+                        <div class="theme-selector">
+                            <div class="theme-option active" data-theme="default">
+                                <div class="theme-preview default-theme"></div>
+                                <span>Default</span>
+                            </div>
+                            <div class="theme-option" data-theme="dark">
+                                <div class="theme-preview dark-theme"></div>
+                                <span>Dark</span>
+                            </div>
+                            <div class="theme-option" data-theme="blue">
+                                <div class="theme-preview blue-theme"></div>
+                                <span>Blue</span>
                             </div>
                         </div>
-                        
-                        <div class="form-actions">
-                            <button type="button" class="btn btn-primary" onclick="saveAppearanceSettings()">
-                                <i class="fas fa-save"></i>
-                                Save Appearance Settings
-                            </button>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="font-size">
+                                <i class="fas fa-text-height"></i>
+                                Font Size
+                            </label>
+                            <select id="font-size">
+                                <option value="small">Small</option>
+                                <option value="medium" selected>Medium</option>
+                                <option value="large">Large</option>
+                            </select>
                         </div>
+
+                        <div class="form-group">
+                            <label for="font-family">
+                                <i class="fas fa-font"></i>
+                                Font Family
+                            </label>
+                            <select id="font-family">
+                                <option value="system" selected>System Default</option>
+                                <option value="roboto">Roboto</option>
+                                <option value="opensans">Open Sans</option>
+                                <option value="lato">Lato</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary" onclick="adminDashboard.saveAppearanceSettings()">
+                            <i class="fas fa-save"></i>
+                            Save Appearance Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup & Import Settings -->
+            <div id="backup-settings" class="settings-content">
+                <div class="backup-section">
+                    <h4><i class="fas fa-download"></i> Export Data</h4>
+                    <p>Download a backup of all your portfolio data including profiles, projects, skills, and settings.</p>
+                    <button class="btn btn-success" onclick="adminDashboard.exportAllData()">
+                        <i class="fas fa-download"></i>
+                        Export All Data
+                    </button>
+                </div>
+
+                <div class="backup-section">
+                    <h4><i class="fas fa-upload"></i> Import Data</h4>
+                    <p>Restore your portfolio data from a previously exported backup file.</p>
+                    <div class="file-upload-area" onclick="adminDashboard.triggerFileUpload()">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to select backup file</p>
+                    </div>
+                    <input type="file" id="backup-file" accept=".json" style="display: none;" onchange="adminDashboard.importBackupData(this)">
+                </div>
+
+                <div class="backup-section danger-zone">
+                    <h4><i class="fas fa-exclamation-triangle"></i> Danger Zone</h4>
+                    <p>These actions cannot be undone. Please be careful.</p>
+                    <div class="danger-actions">
+                        <button class="btn btn-warning" onclick="adminDashboard.resetToDefaults()">
+                            <i class="fas fa-undo"></i>
+                            Reset to Defaults
+                        </button>
+                        <button class="btn btn-danger" onclick="adminDashboard.clearAllData()">
+                            <i class="fas fa-trash"></i>
+                            Clear All Data
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
-
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="loading-spinner">
-            <i class="fas fa-spinner fa-spin"></i>
-            <p>Processing...</p>
-        </div>
-    </div>
-
-    <!-- Confirmation Modal -->
-    <div id="confirmation-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modal-title">Confirm Action</h3>
-                <button class="modal-close" onclick="closeConfirmationModal()">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p id="modal-message">Are you sure you want to perform this action?</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeConfirmationModal()">Cancel</button>
-                <button class="btn btn-danger" id="confirm-action-btn" onclick="confirmAction()">Confirm</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Scripts -->
+    <!-- JavaScript Files -->
     <script src="js/mock-api.js"></script>
     <script src="js/admin-dashboard.js"></script>
+    <script>
+        // Initialize admin dashboard when page loads
+        let adminDashboard;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            adminDashboard = new AdminDashboard();
+        });
+
+        // Global functions for UI interactions
+        function showSection(sectionId) {
+            if (adminDashboard) {
+                adminDashboard.showSection(sectionId);
+            }
+        }
+
+        function showSettingsTab(tabId) {
+            if (adminDashboard) {
+                adminDashboard.showSettingsTab(tabId);
+            }
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
