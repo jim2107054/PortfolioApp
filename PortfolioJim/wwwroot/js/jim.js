@@ -145,38 +145,7 @@ class PortfolioMain {
         const projectsContainer = document.getElementById('projects-container');
         if (!projectsContainer) return;
 
-        const fallbackProjects = [
-            {
-                title: 'E-Commerce Platform',
-                description: 'A full-stack e-commerce solution with React frontend and .NET Core backend, featuring user authentication, payment integration, and admin dashboard.',
-                image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-                technologies: ['React', 'ASP.NET Core', 'SQL Server', 'Stripe API'],
-                category: 'Web Development',
-                status: 'Completed',
-                demoUrl: '#',
-                githubUrl: '#'
-            },
-            {
-                title: 'Task Management App',
-                description: 'A collaborative task management application with real-time updates, file attachments, and team collaboration features.',
-                image: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-                technologies: ['Vue.js', 'Node.js', 'MongoDB', 'Socket.io'],
-                category: 'Web Development',
-                status: 'Completed',
-                demoUrl: '#',
-                githubUrl: '#'
-            },
-            {
-                title: 'Mobile Fitness Tracker',
-                description: 'Cross-platform mobile app for fitness tracking with workout plans, progress monitoring, and social features.',
-                image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-                technologies: ['React Native', 'Firebase', 'Redux', 'Chart.js'],
-                category: 'Mobile App',
-                status: 'In Progress',
-                demoUrl: '#',
-                githubUrl: '#'
-            }
-        ];
+        const fallbackProjects = [];
 
         projectsContainer.innerHTML = fallbackProjects.map(project => `
             <div class="project-card" data-category="${project.category}">
@@ -214,24 +183,7 @@ class PortfolioMain {
         const educationContainer = document.getElementById('education-container');
         if (!educationContainer) return;
 
-        const fallbackEducation = [
-            {
-                degree: 'Bachelor of Science in Computer Science',
-                school: 'University of Technology',
-                duration: '2019 - 2023',
-                location: 'Dhaka, Bangladesh',
-                gpa: '3.8/4.0',
-                description: 'Focused on software engineering, web development, and database management. Graduated with honors and participated in various coding competitions.'
-            },
-            {
-                degree: 'Full Stack Web Development Bootcamp',
-                school: 'TechBD Institute',
-                duration: '2023',
-                location: 'Online',
-                gpa: 'Certificate',
-                description: 'Intensive program covering modern web technologies including React, Node.js, and cloud deployment.'
-            }
-        ];
+        const fallbackEducation = [];
 
         educationContainer.innerHTML = fallbackEducation.map(edu => `
             <div class="education-item">
@@ -253,35 +205,7 @@ class PortfolioMain {
         const achievementsContainer = document.getElementById('achievements-container');
         if (!achievementsContainer) return;
 
-        const fallbackAchievements = [
-            {
-                title: 'AWS Certified Developer',
-                organization: 'Amazon Web Services',
-                description: 'Demonstrated expertise in developing and maintaining applications on the AWS platform.',
-                type: 'Certification',
-                date: '2024-01-15',
-                level: 'Professional',
-                icon: 'fas fa-cloud'
-            },
-            {
-                title: 'Best Innovation Award',
-                organization: 'TechBD Hackathon 2023',
-                description: 'Awarded for developing an innovative solution for sustainable agriculture using IoT and machine learning.',
-                type: 'Award',
-                date: '2023-11-20',
-                level: 'National',
-                icon: 'fas fa-trophy'
-            },
-            {
-                title: 'Microsoft Certified: Azure Developer',
-                organization: 'Microsoft',
-                description: 'Certified in designing and building cloud solutions on Microsoft Azure platform.',
-                type: 'Certification',
-                date: '2023-08-10',
-                level: 'Professional',
-                icon: 'fas fa-certificate'
-            }
-        ];
+        const fallbackAchievements = [];
 
         achievementsContainer.innerHTML = fallbackAchievements.map(achievement => `
             <div class="achievement-card" data-type="${achievement.type}">
@@ -444,40 +368,6 @@ class PortfolioMain {
             });
         });
     }
-
-    /* REMOVED - Theme toggle functionality disabled
-    setupThemeToggle() {
-        // Create theme toggle button if it doesn't exist
-        let themeToggle = document.querySelector('.theme-toggle');
-        if (!themeToggle) {
-            themeToggle = document.createElement('button');
-            themeToggle.className = 'theme-toggle';
-            themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-            themeToggle.setAttribute('aria-label', 'Toggle dark mode');
-            
-            // Add to navigation
-            const navContainer = document.querySelector('.nav-container');
-            if (navContainer) {
-                navContainer.appendChild(themeToggle);
-            }
-        }
-
-        // Theme toggle functionality
-        themeToggle.addEventListener('click', () => {
-            document.body.classList.toggle('dark-theme');
-            const isDark = document.body.classList.contains('dark-theme');
-            themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-        });
-
-        // Load saved theme
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.body.classList.add('dark-theme');
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
-        }
-    }
-    */
 
     setupTypingEffect() {
         const typingElement = document.querySelector('.hero-description');

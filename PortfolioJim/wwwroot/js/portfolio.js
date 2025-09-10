@@ -523,28 +523,49 @@ class PortfolioManager {
 
         console.log('Rendering education:', this.data.education);
 
-        educationContainer.innerHTML = this.data.education.map(edu => `
-            <div class="education-item">
-                <div class="education-content">
-                    <div class="education-header">
-                        <h3 class="education-degree">${edu.degree}</h3>
-                        <span class="education-duration">${edu.duration}</span>
+        educationContainer.innerHTML = this.data.education.map(edu => {
+            // Handle different date formats
+            let duration = edu.duration;
+            if (!duration && edu.startDate) {
+                const startYear = new Date(edu.startDate).getFullYear();
+                const endYear = edu.endDate ? new Date(edu.endDate).getFullYear() : (edu.current ? 'Present' : '');
+                duration = endYear ? `${startYear} - ${endYear}` : startYear.toString();
+            }
+
+            return `
+                <div class="education-item">
+                    <div class="education-content">
+                        <div class="education-header">
+                            <h3 class="education-degree">${edu.degree}</h3>
+                            <span class="education-duration">${duration || 'Duration not specified'}</span>
+                        </div>
+                        <p class="education-school">
+                            <i class="fas fa-university"></i>
+                            ${edu.school}
+                        </p>
+                        ${edu.fieldOfStudy ? `<p class="education-field">
+                            <i class="fas fa-book"></i>
+                            ${edu.fieldOfStudy}
+                        </p>` : ''}
+                        ${edu.location ? `<p class="education-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            ${edu.location}
+                        </p>` : ''}
+                        ${edu.gpa && edu.showGPA !== false ? `<p class="education-gpa">
+                            <strong>GPA:</strong> ${edu.gpa}
+                        </p>` : ''}
+                        ${edu.honors ? `<p class="education-honors">
+                            <i class="fas fa-medal"></i>
+                            <strong>Honors:</strong> ${edu.honors}
+                        </p>` : ''}
+                        ${edu.description ? `<p class="education-description">${edu.description}</p>` : ''}
+                        ${edu.coursework ? `<div class="education-coursework">
+                            <strong>Relevant Coursework:</strong> ${edu.coursework}
+                        </div>` : ''}
                     </div>
-                    <p class="education-school">
-                        <i class="fas fa-university"></i>
-                        ${edu.school}
-                    </p>
-                    ${edu.location ? `<p class="education-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        ${edu.location}
-                    </p>` : ''}
-                    ${edu.gpa ? `<p class="education-gpa">
-                        <strong>GPA:</strong> ${edu.gpa}
-                    </p>` : ''}
-                    ${edu.description ? `<p class="education-description">${edu.description}</p>` : ''}
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     renderAchievements() {
@@ -556,37 +577,67 @@ class PortfolioManager {
 
         console.log('Rendering achievements:', this.data.achievements);
 
-        achievementsContainer.innerHTML = this.data.achievements.map(achievement => `
-            <div class="achievement-card" data-type="${achievement.type}" data-level="${achievement.level}">
-                <div class="achievement-icon">
-                    <i class="fas ${this.getAchievementIcon(achievement.type)}"></i>
-                </div>
-                <div class="achievement-content">
-                    <h3 class="achievement-title">${achievement.title}</h3>
-                    <p class="achievement-org">
-                        <i class="fas fa-building"></i>
-                        ${achievement.organization}
-                    </p>
-                    <p class="achievement-description">${achievement.description}</p>
-                    <div class="achievement-meta">
-                        <span class="achievement-date">
-                            <i class="fas fa-calendar"></i>
-                            ${new Date(achievement.date).toLocaleDateString()}
-                        </span>
-                        <span class="achievement-level">
-                            <i class="fas fa-medal"></i>
-                            ${achievement.level}
-                        </span>
+        achievementsContainer.innerHTML = this.data.achievements.map(achievement => {
+            // Check if achievement should be shown
+            if (achievement.showInPortfolio === false) return '';
+
+            // Format date
+            const dateObj = achievement.date ? new Date(achievement.date) : null;
+            const formattedDate = (dateObj && !isNaN(dateObj)) ? dateObj.toLocaleDateString() : 'Date not specified';
+
+            // Check if expiring soon
+            const expiryDate = achievement.expiryDate ? new Date(achievement.expiryDate) : null;
+            const isExpiring = expiryDate && (expiryDate - new Date()) < (90 * 24 * 60 * 60 * 1000); // 90 days
+            const isExpired = expiryDate && expiryDate < new Date();
+
+            return `
+                <div class="achievement-card" data-type="${achievement.type}" data-level="${achievement.level}" ${achievement.featured ? 'data-featured="true"' : ''}>
+                    <div class="achievement-icon">
+                        <i class="fas ${this.getAchievementIcon(achievement.type)}"></i>
+                        ${achievement.verified ? '<span class="verified-badge"><i class="fas fa-check-circle"></i></span>' : ''}
                     </div>
-                    ${achievement.certificateUrl ? `
-                        <a href="${achievement.certificateUrl}" target="_blank" class="achievement-certificate">
-                            <i class="fas fa-certificate"></i>
-                            View Certificate
-                        </a>
-                    ` : ''}
+                    <div class="achievement-content">
+                        <h3 class="achievement-title">${achievement.title}</h3>
+                        <p class="achievement-org">
+                            <i class="fas fa-building"></i>
+                            ${achievement.organization}
+                        </p>
+                        ${achievement.description ? `<p class="achievement-description">${achievement.description}</p>` : ''}
+                        <div class="achievement-meta">
+                            <span class="achievement-date">
+                                <i class="fas fa-calendar"></i>
+                                ${formattedDate}
+                            </span>
+                            <span class="achievement-level">
+                                <i class="fas fa-medal"></i>
+                                ${achievement.level}
+                            </span>
+                            ${achievement.score ? `<span class="achievement-score">
+                                <i class="fas fa-percentage"></i>
+                                ${achievement.score}
+                            </span>` : ''}
+                        </div>
+                        ${achievement.skills ? `<div class="achievement-skills">
+                            <strong>Skills:</strong> ${achievement.skills}
+                        </div>` : ''}
+                        ${expiryDate && !achievement.lifetime ? `<div class="achievement-expiry ${isExpired ? 'expired' : isExpiring ? 'expiring' : ''}">
+                            <i class="fas fa-clock"></i>
+                            ${isExpired ? 'Expired' : 'Expires'}: ${expiryDate.toLocaleDateString()}
+                        </div>` : ''}
+                        <div class="achievement-links">
+                            ${achievement.certificateUrl ? `<a href="${achievement.certificateUrl}" target="_blank" class="achievement-certificate">
+                                <i class="fas fa-certificate"></i>
+                                View Certificate
+                            </a>` : ''}
+                            ${achievement.verificationUrl ? `<a href="${achievement.verificationUrl}" target="_blank" class="achievement-verify">
+                                <i class="fas fa-check-circle"></i>
+                                Verify
+                            </a>` : ''}
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).filter(Boolean).join('');
     }
 
     renderContact() {

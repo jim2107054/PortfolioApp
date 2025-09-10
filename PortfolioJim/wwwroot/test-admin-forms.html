@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Forms</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; }
+        .form-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .form-section h3 { margin-top: 0; color: #333; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin: 10px 0; }
+        .results { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Admin Forms - Achievements & Education</h1>
+        <p>This page tests the admin dashboard form functionality without authentication.</p>
+
+        <div id="message-area"></div>
+
+        <!-- Test Achievement Form -->
+        <div class="form-section">
+            <h3>Test Achievement Form</h3>
+            <form id="test-achievement-form">
+                <div class="form-group">
+                    <label>Title*</label>
+                    <input name="title" type="text" placeholder="AWS Certified Solutions Architect" required>
+                </div>
+                <div class="form-group">
+                    <label>Organization*</label>
+                    <input name="organization" type="text" placeholder="Amazon Web Services" required>
+                </div>
+                <div class="form-group">
+                    <label>Date*</label>
+                    <input name="date" type="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="type">
+                        <option value="Certification">Certification</option>
+                        <option value="Award">Award</option>
+                        <option value="Competition">Competition</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Level</label>
+                    <input name="level" type="text" placeholder="Professional">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Achievement description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Certificate URL</label>
+                    <input name="certificateUrl" type="url" placeholder="https://certificate.example.com">
+                </div>
+                <button type="submit">Add Achievement</button>
+            </form>
+        </div>
+
+        <!-- Test Education Form -->
+        <div class="form-section">
+            <h3>Test Education Form</h3>
+            <form id="test-education-form">
+                <div class="form-group">
+                    <label>Degree*</label>
+                    <input name="degree" type="text" placeholder="Bachelor of Science in Computer Science" required>
+                </div>
+                <div class="form-group">
+                    <label>School*</label>
+                    <input name="school" type="text" placeholder="University of Technology" required>
+                </div>
+                <div class="form-group">
+                    <label>Duration</label>
+                    <input name="duration" type="text" placeholder="2019 - 2023">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input name="location" type="text" placeholder="City, Country">
+                </div>
+                <div class="form-group">
+                    <label>GPA</label>
+                    <input name="gpa" type="text" placeholder="3.8/4.0">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Education description"></textarea>
+                </div>
+                <button type="submit">Add Education</button>
+            </form>
+        </div>
+
+        <!-- Results -->
+        <div class="results">
+            <h3>Current Data</h3>
+            <div id="current-data">
+                <p>Data will appear here after adding items...</p>
+            </div>
+        </div>
+
+        <!-- Test Portfolio Display -->
+        <div class="form-section">
+            <h3>Test Portfolio Display</h3>
+            <button onclick="testPortfolioDisplay()">Test Portfolio Display</button>
+            <div id="portfolio-preview" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script src="js/mock-api.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+    <script>
+        // Mock session for testing
+        localStorage.setItem('adminSession', JSON.stringify({
+            user: { email: 'test@admin.com' },
+            expires: Date.now() + 24 * 60 * 60 * 1000
+        }));
+
+        function showMessage(message, type = 'success') {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
+            setTimeout(() => {
+                messageArea.innerHTML = '';
+            }, 5000);
+        }
+
+        function updateDataDisplay() {
+            const data = JSON.parse(localStorage.getItem('portfolioData') || '{}');
+            const dataDiv = document.getElementById('current-data');
+            
+            dataDiv.innerHTML = `
+                <h4>Achievements (${(data.achievements || []).length})</h4>
+                <ul>
+                    ${(data.achievements || []).map(a => `<li>${a.title} - ${a.organization} (${a.date})</li>`).join('')}
+                </ul>
+                <h4>Education (${(data.education || []).length})</h4>
+                <ul>
+                    ${(data.education || []).map(e => `<li>${e.degree} - ${e.school} (${e.duration || 'No duration'})</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        function testPortfolioDisplay() {
+            const data = JSON.parse(localStorage.getItem('portfolioData') || '{}');
+            const preview = document.getElementById('portfolio-preview');
+            
+            // Test portfolio rendering
+            preview.innerHTML = `
+                <h4>Portfolio Preview</h4>
+                <div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px;">
+                    <h5>Achievements Section</h5>
+                    ${(data.achievements || []).map(a => `
+                        <div style="border: 1px solid #eee; margin: 5px 0; padding: 10px; border-radius: 4px;">
+                            <strong>${a.title}</strong><br>
+                            <em>${a.organization}</em><br>
+                            <small>${a.date} - ${a.level}</small><br>
+                            ${a.description ? `<p>${a.description}</p>` : ''}
+                        </div>
+                    `).join('')}
+                    
+                    <h5>Education Section</h5>
+                    ${(data.education || []).map(e => `
+                        <div style="border: 1px solid #eee; margin: 5px 0; padding: 10px; border-radius: 4px;">
+                            <strong>${e.degree}</strong><br>
+                            <em>${e.school}</em><br>
+                            <small>${e.duration || 'Duration not specified'}</small><br>
+                            ${e.location ? `<small>?? ${e.location}</small><br>` : ''}
+                            ${e.gpa ? `<small>GPA: ${e.gpa}</small><br>` : ''}
+                            ${e.description ? `<p>${e.description}</p>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Test achievement form
+        document.getElementById('test-achievement-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                if (window.adminDashboard) {
+                    await window.adminDashboard.handleAchievementSubmit(e);
+                    showMessage('Achievement added successfully!', 'success');
+                    this.reset();
+                    updateDataDisplay();
+                } else {
+                    showMessage('Admin dashboard not loaded', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding achievement:', error);
+                showMessage('Error adding achievement: ' + error.message, 'error');
+            }
+        });
+
+        // Test education form
+        document.getElementById('test-education-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                if (window.adminDashboard) {
+                    await window.adminDashboard.handleEducationSubmit(e);
+                    showMessage('Education added successfully!', 'success');
+                    this.reset();
+                    updateDataDisplay();
+                } else {
+                    showMessage('Admin dashboard not loaded', 'error');
+                }
+            } catch (error) {
+                console.error('Error adding education:', error);
+                showMessage('Error adding education: ' + error.message, 'error');
+            }
+        });
+
+        // Initialize display
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDataDisplay();
+            
+            // Set default dates
+            document.querySelector('[name="date"]').value = new Date().toISOString().slice(0, 10);
+        });
+    </script>
+</body>
+</html>

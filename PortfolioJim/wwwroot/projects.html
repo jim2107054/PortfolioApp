@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Projects Management - Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-dashboard">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Processing...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-nav">
+      <div class="admin-brand">
+        <button id="mobileSidebarToggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+        <h1><i class="fas fa-project-diagram"></i> Projects Management</h1>
+      </div>
+      <div class="admin-user-menu">
+        <div class="admin-actions">
+          <a class="btn btn-outline" href="admin.html" title="Dashboard"><i class="fas fa-tachometer-alt"></i><span class="btn-text">Dashboard</span></a>
+          <a class="btn btn-outline" href="content-management.html" title="Content"><i class="fas fa-layer-group"></i><span class="btn-text">Content Hub</span></a>
+          <a class="btn btn-outline" href="communication.html" title="Communication"><i class="fas fa-envelope"></i><span class="btn-text">Communication</span></a>
+          <a class="btn btn-outline" href="index.html" title="View Portfolio"><i class="fas fa-eye"></i><span class="btn-text">View Portfolio</span></a>
+          <button class="btn btn-danger" onclick="adminDashboard.logout()" title="Logout"><i class="fas fa-sign-out-alt"></i><span class="btn-text">Logout</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <nav class="admin-nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Dashboard</div>
+          <a href="admin.html#dashboard" class="nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content Management</div>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="about.html" class="nav-item">
+            <i class="fas fa-info-circle"></i>
+            <span>About</span>
+          </a>
+          <a href="projects.html" class="nav-item active">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
+          </a>
+          <a href="education.html" class="nav-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Education</span>
+          </a>
+          <a href="achievements.html" class="nav-item">
+            <i class="fas fa-trophy"></i>
+            <span>Achievements</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Other</div>
+          <a href="communication.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Communication</span>
+          </a>
+          <a href="admin.html#settings" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <!-- Projects Section -->
+      <section id="projects" class="admin-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-project-diagram"></i> Projects Management</h2>
+          <p>Showcase your work and manage your project portfolio</p>
+        </div>
+
+        <div class="content-grid">
+          <!-- Add Project Form -->
+          <div class="form-container">
+            <h3 id="form-title"><i class="fas fa-plus"></i> Add New Project</h3>
+            <form id="project-form" class="admin-form">
+              <div class="form-grid">
+                <div class="form-group span-2">
+                  <label for="project-title"><i class="fas fa-heading"></i> Project Title *</label>
+                  <input id="project-title" name="title" type="text" placeholder="Enter project title" required />
+                </div>
+                <div class="form-group span-2">
+                  <label for="project-description"><i class="fas fa-align-left"></i> Description *</label>
+                  <textarea id="project-description" name="description" rows="4" placeholder="Describe your project, its features, and impact" required></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="project-technologies"><i class="fas fa-cogs"></i> Technologies Used</label>
+                  <input id="project-technologies" name="technologies" type="text" placeholder="e.g., React, Node.js, MongoDB" />
+                </div>
+                <div class="form-group">
+                  <label for="project-status"><i class="fas fa-flag"></i> Status</label>
+                  <select id="project-status" name="status">
+                    <option value="Completed">Completed</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Planned">Planned</option>
+                    <option value="On Hold">On Hold</option>
+                    <option value="Archived">Archived</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="project-category"><i class="fas fa-folder"></i> Category</label>
+                  <select id="project-category" name="category">
+                    <option value="Web Development">Web Development</option>
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="Desktop Application">Desktop Application</option>
+                    <option value="API Development">API Development</option>
+                    <option value="Machine Learning">Machine Learning</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="UI/UX Design">UI/UX Design</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="project-priority"><i class="fas fa-exclamation"></i> Priority</label>
+                  <select id="project-priority" name="priority">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="project-start-date"><i class="fas fa-calendar-plus"></i> Start Date</label>
+                  <input id="project-start-date" name="startDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="project-end-date"><i class="fas fa-calendar-check"></i> End Date</label>
+                  <input id="project-end-date" name="endDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="project-client"><i class="fas fa-building"></i> Client/Company</label>
+                  <input id="project-client" name="client" type="text" placeholder="Client or company name" />
+                </div>
+                <div class="form-group">
+                  <label for="project-role"><i class="fas fa-user-tag"></i> Your Role</label>
+                  <input id="project-role" name="role" type="text" placeholder="e.g., Lead Developer, Designer" />
+                </div>
+                <div class="form-group">
+                  <label for="project-team-size"><i class="fas fa-users"></i> Team Size</label>
+                  <input id="project-team-size" name="teamSize" type="number" min="1" placeholder="Number of team members" />
+                </div>
+                <div class="form-group">
+                  <label for="project-image"><i class="fas fa-image"></i> Project Image URL</label>
+                  <input id="project-image" name="imageUrl" type="url" placeholder="https://example.com/image.jpg" />
+                </div>
+                <div class="form-group">
+                  <label for="project-demo"><i class="fas fa-external-link-alt"></i> Demo URL</label>
+                  <input id="project-demo" name="demoUrl" type="url" placeholder="https://demo.example.com" />
+                </div>
+                <div class="form-group">
+                  <label for="project-github"><i class="fab fa-github"></i> GitHub URL</label>
+                  <input id="project-github" name="githubUrl" type="url" placeholder="https://github.com/username/repo" />
+                </div>
+                <div class="form-group span-2">
+                  <label for="project-challenges"><i class="fas fa-exclamation-triangle"></i> Challenges Faced</label>
+                  <textarea id="project-challenges" name="challenges" rows="3" placeholder="What challenges did you overcome?"></textarea>
+                </div>
+                <div class="form-group span-2">
+                  <label for="project-learnings"><i class="fas fa-lightbulb"></i> Key Learnings</label>
+                  <textarea id="project-learnings" name="learnings" rows="3" placeholder="What did you learn from this project?"></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4><i class="fas fa-cogs"></i> Project Settings</h4>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="featured" id="project-featured">
+                      <span class="checkmark"></span>
+                      Featured project
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="showInPortfolio" id="project-show" checked>
+                      <span class="checkmark"></span>
+                      Show in portfolio
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="allowComments" id="project-comments">
+                      <span class="checkmark"></span>
+                      Allow comments
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="openSource" id="project-opensource">
+                      <span class="checkmark"></span>
+                      Open source project
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-plus"></i> <span id="submit-text">Add Project</span>
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                  <i class="fas fa-times"></i> Clear Form
+                </button>
+                <button type="button" class="btn btn-success" onclick="previewProject()">
+                  <i class="fas fa-eye"></i> Preview
+                </button>
+                <button type="button" class="btn btn-warning" onclick="saveDraft()" style="display:none;" id="save-draft-btn">
+                  <i class="fas fa-save"></i> Save Draft
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Projects List -->
+          <div class="data-container">
+            <div class="projects-header">
+              <h3><i class="fas fa-list"></i> Current Projects</h3>
+              <div class="projects-filters">
+                <select id="status-filter" onchange="filterProjects()">
+                  <option value="all">All Status</option>
+                  <option value="Completed">Completed</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Planned">Planned</option>
+                  <option value="On Hold">On Hold</option>
+                  <option value="Archived">Archived</option>
+                </select>
+                <select id="category-filter" onchange="filterProjects()">
+                  <option value="all">All Categories</option>
+                  <option value="Web Development">Web Development</option>
+                  <option value="Mobile App">Mobile App</option>
+                  <option value="Desktop Application">Desktop</option>
+                  <option value="API Development">API</option>
+                  <option value="Machine Learning">ML</option>
+                  <option value="Other">Other</option>
+                </select>
+                <button class="btn btn-sm btn-info" onclick="exportProjects()">
+                  <i class="fas fa-download"></i> Export
+                </button>
+              </div>
+            </div>
+            <div id="projects-grid" class="projects-grid">
+              <!-- Projects will be populated by JavaScript -->
+            </div>
+            
+            <div class="projects-stats">
+              <div class="stat-summary">
+                <span>Total Projects: <strong id="total-projects">0</strong></span>
+                <span>Completed: <strong id="completed-projects">0</strong></span>
+                <span>In Progress: <strong id="progress-projects">0</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+  <script>
+    let editingProjectId = null;
+
+    // Setup mobile sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        
+        if (mobileSidebarToggle && adminSidebar) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                adminSidebar.classList.toggle('active');
+                mobileSidebarToggle.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+
+        // Load and display projects
+        loadProjects();
+        updateProjectStats();
+    });
+
+    // Preview project function
+    function previewProject() {
+        window.open('index.html#projects', '_blank');
+    }
+
+    // Save draft function
+    function saveDraft() {
+        const formData = new FormData(document.getElementById('project-form'));
+        const draftData = Object.fromEntries(formData.entries());
+        localStorage.setItem('projectDraft', JSON.stringify(draftData));
+        
+        if (window.adminDashboard && window.adminDashboard.showToast) {
+            window.adminDashboard.showToast('Draft saved successfully!', 'success');
+        }
+    }
+
+    // Load projects and populate grid
+    function loadProjects() {
+        if (window.adminDashboard && window.adminDashboard.portfolioData) {
+            const projects = window.adminDashboard.portfolioData.projects || [];
+            populateProjectsGrid(projects);
+        }
+    }
+
+    // Populate projects grid
+    function populateProjectsGrid(projects) {
+        const grid = document.getElementById('projects-grid');
+        if (!grid) return;
+
+        if (projects.length === 0) {
+            grid.innerHTML = '<div class="no-data"><i class="fas fa-project-diagram"></i><p>No projects yet. Add your first project!</p></div>';
+            return;
+        }
+
+        grid.innerHTML = projects.map(project => `
+            <div class="project-card" data-id="${project.id}" data-status="${project.status || 'Completed'}" data-category="${project.category || 'Web Development'}">
+                <div class="project-header">
+                    <h4><i class="fas fa-project-diagram"></i> ${project.title || 'Untitled'}</h4>
+                    <div class="project-badges">
+                        <span class="status-badge status-${(project.status || 'completed').toLowerCase().replace(' ', '-')}">${project.status || 'Completed'}</span>
+                        ${project.featured ? '<span class="featured-badge"><i class="fas fa-star"></i> Featured</span>' : ''}
+                    </div>
+                </div>
+                <p class="project-description">${project.description || 'No description available'}</p>
+                <div class="project-meta">
+                    <div class="tech-tags">
+                        ${(project.technologies || '').split(',').map(tech => `<span class="tech-tag">${tech.trim()}</span>`).join('')}
+                    </div>
+                    <div class="project-info">
+                        <span class="project-category"><i class="fas fa-folder"></i> ${project.category || 'Web Development'}</span>
+                        ${project.client ? `<span class="project-client"><i class="fas fa-building"></i> ${project.client}</span>` : ''}
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editProject(${project.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteProject(${project.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    ${project.demoUrl ? `<a href="${project.demoUrl}" target="_blank" class="btn btn-sm btn-success">
+                        <i class="fas fa-external-link-alt"></i> Demo
+                    </a>` : ''}
+                    ${project.githubUrl ? `<a href="${project.githubUrl}" target="_blank" class="btn btn-sm btn-info">
+                        <i class="fab fa-github"></i> Code
+                    </a>` : ''}
+                </div>
+            </div>
+        `).join('');
+
+        updateProjectStats();
+    }
+
+    // Edit project function
+    function editProject(id) {
+        if (!window.adminDashboard || !window.adminDashboard.portfolioData) return;
+        
+        const project = window.adminDashboard.portfolioData.projects.find(p => p.id === id);
+        if (!project) return;
+
+        editingProjectId = id;
+        
+        // Fill form with project data
+        Object.keys(project).forEach(key => {
+            const element = document.getElementById(`project-${key}`) || document.querySelector(`[name="${key}"]`);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = !!project[key];
+                } else {
+                    element.value = project[key] || '';
+                }
+            }
+        });
+
+        // Update form UI
+        document.getElementById('form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Project';
+        document.getElementById('submit-text').textContent = 'Update Project';
+        document.getElementById('save-draft-btn').style.display = 'inline-block';
+
+        // Scroll to form
+        document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Delete project function
+    function deleteProject(id) {
+        if (!confirm('Are you sure you want to delete this project?')) return;
+        
+        if (window.adminDashboard && window.adminDashboard.deleteProjectHandler) {
+            window.adminDashboard.deleteProjectHandler(id);
+            loadProjects();
+        }
+    }
+
+    // Filter projects
+    function filterProjects() {
+        const statusFilter = document.getElementById('status-filter').value;
+        const categoryFilter = document.getElementById('category-filter').value;
+        const cards = document.querySelectorAll('.project-card');
+
+        cards.forEach(card => {
+            const status = card.dataset.status;
+            const category = card.dataset.category;
+            
+            const statusMatch = statusFilter === 'all' || status === statusFilter;
+            const categoryMatch = categoryFilter === 'all' || category === categoryFilter;
+            
+            card.style.display = statusMatch && categoryMatch ? 'block' : 'none';
+        });
+    }
+
+    // Update project statistics
+    function updateProjectStats() {
+        const cards = document.querySelectorAll('.project-card');
+        const total = cards.length;
+        const completed = document.querySelectorAll('.project-card[data-status="Completed"]').length;
+        const inProgress = document.querySelectorAll('.project-card[data-status="In Progress"]').length;
+
+        document.getElementById('total-projects').textContent = total;
+        document.getElementById('completed-projects').textContent = completed;
+        document.getElementById('progress-projects').textContent = inProgress;
+    }
+
+    // Export projects
+    function exportProjects() {
+        if (!window.adminDashboard || !window.adminDashboard.portfolioData) return;
+        
+        const projects = window.adminDashboard.portfolioData.projects || [];
+        const dataStr = JSON.stringify(projects, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'projects-export.json';
+        link.click();
+    }
+
+    // Handle form submission
+    document.getElementById('project-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (window.adminDashboard && window.adminDashboard.handleProjectSubmit) {
+            // Set editing ID if in edit mode
+            if (editingProjectId) {
+                this.dataset.editingId = editingProjectId;
+            }
+            
+            window.adminDashboard.handleProjectSubmit(e);
+            
+            // Reset form state after submission
+            setTimeout(() => {
+                editingProjectId = null;
+                delete this.dataset.editingId;
+                document.getElementById('form-title').innerHTML = '<i class="fas fa-plus"></i> Add New Project';
+                document.getElementById('submit-text').textContent = 'Add Project';
+                document.getElementById('save-draft-btn').style.display = 'none';
+                loadProjects();
+            }, 1000);
+        }
+    });
+
+    // Load draft on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedDraft = localStorage.getItem('projectDraft');
+        if (savedDraft) {
+            try {
+                const draftData = JSON.parse(savedDraft);
+                Object.keys(draftData).forEach(key => {
+                    const element = document.querySelector(`[name="${key}"]`);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = draftData[key] === 'on';
+                        } else {
+                            element.value = draftData[key];
+                        }
+                    }
+                });
+                document.getElementById('save-draft-btn').style.display = 'inline-block';
+            } catch (e) {
+                console.error('Error loading draft:', e);
+            }
+        }
+    });
+  </script>
+</body>
+</html>

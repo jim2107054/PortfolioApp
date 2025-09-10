@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Section - Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-dashboard">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Processing...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-nav">
+      <div class="admin-brand">
+        <button id="mobileSidebarToggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+        <h1><i class="fas fa-info-circle"></i> About Section Management</h1>
+      </div>
+      <div class="admin-user-menu">
+        <div class="admin-actions">
+          <a class="btn btn-outline" href="admin.html" title="Dashboard"><i class="fas fa-tachometer-alt"></i><span class="btn-text">Dashboard</span></a>
+          <a class="btn btn-outline" href="content-management.html" title="Content"><i class="fas fa-layer-group"></i><span class="btn-text">Content Hub</span></a>
+          <a class="btn btn-outline" href="communication.html" title="Communication"><i class="fas fa-envelope"></i><span class="btn-text">Communication</span></a>
+          <a class="btn btn-outline" href="index.html" title="View Portfolio"><i class="fas fa-eye"></i><span class="btn-text">View Portfolio</span></a>
+          <button class="btn btn-danger" onclick="adminDashboard.logout()" title="Logout"><i class="fas fa-sign-out-alt"></i><span class="btn-text">Logout</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <nav class="admin-nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Dashboard</div>
+          <a href="admin.html#dashboard" class="nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content Management</div>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="about.html" class="nav-item active">
+            <i class="fas fa-info-circle"></i>
+            <span>About</span>
+          </a>
+          <a href="projects.html" class="nav-item">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
+          </a>
+          <a href="education.html" class="nav-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Education</span>
+          </a>
+          <a href="achievements.html" class="nav-item">
+            <i class="fas fa-trophy"></i>
+            <span>Achievements</span>
+          </a>
+          <a href="admin.html#skills" class="nav-item">
+            <i class="fas fa-code"></i>
+            <span>Skills</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Other</div>
+          <a href="communication.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Communication</span>
+          </a>
+          <a href="admin.html#settings" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <!-- About Section -->
+      <section id="about" class="admin-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-info-circle"></i> About Section Management</h2>
+          <p>Craft your personal story and professional narrative</p>
+        </div>
+
+        <div class="content-grid">
+          <!-- About Content Form -->
+          <div class="form-container">
+            <h3><i class="fas fa-edit"></i> Edit About Content</h3>
+            <form id="about-form" class="admin-form">
+              <div class="form-group">
+                <label for="about-content"><i class="fas fa-align-left"></i> About Content *</label>
+                <textarea id="about-content" name="aboutContent" rows="12" placeholder="Write about yourself, your experience, goals, and what makes you unique..." required></textarea>
+                <div class="textarea-info">
+                  <span class="char-count">0 characters</span>
+                  <span class="help-text">Tell your story, share your passion, and describe your professional journey</span>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4><i class="fas fa-lightbulb"></i> Writing Tips</h4>
+                <div class="tips-grid">
+                  <div class="tip-card">
+                    <i class="fas fa-user-tie"></i>
+                    <h5>Professional Background</h5>
+                    <p>Share your career journey, key experiences, and expertise</p>
+                  </div>
+                  <div class="tip-card">
+                    <i class="fas fa-heart"></i>
+                    <h5>Personal Passion</h5>
+                    <p>What drives you? What are you passionate about in your field?</p>
+                  </div>
+                  <div class="tip-card">
+                    <i class="fas fa-target"></i>
+                    <h5>Goals & Vision</h5>
+                    <p>Where are you heading? What are your professional aspirations?</p>
+                  </div>
+                  <div class="tip-card">
+                    <i class="fas fa-star"></i>
+                    <h5>Unique Value</h5>
+                    <p>What makes you stand out? What's your unique perspective?</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4><i class="fas fa-cogs"></i> Content Settings</h4>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="showReadTime" checked>
+                      <span class="checkmark"></span>
+                      Show estimated reading time
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="enableSharing">
+                      <span class="checkmark"></span>
+                      Enable social sharing
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label for="content-tone"><i class="fas fa-volume-up"></i> Content Tone</label>
+                    <select id="content-tone" name="contentTone">
+                      <option value="professional">Professional</option>
+                      <option value="friendly">Friendly</option>
+                      <option value="conversational">Conversational</option>
+                      <option value="formal">Formal</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label for="target-audience"><i class="fas fa-users"></i> Target Audience</label>
+                    <select id="target-audience" name="targetAudience">
+                      <option value="recruiters">Recruiters</option>
+                      <option value="clients">Potential Clients</option>
+                      <option value="peers">Industry Peers</option>
+                      <option value="general">General Public</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> Save About Section
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="this.closest('form').reset()">
+                  <i class="fas fa-undo"></i> Reset Changes
+                </button>
+                <button type="button" class="btn btn-success" onclick="previewAbout()">
+                  <i class="fas fa-eye"></i> Preview About
+                </button>
+                <button type="button" class="btn btn-info" onclick="generateSuggestions()">
+                  <i class="fas fa-magic"></i> Get Suggestions
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Content Analytics -->
+          <div class="data-container">
+            <h3><i class="fas fa-chart-bar"></i> Content Analytics</h3>
+            <div class="analytics-grid">
+              <div class="analytics-card">
+                <div class="analytics-icon">
+                  <i class="fas fa-eye"></i>
+                </div>
+                <div class="analytics-content">
+                  <h4 id="about-views">0</h4>
+                  <p>Views This Month</p>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="analytics-content">
+                  <h4 id="read-time">0 min</h4>
+                  <p>Estimated Read Time</p>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon">
+                  <i class="fas fa-share"></i>
+                </div>
+                <div class="analytics-content">
+                  <h4 id="share-count">0</h4>
+                  <p>Times Shared</p>
+                </div>
+              </div>
+              <div class="analytics-card">
+                <div class="analytics-icon">
+                  <i class="fas fa-thumbs-up"></i>
+                </div>
+                <div class="analytics-content">
+                  <h4 id="engagement-rate">0%</h4>
+                  <p>Engagement Rate</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="content-preview">
+              <h4><i class="fas fa-eye"></i> Live Preview</h4>
+              <div class="preview-container">
+                <div id="about-preview" class="about-preview">
+                  <p class="preview-placeholder">Your about content will appear here as you type...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+  <script>
+    // Setup mobile sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        
+        if (mobileSidebarToggle && adminSidebar) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                adminSidebar.classList.toggle('active');
+                mobileSidebarToggle.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+    });
+
+    // Character counter and live preview
+    const aboutTextarea = document.getElementById('about-content');
+    const charCount = document.querySelector('.char-count');
+    const aboutPreview = document.getElementById('about-preview');
+    const readTimeEl = document.getElementById('read-time');
+
+    if (aboutTextarea && charCount) {
+        aboutTextarea.addEventListener('input', function() {
+            const length = this.value.length;
+            const words = this.value.trim().split(/\s+/).length;
+            const readTime = Math.max(1, Math.ceil(words / 200)); // 200 words per minute
+            
+            charCount.textContent = `${length} characters, ${words} words`;
+            readTimeEl.textContent = `${readTime} min`;
+            
+            // Update live preview
+            if (aboutPreview) {
+                if (this.value.trim()) {
+                    aboutPreview.innerHTML = this.value.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+                } else {
+                    aboutPreview.innerHTML = '<p class="preview-placeholder">Your about content will appear here as you type...</p>';
+                }
+            }
+        });
+    }
+
+    // Preview about function
+    function previewAbout() {
+        window.open('index.html#about', '_blank');
+    }
+
+    // Generate content suggestions
+    function generateSuggestions() {
+        const suggestions = [
+            "Start with your current role and what you're passionate about",
+            "Share a brief story about how you got into your field",
+            "Mention key achievements or projects you're proud of",
+            "Describe your unique approach or methodology",
+            "Include your goals and what you're working towards",
+            "Add a personal touch about interests outside of work"
+        ];
+        
+        const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+        
+        if (window.adminDashboard && window.adminDashboard.showToast) {
+            window.adminDashboard.showToast(`?? Suggestion: ${randomSuggestion}`, 'info');
+        } else {
+            alert(`?? Suggestion: ${randomSuggestion}`);
+        }
+    }
+
+    // Load mock analytics data
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            document.getElementById('about-views').textContent = Math.floor(Math.random() * 500) + 100;
+            document.getElementById('share-count').textContent = Math.floor(Math.random() * 50) + 5;
+            document.getElementById('engagement-rate').textContent = (Math.random() * 30 + 10).toFixed(1) + '%';
+        }, 1000);
+    });
+  </script>
+</body>
+</html>

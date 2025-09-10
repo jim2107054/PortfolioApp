@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Management Hub - Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-dashboard">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Processing...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-nav">
+      <div class="admin-brand">
+        <button id="mobileSidebarToggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+        <h1><i class="fas fa-layer-group"></i> Content Management Hub</h1>
+      </div>
+      <div class="admin-user-menu">
+        <div class="admin-actions">
+          <a class="btn btn-outline" href="admin.html" title="Dashboard"><i class="fas fa-tachometer-alt"></i><span class="btn-text">Dashboard</span></a>
+          <a class="btn btn-outline" href="communication.html" title="Communication"><i class="fas fa-envelope"></i><span class="btn-text">Communication</span></a>
+          <a class="btn btn-outline" href="index.html" title="View Portfolio"><i class="fas fa-eye"></i><span class="btn-text">View Portfolio</span></a>
+          <button class="btn btn-danger" onclick="adminDashboard.logout()" title="Logout"><i class="fas fa-sign-out-alt"></i><span class="btn-text">Logout</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <nav class="admin-nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Dashboard</div>
+          <a href="admin.html#dashboard" class="nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content Management</div>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="about.html" class="nav-item">
+            <i class="fas fa-info-circle"></i>
+            <span>About</span>
+          </a>
+          <a href="admin.html#skills" class="nav-item">
+            <i class="fas fa-code"></i>
+            <span>Skills</span>
+          </a>
+          <a href="projects.html" class="nav-item">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
+          </a>
+          <a href="education.html" class="nav-item">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Education</span>
+          </a>
+          <a href="achievements.html" class="nav-item">
+            <i class="fas fa-trophy"></i>
+            <span>Achievements</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Other</div>
+          <a href="communication.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Communication</span>
+          </a>
+          <a href="admin.html#settings" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <section class="admin-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-layer-group"></i> Content Management Hub</h2>
+          <p>Centralized management for all your portfolio content sections</p>
+        </div>
+
+        <!-- Content Overview Grid -->
+        <div class="content-sections-grid">
+          <a href="profile.html" class="content-section-card">
+            <div class="section-icon profile">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="section-content">
+              <h3>Profile Management</h3>
+              <p>Personal information, contact details, social media links, and profile image</p>
+              <div class="section-meta">
+                <span class="section-status status-active">Active</span>
+                <span class="last-updated">Updated 2 days ago</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Manage Profile →</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="about.html" class="content-section-card">
+            <div class="section-icon about">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="section-content">
+              <h3>About Section</h3>
+              <p>Your personal story, professional narrative, and biographical content</p>
+              <div class="section-meta">
+                <span class="section-status status-active">Active</span>
+                <span class="last-updated">Updated 1 week ago</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Edit About →</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="projects.html" class="content-section-card">
+            <div class="section-icon projects">
+              <i class="fas fa-project-diagram"></i>
+            </div>
+            <div class="section-content">
+              <h3>Projects Portfolio</h3>
+              <p>Showcase your work, case studies, and development projects</p>
+              <div class="section-meta">
+                <span class="section-status status-active">Active</span>
+                <span class="last-updated">Updated yesterday</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Manage Projects →</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="education.html" class="content-section-card">
+            <div class="section-icon education">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="section-content">
+              <h3>Education Timeline</h3>
+              <p>Academic background, degrees, certifications, and qualifications</p>
+              <div class="section-meta">
+                <span class="section-status status-active">Active</span>
+                <span class="last-updated">Updated 3 days ago</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Edit Education →</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="achievements.html" class="content-section-card">
+            <div class="section-icon achievements">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="section-content">
+              <h3>Achievements & Awards</h3>
+              <p>Certifications, recognitions, competitions, and accomplishments</p>
+              <div class="section-meta">
+                <span class="section-status status-active">Active</span>
+                <span class="last-updated">Updated 5 days ago</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Manage Awards →</span>
+              </div>
+            </div>
+          </a>
+
+          <a href="admin.html#skills" class="content-section-card">
+            <div class="section-icon skills">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="section-content">
+              <h3>Skills Management</h3>
+              <p>Technical skills, proficiencies, expertise levels, and categories</p>
+              <div class="section-meta">
+                <span class="section-status status-redirect">Main Dashboard</span>
+                <span class="last-updated">Updated 1 week ago</span>
+              </div>
+              <div class="section-actions">
+                <span class="btn-text">Edit Skills →</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="content-stats-section">
+          <h3><i class="fas fa-chart-bar"></i> Content Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon profile">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="profile-completeness">0%</h4>
+                <p>Profile Completeness</p>
+                <span class="stat-trend up">+5% this week</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon projects">
+                <i class="fas fa-project-diagram"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="total-projects">0</h4>
+                <p>Total Projects</p>
+                <span class="stat-trend up">+2 this month</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon achievements">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="total-achievements">0</h4>
+                <p>Achievements</p>
+                <span class="stat-trend neutral">No change</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon education">
+                <i class="fas fa-graduation-cap"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="total-education">0</h4>
+                <p>Education Records</p>
+                <span class="stat-trend neutral">Complete</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon skills">
+                <i class="fas fa-code"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="total-skills">0</h4>
+                <p>Skills Listed</p>
+                <span class="stat-trend up">+3 this month</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon content">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="stat-content">
+                <h4 id="content-score">0%</h4>
+                <p>Content Quality Score</p>
+                <span class="stat-trend up">+8% improvement</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Timeline -->
+        <div class="recent-activity-section">
+          <h3><i class="fas fa-clock"></i> Recent Content Activity</h3>
+          <div class="activity-timeline">
+            <div id="recent-content-updates" class="activity-list">
+              <!-- Recent updates will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions-section">
+          <h3><i class="fas fa-zap"></i> Quick Actions</h3>
+          <div class="quick-actions-grid">
+            <button class="quick-action-btn" onclick="window.open('profile.html', '_blank')">
+              <i class="fas fa-user-plus"></i>
+              <span>Update Profile</span>
+            </button>
+            <button class="quick-action-btn" onclick="window.open('projects.html', '_blank')">
+              <i class="fas fa-plus-circle"></i>
+              <span>Add New Project</span>
+            </button>
+            <button class="quick-action-btn" onclick="window.open('achievements.html', '_blank')">
+              <i class="fas fa-trophy"></i>
+              <span>Add Achievement</span>
+            </button>
+            <button class="quick-action-btn" onclick="window.open('index.html', '_blank')">
+              <i class="fas fa-eye"></i>
+              <span>Preview Portfolio</span>
+            </button>
+            <button class="quick-action-btn" onclick="exportAllContent()">
+              <i class="fas fa-download"></i>
+              <span>Export All Data</span>
+            </button>
+            <button class="quick-action-btn" onclick="openContentScheduler()">
+              <i class="fas fa-calendar"></i>
+              <span>Content Scheduler</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Content Health Check -->
+        <div class="content-health-section">
+          <h3><i class="fas fa-heartbeat"></i> Content Health Check</h3>
+          <div class="health-checks">
+            <div class="health-item">
+              <div class="health-status status-good">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="health-content">
+                <h4>Profile Information</h4>
+                <p>All required fields completed</p>
+              </div>
+            </div>
+            <div class="health-item">
+              <div class="health-status status-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="health-content">
+                <h4>About Section</h4>
+                <p>Consider adding more detail (currently 150 words)</p>
+              </div>
+            </div>
+            <div class="health-item">
+              <div class="health-status status-good">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="health-content">
+                <h4>Project Portfolio</h4>
+                <p>Good variety of projects showcased</p>
+              </div>
+            </div>
+            <div class="health-item">
+              <div class="health-status status-info">
+                <i class="fas fa-info-circle"></i>
+              </div>
+              <div class="health-content">
+                <h4>SEO Optimization</h4>
+                <p>Add more keywords to improve discoverability</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+  <script>
+    // Setup mobile sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        
+        if (mobileSidebarToggle && adminSidebar) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                adminSidebar.classList.toggle('active');
+                mobileSidebarToggle.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768 && 
+                    !adminSidebar.contains(e.target) && 
+                    !mobileSidebarToggle.contains(e.target) &&
+                    adminSidebar.classList.contains('active')) {
+                    adminSidebar.classList.remove('active');
+                    mobileSidebarToggle.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+            
+            // Close sidebar on window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768) {
+                    adminSidebar.classList.remove('active');
+                    mobileSidebarToggle.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        }
+
+        // Initialize content management hub
+        loadContentStats();
+        loadRecentContentActivity();
+        animateStatsOnLoad();
+    });
+
+    // Load content statistics
+    function loadContentStats() {
+        if (window.adminDashboard && window.adminDashboard.portfolioData) {
+            const data = window.adminDashboard.portfolioData;
+            
+            // Calculate profile completeness
+            const profile = data.profile || {};
+            const requiredFields = ['fullName', 'title', 'email', 'description'];
+            const completedFields = requiredFields.filter(field => profile[field] && profile[field].trim() !== '');
+            const completeness = Math.round((completedFields.length / requiredFields.length) * 100);
+            
+            // Calculate content quality score
+            const totalSections = 6; // profile, about, skills, projects, education, achievements
+            let qualityScore = 0;
+            
+            if (profile.fullName) qualityScore += 15;
+            if (profile.aboutContent && profile.aboutContent.length > 100) qualityScore += 20;
+            if (data.skills && data.skills.length > 0) qualityScore += 15;
+            if (data.projects && data.projects.length > 0) qualityScore += 20;
+            if (data.education && data.education.length > 0) qualityScore += 15;
+            if (data.achievements && data.achievements.length > 0) qualityScore += 15;
+            
+            // Update stats with animation
+            setTimeout(() => {
+                animateCounter('profile-completeness', 0, completeness, '%');
+                animateCounter('total-projects', 0, data.projects ? data.projects.length : 0);
+                animateCounter('total-achievements', 0, data.achievements ? data.achievements.length : 0);
+                animateCounter('total-education', 0, data.education ? data.education.length : 0);
+                animateCounter('total-skills', 0, data.skills ? data.skills.length : 0);
+                animateCounter('content-score', 0, Math.round(qualityScore), '%');
+            }, 500);
+        }
+    }
+
+    // Animate counter with easing
+    function animateCounter(elementId, start, end, suffix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const duration = 1500;
+        const increment = (end - start) / (duration / 16);
+        let current = start;
+        
+        const timer = setInterval(() => {
+            current += increment;
+            if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+                current = end;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current) + suffix;
+        }, 16);
+    }
+
+    // Animate stats on page load
+    function animateStatsOnLoad() {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.style.transform = 'translateY(0)';
+                card.style.opacity = '1';
+            }, index * 100);
+        });
+    }
+
+    // Load recent content activity
+    function loadRecentContentActivity() {
+        const activities = [
+            { 
+                type: 'project', 
+                text: 'Added new project: E-commerce Dashboard', 
+                time: '2 hours ago', 
+                icon: 'fas fa-plus',
+                color: '#10b981'
+            },
+            { 
+                type: 'profile', 
+                text: 'Updated profile information and social links', 
+                time: '1 day ago', 
+                icon: 'fas fa-edit',
+                color: '#6366f1'
+            },
+            { 
+                type: 'achievement', 
+                text: 'Added AWS Solutions Architect certification', 
+                time: '3 days ago', 
+                icon: 'fas fa-trophy',
+                color: '#f59e0b'
+            },
+            { 
+                type: 'education', 
+                text: 'Updated education timeline with latest degree', 
+                time: '1 week ago', 
+                icon: 'fas fa-graduation-cap',
+                color: '#8b5cf6'
+            },
+            { 
+                type: 'about', 
+                text: 'Refreshed about section content', 
+                time: '2 weeks ago', 
+                icon: 'fas fa-info-circle',
+                color: '#06b6d4'
+            }
+        ];
+
+        const container = document.getElementById('recent-content-updates');
+        if (container) {
+            container.innerHTML = activities.map((activity, index) => `
+                <div class="activity-item" style="animation-delay: ${index * 0.1}s">
+                    <div class="activity-icon" style="background: ${activity.color}">
+                        <i class="${activity.icon}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p>${activity.text}</p>
+                        <span class="activity-time">${activity.time}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+
+    // Quick action functions
+    function exportAllContent() {
+        if (window.adminDashboard && window.adminDashboard.portfolioData) {
+            const data = {
+                exportDate: new Date().toISOString(),
+                portfolioData: window.adminDashboard.portfolioData
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            
+            if (window.adminDashboard.showToast) {
+                window.adminDashboard.showToast('Portfolio data exported successfully!', 'success');
+            }
+        }
+    }
+
+    function openContentScheduler() {
+        // Placeholder for content scheduling feature
+        if (window.adminDashboard && window.adminDashboard.showToast) {
+            window.adminDashboard.showToast('Content Scheduler feature coming soon!', 'info');
+        }
+    }
+
+    // CSS animations for stats cards
+    const style = document.createElement('style');
+    style.textContent = `
+        .stat-card {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+        
+        .activity-item {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideInLeft 0.6s ease forwards;
+        }
+        
+        @keyframes slideInLeft {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .content-section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .quick-action-btn:hover {
+            transform: scale(1.05);
+        }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>

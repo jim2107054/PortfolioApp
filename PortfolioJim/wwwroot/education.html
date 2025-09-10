@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Education Management - Admin</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-dashboard">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-content">
+      <div class="loading-spinner"></div>
+      <p>Processing...</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-nav">
+      <div class="admin-brand">
+        <button id="mobileSidebarToggle" class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+        <h1><i class="fas fa-graduation-cap"></i> Education Management</h1>
+      </div>
+      <div class="admin-user-menu">
+        <div class="admin-actions">
+          <a class="btn btn-outline" href="admin.html" title="Dashboard"><i class="fas fa-tachometer-alt"></i><span class="btn-text">Dashboard</span></a>
+          <a class="btn btn-outline" href="content-management.html" title="Content"><i class="fas fa-layer-group"></i><span class="btn-text">Content Hub</span></a>
+          <a class="btn btn-outline" href="communication.html" title="Communication"><i class="fas fa-envelope"></i><span class="btn-text">Communication</span></a>
+          <a class="btn btn-outline" href="index.html" title="View Portfolio"><i class="fas fa-eye"></i><span class="btn-text">View Portfolio</span></a>
+          <button class="btn btn-danger" onclick="adminDashboard.logout()" title="Logout"><i class="fas fa-sign-out-alt"></i><span class="btn-text">Logout</span></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside id="adminSidebar" class="admin-sidebar">
+      <nav class="admin-nav-menu">
+        <div class="nav-section">
+          <div class="nav-section-title">Dashboard</div>
+          <a href="admin.html#dashboard" class="nav-item">
+            <i class="fas fa-chart-pie"></i>
+            <span>Overview</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content Management</div>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="about.html" class="nav-item">
+            <i class="fas fa-info-circle"></i>
+            <span>About</span>
+          </a>
+          <a href="projects.html" class="nav-item">
+            <i class="fas fa-project-diagram"></i>
+            <span>Projects</span>
+          </a>
+          <a href="education.html" class="nav-item active">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Education</span>
+          </a>
+          <a href="achievements.html" class="nav-item">
+            <i class="fas fa-trophy"></i>
+            <span>Achievements</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Other</div>
+          <a href="communication.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Communication</span>
+          </a>
+          <a href="admin.html#settings" class="nav-item">
+            <i class="fas fa-cogs"></i>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+      <!-- Education Section -->
+      <section id="education" class="admin-section active">
+        <div class="section-header">
+          <h2><i class="fas fa-graduation-cap"></i> Education Management</h2>
+          <p>Manage your educational background and qualifications</p>
+        </div>
+
+        <div class="content-grid">
+          <!-- Add Education Form -->
+          <div class="form-container">
+            <h3 id="form-title"><i class="fas fa-plus"></i> Add Education</h3>
+            <form id="education-form" class="admin-form">
+              <div class="form-grid">
+                <div class="form-group span-2">
+                  <label for="education-degree"><i class="fas fa-graduation-cap"></i> Degree/Qualification *</label>
+                  <input id="education-degree" name="degree" type="text" placeholder="e.g., Bachelor of Science in Computer Science" required />
+                </div>
+                <div class="form-group span-2">
+                  <label for="education-school"><i class="fas fa-university"></i> Institution *</label>
+                  <input id="education-school" name="school" type="text" placeholder="University/College name" required />
+                </div>
+                <div class="form-group">
+                  <label for="education-field"><i class="fas fa-book"></i> Field of Study</label>
+                  <input id="education-field" name="fieldOfStudy" type="text" placeholder="e.g., Computer Science, Engineering" />
+                </div>
+                <div class="form-group">
+                  <label for="education-level"><i class="fas fa-layer-group"></i> Education Level</label>
+                  <select id="education-level" name="level">
+                    <option value="High School">High School</option>
+                    <option value="Diploma">Diploma</option>
+                    <option value="Associate">Associate Degree</option>
+                    <option value="Bachelor" selected>Bachelor's Degree</option>
+                    <option value="Master">Master's Degree</option>
+                    <option value="PhD">PhD</option>
+                    <option value="Certificate">Certificate</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="education-start-date"><i class="fas fa-calendar-plus"></i> Start Date</label>
+                  <input id="education-start-date" name="startDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="education-end-date"><i class="fas fa-calendar-check"></i> End Date</label>
+                  <input id="education-end-date" name="endDate" type="date" />
+                </div>
+                <div class="form-group">
+                  <label for="education-gpa"><i class="fas fa-star"></i> GPA/Grade</label>
+                  <input id="education-gpa" name="gpa" type="text" placeholder="e.g., 3.8/4.0 or First Class" />
+                </div>
+                <div class="form-group">
+                  <label for="education-honors"><i class="fas fa-medal"></i> Honors/Awards</label>
+                  <input id="education-honors" name="honors" type="text" placeholder="e.g., Magna Cum Laude, Dean's List" />
+                </div>
+                <div class="form-group span-2">
+                  <label for="education-location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                  <input id="education-location" name="location" type="text" placeholder="City, State, Country" />
+                </div>
+                <div class="form-group span-2">
+                  <label for="education-description"><i class="fas fa-align-left"></i> Description</label>
+                  <textarea id="education-description" name="description" rows="3" placeholder="Relevant coursework, projects, activities, thesis details..."></textarea>
+                </div>
+                <div class="form-group span-2">
+                  <label for="education-coursework"><i class="fas fa-list"></i> Relevant Coursework</label>
+                  <textarea id="education-coursework" name="coursework" rows="2" placeholder="List key courses separated by commas"></textarea>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h4><i class="fas fa-cogs"></i> Education Settings</h4>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="current" id="education-current">
+                      <span class="checkmark"></span>
+                      Currently enrolled
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="showInPortfolio" id="education-show" checked>
+                      <span class="checkmark"></span>
+                      Show in portfolio
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="featured" id="education-featured">
+                      <span class="checkmark"></span>
+                      Featured education
+                    </label>
+                  </div>
+                  <div class="form-group">
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="showGPA" id="education-show-gpa">
+                      <span class="checkmark"></span>
+                      Display GPA publicly
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-plus"></i> <span id="submit-text">Add Education</span>
+                </button>
+                <button type="reset" class="btn btn-secondary">
+                  <i class="fas fa-times"></i> Clear Form
+                </button>
+                <button type="button" class="btn btn-success" onclick="previewEducation()">
+                  <i class="fas fa-eye"></i> Preview
+                </button>
+                <button type="button" class="btn btn-warning" onclick="importFromLinkedIn()" style="display:none;">
+                  <i class="fab fa-linkedin"></i> Import from LinkedIn
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Education Timeline -->
+          <div class="data-container">
+            <div class="education-header">
+              <h3><i class="fas fa-timeline"></i> Education Timeline</h3>
+              <div class="education-filters">
+                <select id="level-filter" onchange="filterEducation()">
+                  <option value="all">All Levels</option>
+                  <option value="PhD">PhD</option>
+                  <option value="Master">Master's</option>
+                  <option value="Bachelor">Bachelor's</option>
+                  <option value="Associate">Associate</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="High School">High School</option>
+                  <option value="Certificate">Certificate</option>
+                </select>
+                <button class="btn btn-sm btn-info" onclick="exportEducation()">
+                  <i class="fas fa-download"></i> Export
+                </button>
+              </div>
+            </div>
+            
+            <div id="education-timeline" class="education-timeline">
+              <!-- Education items will be populated by JavaScript -->
+            </div>
+
+            <div class="education-stats">
+              <div class="stats-summary">
+                <div class="stat-item">
+                  <i class="fas fa-graduation-cap"></i>
+                  <span>Total Education: <strong id="total-education">0</strong></span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-clock"></i>
+                  <span>Years of Study: <strong id="total-years">0</strong></span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-university"></i>
+                  <span>Institutions: <strong id="total-institutions">0</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="js/mock-api.js"></script>
+  <script src="js/admin-dashboard.js"></script>
+  <script>
+    let editingEducationId = null;
+
+    // Setup mobile sidebar toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const adminSidebar = document.getElementById('adminSidebar');
+        
+        if (mobileSidebarToggle && adminSidebar) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                adminSidebar.classList.toggle('active');
+                mobileSidebarToggle.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+
+        // Load and display education
+        loadEducation();
+        updateEducationStats();
+
+        // Handle current enrollment checkbox
+        const currentCheckbox = document.getElementById('education-current');
+        const endDateInput = document.getElementById('education-end-date');
+        
+        if (currentCheckbox && endDateInput) {
+            currentCheckbox.addEventListener('change', function() {
+                endDateInput.disabled = this.checked;
+                if (this.checked) {
+                    endDateInput.value = '';
+                }
+            });
+        }
+    });
+
+    // Preview education function
+    function previewEducation() {
+        window.open('index.html#education', '_blank');
+    }
+
+    // Load education and populate timeline
+    function loadEducation() {
+        if (window.adminDashboard && window.adminDashboard.portfolioData) {
+            const education = window.adminDashboard.portfolioData.education || [];
+            populateEducationTimeline(education);
+        }
+    }
+
+    // Populate education timeline
+    function populateEducationTimeline(education) {
+        const timeline = document.getElementById('education-timeline');
+        if (!timeline) return;
+
+        if (education.length === 0) {
+            timeline.innerHTML = '<div class="no-data"><i class="fas fa-graduation-cap"></i><p>No education records yet. Add your first qualification!</p></div>';
+            return;
+        }
+
+        // Sort by start date (most recent first)
+        const sortedEducation = education.sort((a, b) => {
+            const dateA = new Date(a.startDate || '1900-01-01');
+            const dateB = new Date(b.startDate || '1900-01-01');
+            return dateB - dateA;
+        });
+
+        timeline.innerHTML = sortedEducation.map(edu => {
+            const startYear = edu.startDate ? new Date(edu.startDate).getFullYear() : '';
+            const endYear = edu.endDate ? new Date(edu.endDate).getFullYear() : (edu.current ? 'Present' : '');
+            const duration = startYear && endYear ? `${startYear} - ${endYear}` : (edu.duration || '');
+            
+            return `
+            <div class="education-item" data-id="${edu.id}" data-level="${edu.level || 'Bachelor'}">
+                <div class="education-header">
+                    <h4><i class="fas fa-graduation-cap"></i> ${edu.degree || 'Untitled'}</h4>
+                    <div class="education-badges">
+                        <span class="level-badge level-${(edu.level || 'bachelor').toLowerCase()}">${edu.level || 'Bachelor'}</span>
+                        ${edu.featured ? '<span class="featured-badge"><i class="fas fa-star"></i> Featured</span>' : ''}
+                        ${edu.current ? '<span class="current-badge"><i class="fas fa-clock"></i> Current</span>' : ''}
+                    </div>
+                </div>
+                <p class="school-name"><strong><i class="fas fa-university"></i> ${edu.school || 'Institution'}</strong></p>
+                ${edu.fieldOfStudy ? `<p class="field-study"><i class="fas fa-book"></i> ${edu.fieldOfStudy}</p>` : ''}
+                ${edu.location ? `<p class="location"><i class="fas fa-map-marker-alt"></i> ${edu.location}</p>` : ''}
+                ${duration ? `<p class="duration"><i class="fas fa-calendar"></i> ${duration}</p>` : ''}
+                ${edu.gpa ? `<p class="gpa"><i class="fas fa-star"></i> GPA: ${edu.gpa}</p>` : ''}
+                ${edu.honors ? `<p class="honors"><i class="fas fa-medal"></i> ${edu.honors}</p>` : ''}
+                ${edu.description ? `<p class="description">${edu.description}</p>` : ''}
+                ${edu.coursework ? `<div class="coursework"><strong>Relevant Coursework:</strong> ${edu.coursework}</div>` : ''}
+                <div class="card-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="editEducation(${edu.id})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteEducation(${edu.id})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                    <button class="btn btn-sm btn-info" onclick="duplicateEducation(${edu.id})">
+                        <i class="fas fa-copy"></i> Duplicate
+                    </button>
+                </div>
+            </div>
+            `;
+        }).join('');
+
+        updateEducationStats();
+    }
+
+    // Edit education function
+    function editEducation(id) {
+        if (!window.adminDashboard || !window.adminDashboard.portfolioData) return;
+        
+        const education = window.adminDashboard.portfolioData.education.find(e => e.id === id);
+        if (!education) return;
+
+        editingEducationId = id;
+        
+        // Fill form with education data
+        Object.keys(education).forEach(key => {
+            const element = document.getElementById(`education-${key}`) || document.querySelector(`[name="${key}"]`);
+            if (element) {
+                if (element.type === 'checkbox') {
+                    element.checked = !!education[key];
+                } else {
+                    element.value = education[key] || '';
+                }
+            }
+        });
+
+        // Update form UI
+        document.getElementById('form-title').innerHTML = '<i class="fas fa-edit"></i> Edit Education';
+        document.getElementById('submit-text').textContent = 'Update Education';
+
+        // Scroll to form
+        document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Delete education function
+    function deleteEducation(id) {
+        if (!confirm('Are you sure you want to delete this education record?')) return;
+        
+        if (window.adminDashboard && window.adminDashboard.deleteEducationHandler) {
+            window.adminDashboard.deleteEducationHandler(id);
+            loadEducation();
+        }
+    }
+
+    // Duplicate education function
+    function duplicateEducation(id) {
+        if (!window.adminDashboard || !window.adminDashboard.portfolioData) return;
+        
+        const education = window.adminDashboard.portfolioData.education.find(e => e.id === id);
+        if (!education) return;
+
+        const duplicate = { ...education, id: Date.now(), degree: `${education.degree} (Copy)` };
+        window.adminDashboard.portfolioData.education.push(duplicate);
+        
+        if (window.adminDashboard.cacheData) {
+            window.adminDashboard.cacheData();
+            window.adminDashboard.notifyPortfolioUpdate();
+        }
+        
+        loadEducation();
+        
+        if (window.adminDashboard.showToast) {
+            window.adminDashboard.showToast('Education record duplicated successfully!', 'success');
+        }
+    }
+
+    // Filter education
+    function filterEducation() {
+        const levelFilter = document.getElementById('level-filter').value;
+        const items = document.querySelectorAll('.education-item');
+
+        items.forEach(item => {
+            const level = item.dataset.level;
+            const levelMatch = levelFilter === 'all' || level === levelFilter;
+            item.style.display = levelMatch ? 'block' : 'none';
+        });
+    }
+
+    // Update education statistics
+    function updateEducationStats() {
+        const items = document.querySelectorAll('.education-item');
+        const total = items.length;
+        
+        // Calculate total years of study
+        let totalYears = 0;
+        const institutions = new Set();
+        
+        if (window.adminDashboard && window.adminDashboard.portfolioData) {
+            window.adminDashboard.portfolioData.education.forEach(edu => {
+                if (edu.startDate && edu.endDate) {
+                    const start = new Date(edu.startDate);
+                    const end = new Date(edu.endDate);
+                    const years = (end - start) / (365.25 * 24 * 60 * 60 * 1000);
+                    totalYears += Math.max(0, years);
+                }
+                if (edu.school) {
+                    institutions.add(edu.school);
+                }
+            });
+        }
+
+        document.getElementById('total-education').textContent = total;
+        document.getElementById('total-years').textContent = Math.round(totalYears * 10) / 10;
+        document.getElementById('total-institutions').textContent = institutions.size;
+    }
+
+    // Export education
+    function exportEducation() {
+        if (!window.adminDashboard || !window.adminDashboard.portfolioData) return;
+        
+        const education = window.adminDashboard.portfolioData.education || [];
+        const dataStr = JSON.stringify(education, null, 2);
+        const dataBlob = new Blob([dataStr], {type: 'application/json'});
+        
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(dataBlob);
+        link.download = 'education-export.json';
+        link.click();
+    }
+
+    // Import from LinkedIn (placeholder)
+    function importFromLinkedIn() {
+        if (window.adminDashboard && window.adminDashboard.showToast) {
+            window.adminDashboard.showToast('LinkedIn import feature coming soon!', 'info');
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('education-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (window.adminDashboard && window.adminDashboard.handleEducationSubmit) {
+            // Set editing ID if in edit mode
+            if (editingEducationId) {
+                this.dataset.editingId = editingEducationId;
+            }
+            
+            window.adminDashboard.handleEducationSubmit(e);
+            
+            // Reset form state after submission
+            setTimeout(() => {
+                editingEducationId = null;
+                delete this.dataset.editingId;
+                document.getElementById('form-title').innerHTML = '<i class="fas fa-plus"></i> Add Education';
+                document.getElementById('submit-text').textContent = 'Add Education';
+                loadEducation();
+            }, 1000);
+        }
+    });
+  </script>
+</body>
+</html>

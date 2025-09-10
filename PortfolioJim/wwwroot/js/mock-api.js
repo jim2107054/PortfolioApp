@@ -384,16 +384,19 @@ When I'm not coding, you can find me exploring new technologies, contributing to
                 ...updateData, 
                 updatedDate: new Date().toISOString() 
             };
+            
+            this.saveData(data);
+            return { ok: true, json: () => Promise.resolve(data[resource][index]) };
         } else {
             data[resource] = { 
                 ...data[resource], 
                 ...updateData, 
                 updatedDate: new Date().toISOString() 
             };
+            
+            this.saveData(data);
+            return { ok: true, json: () => Promise.resolve(data[resource]) };
         }
-
-        this.saveData(data);
-        return { ok: true, json: () => Promise.resolve(data[resource]) };
     }
 
     handleDelete(endpoint, data) {
@@ -489,6 +492,20 @@ When I'm not coding, you can find me exploring new technologies, contributing to
         }
     }
 
+    async updateSkill(skillData) {
+        try {
+            const response = await this.mockFetch(`${this.baseUrl}/skills/${skillData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(skillData)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error('Error updating skill:', error);
+            return null;
+        }
+    }
+
     async deleteSkill(skillId) {
         try {
             const response = await this.mockFetch(`${this.baseUrl}/skills/${skillId}`, {
@@ -521,6 +538,20 @@ When I'm not coding, you can find me exploring new technologies, contributing to
             return response.ok ? await response.json() : null;
         } catch (error) {
             console.error('Error adding project:', error);
+            return null;
+        }
+    }
+
+    async updateProject(projectData) {
+        try {
+            const response = await this.mockFetch(`${this.baseUrl}/projects/${projectData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(projectData)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error('Error updating project:', error);
             return null;
         }
     }
@@ -561,6 +592,20 @@ When I'm not coding, you can find me exploring new technologies, contributing to
         }
     }
 
+    async updateAchievement(achievementData) {
+        try {
+            const response = await this.mockFetch(`${this.baseUrl}/achievements/${achievementData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(achievementData)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error('Error updating achievement:', error);
+            return null;
+        }
+    }
+
     async deleteAchievement(achievementId) {
         try {
             const response = await this.mockFetch(`${this.baseUrl}/achievements/${achievementId}`, {
@@ -593,6 +638,20 @@ When I'm not coding, you can find me exploring new technologies, contributing to
             return response.ok ? await response.json() : null;
         } catch (error) {
             console.error('Error adding education:', error);
+            return null;
+        }
+    }
+
+    async updateEducation(educationData) {
+        try {
+            const response = await this.mockFetch(`${this.baseUrl}/education/${educationData.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(educationData)
+            });
+            return response.ok ? await response.json() : null;
+        } catch (error) {
+            console.error('Error updating education:', error);
             return null;
         }
     }
