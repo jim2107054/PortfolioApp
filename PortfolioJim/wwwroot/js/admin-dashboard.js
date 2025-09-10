@@ -1306,6 +1306,129 @@ class AdminDashboard {
         
         this.updateMessageStats();
     }
+
+    // ========= Added Missing Utilities =========
+    async loadPortfolioData() {
+        // 1) Load cached data for instant UI
+        const cached = this.loadCachedData();
+        if (cached) {
+            this.portfolioData = { ...this.portfolioData, ...cached };
+        }
+        // 2) Load from mock API / fetch for freshness
+        await this.loadFromAPI();
+        // 3) Load any saved drafts
+        this.loadDraftData();
+        // 4) Keep a snapshot for draft comparison
+        this.originalData = JSON.parse(JSON.stringify(this.portfolioData));
+        // 5) Push to portfolio consumers
+        this.cacheData();
+        this.notifyPortfolioUpdate();
+    }
+
+    async loadFromAPI() {
+        try {
+            const results = await Promise.allSettled([
+                window.mockAPI?.getProfile?.() ?? fetch(`${this.baseUrl}/profile`).then(r => r.ok ? r.json() : null),
+                window.mockAPI?.getSkills?.() ?? fetch(`${this.baseUrl}/skills`).then(r => r.ok ? r.json() : []),
+                window.mockAPI?.getProjects?.() ?? fetch(`${this.baseUrl}/projects`).then(r => r.ok ? r.json() : []),
+                window.mockAPI?.getEducation?.() ?? fetch(`${this.baseUrl}/education`).then(r => r.ok ? r.json() : []),
+                window.mockAPI?.getAchievements?.() ?? fetch(`${this.baseUrl}/achievements`).then(r => r.ok ? r.json() : []),
+                window.mockAPI?.getContacts?.() ?? fetch(`${this.baseUrl}/contact`).then(r => r.ok ? r.json() : [])
+            ]);
+
+            const [profile, skills, projects, education, achievements, contacts] = results.map(x => x.status === 'fulfilled' ? x.value : null);
+            if (profile) this.portfolioData.profile = profile;
+            if (Array.isArray(skills)) this.portfolioData.skills = skills;
+            if (Array.isArray(projects)) this.portfolioData.projects = projects;
+            if (Array.isArray(education)) this.portfolioData.education = education;
+            if (Array.isArray(achievements)) this.portfolioData.achievements = achievements;
+            if (Array.isArray(contacts)) this.portfolioData.contacts = contacts;
+        } catch (err) {
+            console.warn('loadFromAPI fallback to cache', err);
+        }
+    }
+
+    setupMobileMenu() {
+        // Minimal sidebar toggling for admin.html; safe no-op on other pages
+        const sidebar = document.querySelector('.sidebar');
+        const toggle = document.getElementById('mobileSidebarToggle') || document.querySelector('.mobile-menu-toggle');
+        if (!toggle || (!sidebar && !document.querySelector('.admin-sidebar'))) return;
+        const targetSidebar = document.querySelector('.admin-sidebar') || sidebar;
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            targetSidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        });
+    }
+
+    handleImageUpload(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const src = ev.target?.result;
+            const prev = document.getElementById('profile-preview');
+            if (prev && typeof src === 'string') prev.src = src;
+            this.markUnsavedChanges();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    editProject(id) {
+        const p = this.portfolioData.projects.find(x => x.id === id);
+        if (!p) { this.showToast('Project not found', 'error'); return; }
+        const form = document.getElementById('project-form'); if (!form) return;
+        const map = {
+            'project-title': p.title,
+            'project-description': p.description,
+            'project-technologies': p.technologies,
+            'project-image': p.imageUrl,
+            'project-demo': p.demoUrl,
+            'project-github': p.githubUrl,
+            'project-category': p.category,
+            'project-status': p.status
+        };
+        Object.entries(map).forEach(([id, v]) => { const el = document.getElementById(id); if (el && v != null) el.value = v; });
+        this.editingProjectId = id;
+        form.dataset.editingId = String(id);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-save"></i> <span>Update Project</span>';
+        this.showSection('projects');
+        this.showToast('Editing project. Make changes and click Update.', 'info');
+    }
+
+    handlePortfolioRequest(data) {
+        try {
+            const source = window.opener || window.parent;
+            if (source && source !== window) {
+                source.postMessage({ type: 'adminDataResponse', data: this.portfolioData }, '*');
+            }
+        } catch (e) { console.warn('handlePortfolioRequest', e); }
+    }
+
+    showLoading(show) {
+        const overlay = document.getElementById('admin-loading') || document.getElementById('loadingOverlay');
+        if (overlay) overlay.style.display = show ? 'flex' : 'none';
+    }
+
+    showToast(message, type = 'info') {
+        // Remove existing
+        document.querySelectorAll('.admin-toast').forEach(t => t.remove());
+        const toast = document.createElement('div');
+        toast.className = 'admin-toast';
+        const iconMap = { success: 'fa-check-circle', error: 'fa-exclamation-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+        const icon = iconMap[type] || iconMap.info;
+        toast.innerHTML = `<i class="fas ${icon}"></i><span>${message}</span>`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('visible'), 10);
+        setTimeout(() => { toast.classList.remove('visible'); setTimeout(() => toast.remove(), 250); }, 4000);
+    }
+
+    logActivity(action, description) {
+        const logs = JSON.parse(localStorage.getItem('adminActivityLogs') || '[]');
+        logs.unshift({ action, description, timestamp: new Date().toISOString() });
+        localStorage.setItem('adminActivityLogs', JSON.stringify(logs.slice(0, 100)));
+    }
 }
 
 // Instantiate and expose globally
